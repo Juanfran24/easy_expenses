@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -8,7 +10,7 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 
-import { ThemedText } from '@/components/ThemedText';
+import { ThemedText } from '@/src/components/ThemedText';
 
 export function HelloWave() {
   const rotationAnimation = useSharedValue(0);
@@ -25,9 +27,9 @@ export function HelloWave() {
   }));
 
   return (
-    <Animated.View style={animatedStyle}>
-      <ThemedText style={styles.text}>👋</ThemedText>
-    </Animated.View>
+    <GluestackUIProvider mode="light"><Animated.View style={animatedStyle}>
+        <ThemedText style={styles.text}>👋</ThemedText>
+      </Animated.View></GluestackUIProvider>
   );
 }
 

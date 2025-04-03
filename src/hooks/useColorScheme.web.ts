@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useColorScheme as useRNColorScheme } from 'react-native';
 
 /**
