@@ -1,5 +1,5 @@
 import colors from "@/src/constants/colors";
-import { ButtonProps, Pressable, StyleSheet, View } from "react-native";
+import { Animated, ButtonProps, Pressable, StyleSheet } from "react-native";
 import Typography from "../Typography";
 
 interface AppButtonProps extends ButtonProps {
@@ -9,25 +9,69 @@ interface AppButtonProps extends ButtonProps {
 export const AppButton = (props: AppButtonProps) => {
   const { variant, ...rest } = props;
 
+  //#region Animation
+  const backgroundColorRef = new Animated.Value(0);
+
+  const handlePress = () => {
+    Animated.timing(backgroundColorRef, {
+      toValue: 1,
+      duration: 60,
+      useNativeDriver: true,
+    }).start();
+  };
+  const handleRelease = () => {
+    Animated.timing(backgroundColorRef, {
+      toValue: 0,
+      duration: 60,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const backgroundColorContained = backgroundColorRef.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.primary.main, "transparent"],
+  });
+
+  const backgroundColorOutlined = backgroundColorRef.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["transparent", colors.primary.main],
+  });
+  //#endregion
+
   return (
     <>
-      <Pressable onPress={rest.onPress} disabled={rest.disabled}>
-        <View
+      <Pressable
+        onPress={(e) => {
+          handlePress();
+          rest.onPress && rest.onPress(e);
+        }}
+        onPressOut={handleRelease}
+        disabled={rest.disabled}
+      >
+        <Animated.View
           style={
             variant === "outlined"
-              ? styles.buttonOutlined
-              : styles.buttonContained
+              ? [
+                  styles.buttonOutlined,
+                  { backgroundColor: backgroundColorOutlined },
+                ]
+              : [
+                  styles.buttonContained,
+                  { backgroundColor: backgroundColorContained },
+                ]
           }
         >
           <Typography.H6.SemiBold
             styles={{
               color:
-                variant === "outlined" ? colors.primary : colors.background,
+                variant === "outlined"
+                  ? colors.primary.main
+                  : colors.backgrounds.base,
             }}
           >
             {rest.title}
           </Typography.H6.SemiBold>
-        </View>
+        </Animated.View>
       </Pressable>
     </>
   );
@@ -35,7 +79,8 @@ export const AppButton = (props: AppButtonProps) => {
 
 const styles = StyleSheet.create({
   buttonContained: {
-    backgroundColor: colors.primary,
+    borderWidth: 1,
+    borderColor: colors.primary.main,
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -43,9 +88,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonOutlined: {
-    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.primary.main,
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,

@@ -1,13 +1,21 @@
-import React, { useEffect } from 'react'
-import 'expo-router/entry';
-import Layout from '../layout';
-import { Sora_300Light, Sora_400Regular, Sora_600SemiBold, Sora_700Bold, Sora_800ExtraBold, useFonts } from "@expo-google-fonts/sora";
-import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect } from "react";
+import "expo-router/entry";
+import Layout from "../layout";
+import {
+  Sora_300Light,
+  Sora_400Regular,
+  Sora_600SemiBold,
+  Sora_700Bold,
+  Sora_800ExtraBold,
+  useFonts,
+} from "@expo-google-fonts/sora";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "react-native";
+import colors from "../constants/colors";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-
   const [loaded, error] = useFonts({
     Sora_ExtraBold: Sora_800ExtraBold,
     Sora_Bold: Sora_700Bold,
@@ -26,5 +34,13 @@ export default function App() {
     return null;
   }
 
-  return <Layout />;
+  return (
+    <>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={colors.backgrounds.base}
+      />
+      <Layout />
+    </>
+  );
 }

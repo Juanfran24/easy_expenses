@@ -1,48 +1,29 @@
 const colors = {
-  primary: "#67E8F9",
-  secondary: "#A5F3FC",
-  accent: "#155E75",
-
-  background: "#18181B",
-  surface: "#27272A",
-
-  text: "#FAFAFA",
-  textSecondary: "#E4E4E7",
-  textDisabled: "#A1A1AA",
-
-  border: "#71717A",
-
-  success: "#86EFAC",
-  warning: "#F59E0B",
-  error: "#F87171",
-};
-
-//estos son los que se deben usar
-const colorsFinal = {
   primary: {
-    main: colors.primary,
-    medium: colors.secondary,
+    main: "#67E8F9",
+    medium: "#A5F3FC",
     light: "#ECFEFF",
   },
   backgrounds: {
-    base: colors.background,
+    base: "#18181B",
     medium: "#27272A",
     light: "#35353B",
     primary: "#155E75",
   },
   textsAndIcons: {
-    main: colors.text,
+    main: "#FAFAFA",
     medium: "#ECFEFF",
     light: "#F4F4F5",
     dark: "#A1A1AA",
     onColor: "#18181B",
+    inputsLabel: "#E4E4E7",
   },
   borders: {
-    main: colors.border,
+    main: "#71717A",
     medium: "#A1A1AA",
     dark: "#52525B",
   },
-  success: colors.success,
+  success: "#86EFAC",
   error: {
     main: "#F87171",
     dark: "#DC2626",

@@ -22,7 +22,7 @@ const Home = () => {
   };
 
   return (
-    <FlexBox style={{ backgroundColor: colors.background, flex: 1 }}>
+    <FlexBox style={{ backgroundColor: colors.backgrounds.base, flex: 1 }}>
       <Typography.H2>Iniciar sesión</Typography.H2>
       <AppTextInput
         label="Correo electrónico"
@@ -37,7 +37,7 @@ const Home = () => {
         onChangeText={setpassword}
         type="password"
       />
-      <AppButton title="Sign Up" onPress={signUp} />
+      <AppButton title="Sign Up" onPress={signUp} variant="outlined" />
       <FlexBetween>
         <Typography.H1>Sign Up</Typography.H1>
         <Typography.H1>Sign In</Typography.H1>

@@ -26,26 +26,27 @@ export const AppTextInput = (props: AppTextInputProps) => {
   return (
     <View style={{ margin: 12 }}>
       <Typography.H6.Regular
-        styles={{ color: colors.textSecondary, marginBottom: 6 }}
+        styles={{ color: colors.textsAndIcons.inputsLabel, marginBottom: 6 }}
       >
         {props.label}
       </Typography.H6.Regular>
       <TextInput
         inputMode={inputMode}
         keyboardType={keyboardType}
-        secureTextEntry={passwordVisibility}
+        secureTextEntry={type === "password" ? passwordVisibility : false}
+        selectionColor={colors.textsAndIcons.light}
+        placeholderTextColor={colors.textsAndIcons.dark}
         style={[
           {
             height: 48,
-            // margin: 12,
             borderWidth: 1,
             padding: 10,
-            borderColor: colors.textDisabled,
+            borderColor: colors.textsAndIcons.dark,
             borderRadius: 8,
             paddingVertical: 14.5,
             paddingLeft: 20,
             fontFamily: "Sora_Regular",
-            color: colors.textDisabled,
+            color: colors.textsAndIcons.dark,
           },
           style,
         ]}
@@ -65,7 +66,7 @@ export const AppTextInput = (props: AppTextInputProps) => {
               <MaterialIcons
                 name={rightIcon}
                 size={22}
-                color={colors.textDisabled}
+                color={colors.textsAndIcons.dark}
               />
             </View>
           </Pressable>
