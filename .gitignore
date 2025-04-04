@@ -37,4 +37,4 @@ yarn-error.*
 
 app-example
 
-config
+config.ts

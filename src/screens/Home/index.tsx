@@ -3,8 +3,8 @@ import { FlexBox } from "@/src/components/FlexBox";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
-import { auth } from "@/src/config/config";
 import colors from "@/src/constants/colors";
+import { auth } from "@/src/database";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 
