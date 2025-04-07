@@ -12,6 +12,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "react-native";
 import colors from "../constants/colors";
+import Landing from "../screens/Authentication/Landing";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,7 +41,8 @@ export default function App() {
         barStyle="light-content"
         backgroundColor={colors.backgrounds.base}
       />
-      <Layout />
+      <Landing />
+      {/* <Layout /> */}
     </>
   );
 }

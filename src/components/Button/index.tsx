@@ -1,13 +1,14 @@
 import colors from "@/src/constants/colors";
-import { Animated, ButtonProps, Pressable, StyleSheet } from "react-native";
+import { Animated, ButtonProps, Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import Typography from "../Typography";
 
 interface AppButtonProps extends ButtonProps {
   variant?: "contained" | "outlined";
+  style?: StyleProp<ViewStyle>;
 }
 
 export const AppButton = (props: AppButtonProps) => {
-  const { variant, ...rest } = props;
+  const { variant, style, ...rest } = props;
 
   //#region Animation
   const backgroundColorRef = new Animated.Value(0);
@@ -47,6 +48,7 @@ export const AppButton = (props: AppButtonProps) => {
         }}
         onPressOut={handleRelease}
         disabled={rest.disabled}
+        style={[style]}
       >
         <Animated.View
           style={
