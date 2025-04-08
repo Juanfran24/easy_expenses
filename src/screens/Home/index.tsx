@@ -1,4 +1,5 @@
 import { AppButton } from "@/src/components/Button";
+import Divider from "@/src/components/Divider";
 import { FlexBox } from "@/src/components/FlexBox";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
@@ -37,7 +38,10 @@ const Home = () => {
         onChangeText={setpassword}
         type="password"
       />
+      <Divider />
       <AppButton title="Sign Up" onPress={signUp} variant="outlined" />
+      <AppButton title="Sign Up" variant="contained" />
+      <AppButton title="Sign In" variant="textArrow" />
       <FlexBetween>
         <Typography.H1>Sign Up</Typography.H1>
         <Typography.H1>Sign In</Typography.H1>

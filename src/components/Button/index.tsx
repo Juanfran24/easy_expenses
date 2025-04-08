@@ -1,9 +1,11 @@
 import colors from "@/src/constants/colors";
 import { Animated, ButtonProps, Pressable, StyleSheet } from "react-native";
 import Typography from "../Typography";
+import { MaterialIcons } from "@expo/vector-icons";
+import { FlexBox } from "../FlexBox";
 
 interface AppButtonProps extends ButtonProps {
-  variant?: "contained" | "outlined";
+  variant?: "contained" | "outlined" | "textArrow";
 }
 
 export const AppButton = (props: AppButtonProps) => {
@@ -48,30 +50,45 @@ export const AppButton = (props: AppButtonProps) => {
         onPressOut={handleRelease}
         disabled={rest.disabled}
       >
-        <Animated.View
-          style={
-            variant === "outlined"
-              ? [
-                  styles.buttonOutlined,
-                  { backgroundColor: backgroundColorOutlined },
-                ]
-              : [
-                  styles.buttonContained,
-                  { backgroundColor: backgroundColorContained },
-                ]
-          }
-        >
-          <Typography.H6.SemiBold
-            styles={{
-              color:
-                variant === "outlined"
-                  ? colors.primary.main
-                  : colors.backgrounds.base,
-            }}
+        {variant === "textArrow" ? (
+          <FlexBox
+            style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
           >
-            {rest.title}
-          </Typography.H6.SemiBold>
-        </Animated.View>
+            <Typography.H6.SemiBold styles={{ color: colors.primary.main }}>
+              {props.title}
+            </Typography.H6.SemiBold>
+            <MaterialIcons
+              name="arrow-forward-ios"
+              size={16}
+              color={colors.primary.main}
+            />
+          </FlexBox>
+        ) : (
+          <Animated.View
+            style={
+              variant === "outlined"
+                ? [
+                    styles.buttonOutlined,
+                    { backgroundColor: backgroundColorOutlined },
+                  ]
+                : [
+                    styles.buttonContained,
+                    { backgroundColor: backgroundColorContained },
+                  ]
+            }
+          >
+            <Typography.H6.SemiBold
+              styles={{
+                color:
+                  variant === "outlined"
+                    ? colors.primary.main
+                    : colors.backgrounds.base,
+              }}
+            >
+              {rest.title}
+            </Typography.H6.SemiBold>
+          </Animated.View>
+        )}
       </Pressable>
     </>
   );
