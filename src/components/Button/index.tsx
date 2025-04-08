@@ -1,5 +1,5 @@
 import colors from "@/src/constants/colors";
-import { Animated, ButtonProps, Pressable, StyleSheet } from "react-native";
+import { Animated, ButtonProps, Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import Typography from "../Typography";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FlexBox } from "../FlexBox";
