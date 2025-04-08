@@ -1,12 +1,16 @@
 import React from "react";
 import { View, StyleSheet, Image, Dimensions} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import Typography from "@/src/components/Typography";
 import { AppButton } from "@/src/components/Button";
 import colors from "@/src/constants/colors";
+import { FlexBox } from "@/src/components/FlexBox";
 
 const { width } = Dimensions.get("window");
 
 const Landing = () => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <Image
@@ -21,18 +25,20 @@ const Landing = () => {
         Le ofrecemos las mejores características financieras y el sistema más
         seguro para ayudarlo a aumentar su riqueza.
       </Typography.P1.Regular>
-      <AppButton
-        title="Registrarse"
-        variant="contained"
-        onPress={() => console.log("Registrarse presionado")}
-        style={{ width: "100%"}}
-      />
-      <AppButton
-        title="Ya tengo cuenta"
-        variant="outlined"
-        onPress={() => console.log("Ya tengo cuenta presionado")}
-        style={styles.secondaryButton}
-      />
+      <FlexBox style={{ width: "100%", gap: 16 }}>
+        <AppButton
+          title="Registrarse"
+          variant="contained"
+          onPress={() => {
+            navigation.navigate("Register");
+          }}
+        />
+        <AppButton
+          title="Ya tengo cuenta"
+          variant="outlined"
+          onPress={() => console.log("Ya tengo cuenta presionado")}
+        />
+      </FlexBox>
     </View>
   );
 };

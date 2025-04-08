@@ -4,11 +4,10 @@ import Typography from "../Typography";
 
 interface AppButtonProps extends ButtonProps {
   variant?: "contained" | "outlined";
-  style?: StyleProp<ViewStyle>;
 }
 
 export const AppButton = (props: AppButtonProps) => {
-  const { variant, style, ...rest } = props;
+  const { variant, ...rest } = props;
 
   //#region Animation
   const backgroundColorRef = new Animated.Value(0);
@@ -48,7 +47,6 @@ export const AppButton = (props: AppButtonProps) => {
         }}
         onPressOut={handleRelease}
         disabled={rest.disabled}
-        style={[style]}
       >
         <Animated.View
           style={
