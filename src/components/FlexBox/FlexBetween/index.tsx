@@ -8,11 +8,15 @@ export const FlexBetween = (props: FlexBoxProps) => {
 
   return (
     <View
-      style={[{
-        display: "flex",
-        justifyContent: "space-between",
-        flexDirection: "row",
-      }, style]}
+      style={[
+        {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexDirection: "row",
+        },
+        style,
+      ]}
       {...rest}
     >
       {children}
