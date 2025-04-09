@@ -1,4 +1,3 @@
-import "../utils/gesture-handler";
 import "expo-router/entry";
 import React, { useEffect } from "react";
 import {
