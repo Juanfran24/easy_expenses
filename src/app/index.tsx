@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import "../utils/gesture-handler";
 import "expo-router/entry";
-import Layout from "../layout";
+import React, { useEffect } from "react";
 import {
   Sora_300Light,
   Sora_400Regular,
@@ -12,8 +12,8 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "react-native";
 import colors from "../constants/colors";
-import Landing from "../screens/Authentication/Landing";
-import Navigation from "../navigation";
+import { AppProvider } from "../context";
+import RootLayout from "../layout";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,13 +37,12 @@ export default function App() {
   }
 
   return (
-    <>
+    <AppProvider>
       <StatusBar
         barStyle="light-content"
         backgroundColor={colors.backgrounds.base}
       />
-      <Navigation />
-      {/* <Layout /> */}
-    </>
+      <RootLayout />
+    </AppProvider>
   );
 }
