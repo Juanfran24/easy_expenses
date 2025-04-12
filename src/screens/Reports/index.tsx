@@ -1,9 +1,13 @@
-import React from 'react'
+import colors from "@/src/constants/colors";
+import React from "react";
+import { Text, View } from "react-native";
 
 const Reports = () => {
   return (
-    <div>Reports</div>
-  )
-}
+    <View style={{ backgroundColor: colors.backgrounds.medium, flex: 1 }}>
+      <Text>Reports</Text>
+    </View>
+  );
+};
 
-export default Reports
+export default Reports;

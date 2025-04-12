@@ -1,11 +1,13 @@
 import colors from "@/src/constants/colors";
-import { Animated, ButtonProps, Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { Animated, ButtonProps, Pressable, StyleSheet } from "react-native";
 import Typography from "../Typography";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FlexBox } from "../FlexBox";
 
 interface AppButtonProps extends ButtonProps {
-  variant?: "contained" | "outlined" | "textArrow";
+  variant?: "contained" | "outlined" | "text-icon";
+  textAndIconColor?: string;
+  nameIcon?: string;
 }
 
 export const AppButton = (props: AppButtonProps) => {
@@ -50,17 +52,19 @@ export const AppButton = (props: AppButtonProps) => {
         onPressOut={handleRelease}
         disabled={rest.disabled}
       >
-        {variant === "textArrow" ? (
+        {variant === "text-icon" ? (
           <FlexBox
             style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
           >
-            <Typography.H6.SemiBold styles={{ color: colors.primary.main }}>
+            <Typography.H6.SemiBold styles={{ color: props.textAndIconColor }}>
               {props.title}
             </Typography.H6.SemiBold>
             <MaterialIcons
-              name="arrow-forward-ios"
+              name={
+                props.nameIcon as unknown as keyof typeof MaterialIcons.glyphMap
+              }
               size={16}
-              color={colors.primary.main}
+              color={props.textAndIconColor}
             />
           </FlexBox>
         ) : (
