@@ -1,7 +1,7 @@
 import colors from "@/src/constants/colors";
 import { useTogglePasswordVisibility } from "@/src/hooks/useTogglePasswordVisibility";
 import { Pressable, TextInput, TextInputProps, View } from "react-native";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { MaterialIcons } from "@expo/vector-icons";
 import Typography from "../../Typography";
 
 interface AppTextInputProps extends TextInputProps {
@@ -24,7 +24,7 @@ export const AppTextInput = (props: AppTextInputProps) => {
     type === "email" ? "email" : type === "number" ? "numeric" : "text";
 
   return (
-    <View style={{ margin: 12 }}>
+    <View style={{ position: "relative" }}>
       <Typography.H6.Regular
         styles={{ color: colors.textsAndIcons.inputsLabel, marginBottom: 6 }}
       >
@@ -64,7 +64,7 @@ export const AppTextInput = (props: AppTextInputProps) => {
           <Pressable onPress={handlePasswordVisibility}>
             <View style={{ padding: 10 }}>
               <MaterialIcons
-                name={rightIcon}
+                name={rightIcon as keyof typeof MaterialIcons.glyphMap}
                 size={22}
                 color={colors.textsAndIcons.dark}
               />
