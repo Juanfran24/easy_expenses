@@ -9,17 +9,33 @@ import { useAuth } from "@/src/context/AuthContext/useAuth";
 
 const Login = () => {
   const navigation = useNavigation();
-  const { handleLogin, error } = useAuth();
+  const { handleLogin, error: contextError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const onLogin = async () => {
     try {
+      if (!email || !password) {
+        setError("Por favor, complete todos los campos");
+        return;
+      }
       await handleLogin(email, password);
-      // Si el login es exitoso, se actualizará el estado en el contexto
-      // y el layout se encargará de la redirección
+      // El manejo del redireccionamiento se hace automáticamente por el RootLayout
+      // basado en el estado de login
     } catch (err) {
-      console.error(err);
+      // Mostrar mensaje de error específico según el código de error de Firebase
+      if (err instanceof Error) {
+        if (err.message.includes("auth/invalid-email")) {
+          setError("Correo electrónico inválido");
+        } else if (err.message.includes("auth/wrong-password")) {
+          setError("Contraseña incorrecta");
+        } else if (err.message.includes("auth/user-not-found")) {
+          setError("Usuario no encontrado");
+        } else {
+          setError("Error al iniciar sesión. Por favor, intente nuevamente");
+        }
+      }
     }
   };
 
@@ -43,6 +59,7 @@ const Login = () => {
             type="email"
             value={email}
             onChangeText={setEmail}
+            autoCapitalize="none"
           />
           <AppTextInput
             label="Contraseña"
@@ -51,9 +68,9 @@ const Login = () => {
             value={password}
             onChangeText={setPassword}
           />
-          {error && (
-            <Typography.P3.Regular styles={{ color: colors.error }}>
-              {error}
+          {(error || contextError) && (
+            <Typography.P3.Regular styles={{ color: colors.error.main }}>
+              {error || contextError}
             </Typography.P3.Regular>
           )}
         </FlexBox>
