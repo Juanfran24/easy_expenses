@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AuthContext } from "./AuthContext";
 import { User } from "../interfaces";
+import { auth } from "../../database";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // const [user, setUser] = useState<User>({
@@ -20,7 +22,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   //   checkUser();
   // }, []);
 
-  // const handleLogin = async (credentials: User) => {
+  const handleRegister = async (email: string, password: string) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      console.log("User registered:", userCredential.user);
+      setLogin(true);
+    } catch (error) {
+      console.error("Error during registration:", error);
+      throw error;
+    }
+  };
+
   const handleLogin = () => {
     // Aquí iría tu lógica real de login
     // setUser(credentials);
@@ -37,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ login, handleLogin }}>
+    <AuthContext.Provider value={{ login, handleLogin, handleRegister, handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

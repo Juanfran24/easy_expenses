@@ -1,16 +1,28 @@
+import React, { useState } from "react";
 import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
-import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { AppButton } from "@/src/components/Button";
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import { useAuth } from "@/src/context/AuthContext/useAuth";
 
 const Login = () => {
-  // const [user, setUser] = useState<string>("");
-  // const [password, setpassword] = useState<string>("");
-  const { handleLogin } = useAuth();
+  const navigation = useNavigation();
+  const { handleLogin, error } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onLogin = async () => {
+    try {
+      await handleLogin(email, password);
+      // Si el login es exitoso, se actualizará el estado en el contexto
+      // y el layout se encargará de la redirección
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <FlexBox
       style={{
@@ -29,12 +41,21 @@ const Login = () => {
             label="Correo electrónico"
             placeholder="ejemplo@correo.com"
             type="email"
+            value={email}
+            onChangeText={setEmail}
           />
           <AppTextInput
             label="Contraseña"
             placeholder="Ingresar"
             type="password"
+            value={password}
+            onChangeText={setPassword}
           />
+          {error && (
+            <Typography.P3.Regular styles={{ color: colors.error }}>
+              {error}
+            </Typography.P3.Regular>
+          )}
         </FlexBox>
         <Typography.P3.Underline
           styles={{ textAlign: "right", color: colors.primary.main }}
@@ -45,7 +66,7 @@ const Login = () => {
           <AppButton
             title="Iniciar sesión"
             variant="contained"
-            onPress={handleLogin}
+            onPress={onLogin}
           />
           <AppButton
             title="Ingresar con Google"
