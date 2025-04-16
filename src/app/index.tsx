@@ -13,6 +13,8 @@ import { StatusBar } from "react-native";
 import colors from "../constants/colors";
 import { AppProvider } from "../context";
 import RootLayout from "../layout";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,12 +38,18 @@ export default function App() {
   }
 
   return (
-    <AppProvider>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={colors.backgrounds.base}
-      />
-      <RootLayout />
-    </AppProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1 }}>
+          <AppProvider>
+            <StatusBar
+              barStyle="light-content"
+              backgroundColor={colors.backgrounds.base}
+            />
+            <RootLayout />
+          </AppProvider>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
