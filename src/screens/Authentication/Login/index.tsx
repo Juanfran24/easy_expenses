@@ -1,53 +1,107 @@
-import { AppButton } from "@/src/components/Button";
+import React, { useState } from "react";
 import { FlexBox } from "@/src/components/FlexBox";
-import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
+import { AppButton } from "@/src/components/Button";
+import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
-import { auth } from "@/src/database";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
 
 const Login = () => {
-  const [user, setUser] = useState<string>("");
-  const [password, setpassword] = useState<string>("");
-  const { handleLogin } = useAuth();
+  const navigation = useNavigation();
+  const { handleLogin, error: contextError } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  // const signUp = async () => {
-  //   try {
-  //     const res = await createUserWithEmailAndPassword(auth, user, password);
-  //     console.log(res);
-  //   } catch (error) {
-  //     console.error("Error al registrar usuario:", error);
-  //   }
-  // };
+  const onLogin = async () => {
+    try {
+      if (!email || !password) {
+        setError("Por favor, complete todos los campos");
+        return;
+      }
+      await handleLogin(email, password);
+      // El manejo del redireccionamiento se hace automáticamente por el RootLayout
+      // basado en el estado de login
+    } catch (err) {
+      // Mostrar mensaje de error específico según el código de error de Firebase
+      if (err instanceof Error) {
+        if (err.message.includes("auth/invalid-email")) {
+          setError("Correo electrónico inválido");
+        } else if (err.message.includes("auth/wrong-password")) {
+          setError("Contraseña incorrecta");
+        } else if (err.message.includes("auth/user-not-found")) {
+          setError("Usuario no encontrado");
+        } else {
+          setError("Error al iniciar sesión. Por favor, intente nuevamente");
+        }
+      }
+    }
+  };
 
   return (
-    <FlexBox style={{ backgroundColor: colors.backgrounds.base, flex: 1 }}>
-      <Typography.H2>Iniciar sesión</Typography.H2>
-      <AppTextInput
-        label="Correo electrónico"
-        placeholder="Username"
-        value={user}
-        onChangeText={setUser}
-      />
-      <AppTextInput
-        label="Contraseña"
-        placeholder="Password"
-        value={password}
-        onChangeText={setpassword}
-        type="password"
-      />
-      <AppButton
-        title="Sign In"
-        onPress={() => handleLogin()}
-        variant="outlined"
-      />
-      <FlexBetween>
-        <Typography.H1>Sign Up</Typography.H1>
-        <Typography.H1>Sign In</Typography.H1>
-      </FlexBetween>
+    <FlexBox
+      style={{
+        backgroundColor: colors.backgrounds.base,
+        flex: 1,
+        paddingHorizontal: 20,
+        justifyContent: "center",
+      }}
+    >
+      <FlexBox style={{ gap: 40 }}>
+        <Typography.H2 styles={{ textAlign: "center" }}>
+          Iniciar sesión
+        </Typography.H2>
+        <FlexBox style={{ width: "100%", gap: 20 }}>
+          <AppTextInput
+            label="Correo electrónico"
+            placeholder="ejemplo@correo.com"
+            type="email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+          />
+          <AppTextInput
+            label="Contraseña"
+            placeholder="Ingresar"
+            type="password"
+            value={password}
+            onChangeText={setPassword}
+          />
+          {(error || contextError) && (
+            <Typography.P3.Regular styles={{ color: colors.error.main }}>
+              {error || contextError}
+            </Typography.P3.Regular>
+          )}
+        </FlexBox>
+        <Typography.P3.Underline
+          styles={{ textAlign: "right", color: colors.primary.main }}
+        >
+          ¿Has olvidado la contraseña?
+        </Typography.P3.Underline>
+        <FlexBox style={{ width: "100%", gap: 16 }}>
+          <AppButton
+            title="Iniciar sesión"
+            variant="contained"
+            onPress={onLogin}
+          />
+          <AppButton
+            title="Ingresar con Google"
+            variant="outlined"
+            onPress={() => console.log("Ingresar con Google presionado")}
+          />
+          <AppButton
+            title="Ingresar con Apple"
+            variant="outlined"
+            onPress={() => console.log("Ingresar con Apple presionado")}
+          />
+          <AppButton
+            title="Registrarse"
+            variant="outlined"
+            onPress={() => navigation.navigate("Register")}
+          />
+        </FlexBox>
+      </FlexBox>
     </FlexBox>
   );
 };

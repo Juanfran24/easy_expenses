@@ -36,7 +36,9 @@ const Landing = () => {
         <AppButton
           title="Ya tengo cuenta"
           variant="outlined"
-          onPress={() => console.log("Ya tengo cuenta presionado")}
+          onPress={() => {
+            navigation.navigate("Login");
+          }}
         />
       </FlexBox>
     </View>

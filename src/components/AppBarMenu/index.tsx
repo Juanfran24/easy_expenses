@@ -5,10 +5,12 @@ import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 import { FlexBetween } from "../FlexBox/FlexBetween";
 import Typography from "../Typography";
 import { Navigation } from "@/src/utils";
+import { useAuth } from "@/src/context/AuthContext/useAuth";
 
 const AppBarMenu = () => {
   const [isOpenMenu, setIsOpenMenu] = useState(false);
   const navigation = Navigation();
+  const { handleLogout } = useAuth();
 
   const toggleMenu = () => {
     setIsOpenMenu(!isOpenMenu);
@@ -19,8 +21,13 @@ const AppBarMenu = () => {
     setIsOpenMenu(false);
   };
 
-  const handleLogout = () => {
-    console.log("Settings pressed");
+  const onLogout = async () => {
+    try {
+      await handleLogout();
+      setIsOpenMenu(false);
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   return (
@@ -58,7 +65,7 @@ const AppBarMenu = () => {
               </FlexBetween>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleLogout}>
+            <TouchableOpacity onPress={onLogout}>
               <FlexBetween style={styles.menuItem}>
                 <MaterialIcons
                   name="logout"
