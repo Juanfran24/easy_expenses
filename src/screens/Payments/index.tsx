@@ -4,7 +4,7 @@ import { Text, View } from "react-native";
 
 const Payments = () => {
   return (
-    <View style={{ backgroundColor: colors.backgrounds.medium, flex: 1 }}>
+    <View style={{ backgroundColor: colors.backgrounds.base, flex: 1 }}>
       <Text>Payments</Text>
     </View>
   );

@@ -54,15 +54,42 @@ const Transactions = () => {
       amount: 5500.00,
       category: 'Salario principal',
       description: 'Pago mensual',
-      date: '20 Oct 2025'
+      date: '20 Oct 2025, 3:15pm'
     },
     {
       type: 'expense',
       amount: 200.00,
       category: 'Servicios públicos',
       description: 'Pago de electricidad',
-      date: '20 Oct 2025'
+      date: '20 Oct 2025, 3:15pm'
     },
+    {
+      type: 'income',
+      amount: 5500.00,
+      category: 'Salario principal',
+      description: 'Pago mensual2',
+      date: '20 Oct 2025, 3:15pm'
+    },
+    {
+      type: 'expense',
+      amount: 200.00,
+      category: 'Servicios públicos',
+      description: 'Pago de electricidad2',
+      date: '20 Oct 2025, 3:15pm'
+    },{
+      type: 'income',
+      amount: 5500.00,
+      category: 'Salario principal',
+      description: 'Pago mensual3',
+      date: '20 Oct 2025, 3:15pm'
+    },
+    {
+      type: 'expense',
+      amount: 200.00,
+      category: 'Servicios públicos',
+      description: 'Pago de electricidad3',
+      date: '20 Oct 2025, 3:15pm'
+    }
   ];
 
   const handleTabChange = (tabId: string) => {
@@ -108,8 +135,8 @@ const Transactions = () => {
         />
       </FlexBetween>
 
-      <ScrollView style={styles.transactionList}>
-        <FlexBox style={{ gap: 4, padding: 15 }}>
+      <ScrollView>
+        <FlexBox style={{ paddingLeft: 16, paddingRight: 16}}>
           {transactions
             .filter(t => t.type === selectedTabId)
             .map((transaction, idx) => (
@@ -140,15 +167,12 @@ const Transactions = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgrounds.medium,
+    backgroundColor: colors.backgrounds.base,
   },
   filterContainer: {
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  transactionList: {
-    flex: 1,
   },
   fab: {
     position: 'absolute',
