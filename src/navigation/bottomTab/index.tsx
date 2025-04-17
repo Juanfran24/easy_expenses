@@ -7,7 +7,14 @@ import Reports from "@/src/screens/Reports";
 import Transactions from "@/src/screens/Transactions";
 import colors from "@/src/constants/colors";
 
-const Tab = createBottomTabNavigator();
+export type BottomTabParamList = {
+  Inicio: undefined;
+  Transacciones: undefined;
+  Pagos: undefined;
+  Reportes: undefined;
+};
+
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const BottomTabStack = () => {
   return (

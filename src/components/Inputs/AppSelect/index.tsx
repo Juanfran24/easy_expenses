@@ -43,7 +43,7 @@ export const AppSelect: React.FC<AppSelectProps> = ({
             color: colors.textsAndIcons.dark,
           },
           iconContainer: {
-            top: 15,
+            top: "25%",
             right: 15,
           },
         }}

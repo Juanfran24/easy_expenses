@@ -1,18 +1,24 @@
 import { AppButton } from "@/src/components/Button";
-import { FlexBox } from "@/src/components/FlexBox";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
+import AppSelect from "@/src/components/Inputs/AppSelect";
 import AppSwitch from "@/src/components/Inputs/AppSwitch";
-import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
+import { Navigation } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Configuration = () => {
+  const navigation = Navigation();
+
+  const handleCreateCategory = () => {
+    navigation.navigate("CreateCategory");
+  };
+
   return (
     <View style={styles.viewContainer}>
-      <TouchableOpacity>
+      <TouchableOpacity onPressIn={handleCreateCategory}>
         <FlexBetween style={styles.cardCreateCategory}>
           <FlexBetween style={{ gap: 8 }}>
             <MaterialIcons
@@ -31,7 +37,17 @@ const Configuration = () => {
       </TouchableOpacity>
 
       <View style={{ marginTop: 36 }}>
-        <AppTextInput label="Moneda predeterminada" />
+        <AppSelect
+          label="Moneda predeterminada"
+          value={null}
+          onValueChange={() => {}}
+          placeholder="Selecciona una opción"
+          items={[
+            { label: "Peso Colombiano (COP)", value: "COP" },
+            { label: "Dólar estadounidense (USD)", value: "USD" },
+            { label: "Euro (EUR)", value: "EUR" },
+          ]}
+        />
       </View>
 
       <View style={{ marginTop: 36 }}>
