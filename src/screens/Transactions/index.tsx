@@ -8,6 +8,7 @@ import { AppButton } from '@/src/components/Button';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import TransactionTabs from '@/src/components/TransactionTabs';
+import { AppComboBox } from '@/src/components/Inputs/AppComboBox';
 
 type TransactionType = {
   type: 'income' | 'expense';
@@ -22,8 +23,30 @@ const TRANSACTION_TABS = [
   { id: 'expense', title: 'Gastos' },
 ];
 
+const CATEGORIES = [
+  { label: 'Categorías', value: 'all' },
+  { label: 'Salario principal', value: 'main_salary' },
+  { label: 'Servicios públicos', value: 'utilities' },
+  { label: 'Transporte', value: 'transport' },
+  { label: 'Alimentación', value: 'food' },
+];
+
+const PAYMENT_TYPES = [
+  { label: 'Tipo de pago', value: 'all' },
+  { label: 'Efectivo', value: 'cash' },
+  { label: 'Electrónico', value: 'credit_card' }
+];
+
+const SORT_OPTIONS = [
+  { label: 'Más reciente', value: 'newest' },
+  { label: 'Más antiguo', value: 'oldest' }
+];
+
 const Transactions = () => {
   const [selectedTabId, setSelectedTabId] = useState<string>('income');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('all');
+  const [selectedSort, setSelectedSort] = useState<string>('newest');
   
   const transactions: TransactionType[] = [
     {
@@ -52,26 +75,41 @@ const Transactions = () => {
       <TransactionTabs 
         tabs={TRANSACTION_TABS}
         selectedTabId={selectedTabId}
-        onTabChange={handleTabChange}
+        onTabChange={handleTabChange} 
       />
 
-      <FlexBetween style={styles.filterContainer}>
-        <AppButton
-          title="Categoría"
-          variant="outlined"
-          nameIcon="arrow-drop-down"
-          textAndIconColor={colors.textsAndIcons.main}
-        />
-        <AppButton
-          title="Tipo de pago"
-          variant="outlined"
-          nameIcon="arrow-drop-down"
-          textAndIconColor={colors.textsAndIcons.main}
+      <FlexBetween style={[styles.filterContainer, {gap: 15}]}>
+        <FlexBetween style={{ gap: 4, flex: 1 }}>
+          <AppComboBox
+            label="Categoría"
+            value={selectedCategory}
+            items={CATEGORIES}
+            onSelect={(item) => setSelectedCategory(item.value)}
+            containerStyle={{ flex: 1, height: 28 }}
+            dropdownAlign="left"
+          />
+          <AppComboBox
+            label="Tipo de pago"
+            value={selectedPaymentType}
+            items={PAYMENT_TYPES}
+            onSelect={(item) => setSelectedPaymentType(item.value)}
+            containerStyle={{ flex: 1, height: 28, marginLeft: 4 }}
+            dropdownAlign="left"
+          />
+        </FlexBetween>
+        <AppComboBox
+          icon="sort"
+          iconOnly={true}
+          value={selectedSort}
+          items={SORT_OPTIONS}
+          onSelect={(item) => setSelectedSort(item.value)}
+          containerStyle={{ marginLeft: 8, height: 28 }}
+          dropdownAlign="right"
         />
       </FlexBetween>
 
       <ScrollView style={styles.transactionList}>
-        <FlexBox style={{ gap: 8, padding: 16 }}>
+        <FlexBox style={{ gap: 4, padding: 15 }}>
           {transactions
             .filter(t => t.type === selectedTabId)
             .map((transaction, idx) => (
@@ -106,7 +144,8 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     padding: 16,
-    gap: 8
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   transactionList: {
     flex: 1,
