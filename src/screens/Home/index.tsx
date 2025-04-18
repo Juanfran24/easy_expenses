@@ -5,9 +5,7 @@ import { Text, View } from "react-native";
 
 const Home = () => {
   return (
-    <View
-      style={{ backgroundColor: colors.backgrounds.base, height: "110%" }}
-    >
+    <View style={{ backgroundColor: colors.backgrounds.base, flex: 1 }}>
       <Text>Home Screen</Text>
       <SpeedFabView />
     </View>

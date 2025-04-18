@@ -1,25 +1,29 @@
 import colors from "@/src/constants/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Button,
-  Modal,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import Typography from "../Typography";
 import Divider from "../Divider";
-import { useNavigation } from "expo-router";
+import { Navigation } from "@/src/utils";
 
 const SpeedFabView = () => {
   const [showSpeedDial, setSpeedDial] = useState(false);
   const openSpeedDial = () => setSpeedDial(!showSpeedDial);
-  const navigation = useNavigation();
+  const navigation = Navigation();
 
   const handleNewTransaction = (type: string) => {
-    // Handle new transaction logic here
-    console.log(`New ${type} transaction`);
+    // // Handle new transaction logic here
+    // console.log(`New ${type} transaction`);
+    if (type === "ingreso") {
+      navigation.navigate("CreateAndEditTransactions", {
+        type: "ingreso",
+      });
+    } else if (type === "gasto") {
+      navigation.navigate("CreateAndEditTransactions", {
+        type: "gasto",
+      });
+    }
+    // Close the speed dial after selecting an option
     setSpeedDial(false);
   };
 
@@ -42,7 +46,7 @@ const SpeedFabView = () => {
           <View style={styles.speedView}>
             <TouchableOpacity
               style={styles.fabItem}
-              onPress={() => handleNewTransaction("Ingreso")}
+              onPress={() => handleNewTransaction("ingreso")}
             >
               <Typography.H6.Regular>Nuevo Ingreso</Typography.H6.Regular>
               <MaterialIcons
@@ -56,7 +60,7 @@ const SpeedFabView = () => {
             />
             <TouchableOpacity
               style={{ ...styles.fabItem, marginLeft: 10 }}
-              onPress={() => handleNewTransaction("Gasto")}
+              onPress={() => handleNewTransaction("gasto")}
             >
               <Typography.H6.Regular>Nuevo Gasto</Typography.H6.Regular>
               <MaterialIcons
@@ -101,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     position: "absolute",
     right: 20,
-    bottom: 85,
+    bottom: 25,
     alignItems: "flex-end",
   },
   fabButton: {

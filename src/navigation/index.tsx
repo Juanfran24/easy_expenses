@@ -11,12 +11,14 @@ import Typography from "../components/Typography";
 import CreateCategory from "../screens/Configuration/CreateCategory";
 import { NavigatorScreenParams } from "@react-navigation/native";
 import BackButtonHeader from "../components/BackButtonHeader";
+import CreateAndEditTransactions from "../screens/Transactions/CreateAndEdit";
 
 // Definimos los tipos de las rutas
 export type RootStackParamList = {
   Home: NavigatorScreenParams<BottomTabParamList>;
   Configuration: undefined;
   CreateCategory: undefined;
+  CreateAndEditTransactions: { type: string; id?: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -75,6 +77,27 @@ const RootStack = () => {
           headerLeft: () => <BackButtonHeader />,
           headerTitleAlign: "center",
           headerTintColor: colors.textsAndIcons.main,
+        }}
+      />
+      <Stack.Screen
+        name="CreateAndEditTransactions"
+        component={CreateAndEditTransactions}
+        options={({ route }) => {
+          const { type, id } = route.params;
+
+          return {
+            headerStyle: {
+              backgroundColor: colors.backgrounds.light,
+              // @ts-ignore
+              borderBottomWidth: 0,
+            },
+            headerTitle: () => (
+              <Typography.H5.Regular>{`Agregar ${type}`}</Typography.H5.Regular>
+            ),
+            headerLeft: () => <BackButtonHeader />,
+            headerTitleAlign: "center",
+            headerTintColor: colors.textsAndIcons.main,
+          };
         }}
       />
     </Stack.Navigator>
