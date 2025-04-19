@@ -22,6 +22,7 @@ const BottomTabStack = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
+          position: "absolute",
           backgroundColor: colors.backgrounds.medium,
           borderTopWidth: 0,
           borderTopLeftRadius: 10,

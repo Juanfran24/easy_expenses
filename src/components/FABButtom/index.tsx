@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     position: "absolute",
     right: 20,
-    bottom: 25,
+    bottom: 85,
     alignItems: "flex-end",
   },
   fabButton: {
