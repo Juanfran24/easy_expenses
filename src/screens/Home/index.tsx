@@ -1,4 +1,4 @@
-import { AppButton } from "@/src/components/Button";
+import { AppButton } from "@/src/components/AppButton";
 import DonutChartHome from "@/src/components/DonutChartHome";
 import SpeedFabView from "@/src/components/FABButtom";
 import { FlexBox } from "@/src/components/FlexBox";

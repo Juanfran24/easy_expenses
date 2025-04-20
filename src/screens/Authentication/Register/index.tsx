@@ -1,12 +1,14 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import Typography from "@/src/components/Typography";
-import { AppButton } from "@/src/components/Button";
+import { AppButton } from "@/src/components/AppButton";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
+import Divider from "@/src/components/Divider";
+import ProviderButton from "@/src/components/AppButton/ProviderButton";
 
 const Register = () => {
   const navigation = useNavigation();
@@ -23,6 +25,7 @@ const Register = () => {
     }
     try {
       await handleRegister(email, password);
+      //@ts-ignore
       navigation.navigate("Login");
     } catch (err) {
       setError("Error al registrar el usuario");
@@ -68,22 +71,25 @@ const Register = () => {
             onPress={onRegister}
           />
 
-          <AppButton
+          <ProviderButton
+            provider="google"
             title="Ingresar con Google"
-            variant="outlined"
-            onPress={() => console.log("Ingresar con Google presionado")}
+            onPress={() => null}
           />
 
-          <AppButton
+          <ProviderButton
+            provider="apple"
             title="Ingresar con Apple"
-            variant="outlined"
-            onPress={() => console.log("Ingresar con Apple presionado")}
+            onPress={() => null}
           />
+
+          <Divider style={{ marginHorizontal: 0, marginVertical: 0 }} />
 
           <AppButton
             title="Ya tengo cuenta"
             variant="outlined"
             onPress={() => {
+              //@ts-ignore
               navigation.navigate("Login");
               console.log("Ya tengo cuenta presionado");
             }}
@@ -102,11 +108,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   heading: {
-    fontSize: 24,
     fontWeight: "bold",
     color: colors.textsAndIcons.main,
-    textAlign: "center",
-    marginBottom: 20,
   },
   primaryButton: {
     width: "100%",

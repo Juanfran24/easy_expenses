@@ -1,4 +1,4 @@
-import { AppButton } from "@/src/components/Button";
+import { AppButton } from "@/src/components/AppButton";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import AppSwitch from "@/src/components/Inputs/AppSwitch";

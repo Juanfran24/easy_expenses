@@ -3,9 +3,11 @@ import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
-import { AppButton } from "@/src/components/Button";
+import { AppButton } from "@/src/components/AppButton";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
+import Divider from "@/src/components/Divider";
+import ProviderButton from "@/src/components/AppButton/ProviderButton";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -49,9 +51,7 @@ const Login = () => {
       }}
     >
       <FlexBox style={{ gap: 40 }}>
-        <Typography.H2 styles={{ textAlign: "center" }}>
-          Iniciar sesión
-        </Typography.H2>
+        <Typography.H2>Iniciar sesión</Typography.H2>
         <FlexBox style={{ width: "100%", gap: 20 }}>
           <AppTextInput
             label="Correo electrónico"
@@ -85,19 +85,22 @@ const Login = () => {
             variant="contained"
             onPress={onLogin}
           />
-          <AppButton
+          <ProviderButton
+            provider="google"
             title="Ingresar con Google"
-            variant="outlined"
-            onPress={() => console.log("Ingresar con Google presionado")}
+            onPress={() => null}
           />
-          <AppButton
+
+          <ProviderButton
+            provider="apple"
             title="Ingresar con Apple"
-            variant="outlined"
-            onPress={() => console.log("Ingresar con Apple presionado")}
+            onPress={() => null}
           />
+          <Divider style={{ marginHorizontal: 0, marginVertical: 0 }} />
           <AppButton
             title="Registrarse"
             variant="outlined"
+            //@ts-ignore
             onPress={() => navigation.navigate("Register")}
           />
         </FlexBox>

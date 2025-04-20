@@ -5,7 +5,7 @@ import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
 import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
-import { AppButton } from "@/src/components/Button";
+import { AppButton } from "@/src/components/AppButton";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const { type: typeTransaction } = route.params; // "ingreso" o "gasto"

@@ -1,4 +1,4 @@
-import { AppButton } from "@/src/components/Button";
+import { AppButton } from "@/src/components/AppButton";
 import { FlexBox } from "@/src/components/FlexBox";
 import AppRadio from "@/src/components/Inputs/AppRadio";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";

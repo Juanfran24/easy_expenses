@@ -3,7 +3,13 @@ import Landing from "../../screens/Authentication/Landing";
 import Register from "../../screens/Authentication/Register";
 import Login from "../../screens/Authentication/Login";
 
-const Stack = createNativeStackNavigator();
+export type AuthStackParamList = {
+  Landing: undefined;
+  Register: undefined;
+  Login: undefined;
+};
+
+const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 function AuthStack() {
   return (
