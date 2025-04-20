@@ -63,7 +63,7 @@ export const AppButton = (props: AppButtonProps) => {
               name={
                 props.nameIcon as unknown as keyof typeof MaterialIcons.glyphMap
               }
-              size={16}
+              size={24}
               color={props.textAndIconColor}
             />
           </FlexBox>

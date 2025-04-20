@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
   h1: {
     fontFamily: "Sora_ExtraBold",
     fontSize: 32,
-    fontWeight: "800",
+    fontWeight: "600",
     color: colors.textsAndIcons.main,
   },
   h2: {
