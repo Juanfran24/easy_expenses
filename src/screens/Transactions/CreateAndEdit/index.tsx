@@ -14,6 +14,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [valueTransaction, setValueTransaction] = useState("");
   const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
   const [descriptionTransaction, setDescriptionTransaction] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   // Cada cambio: extrae dígitos del texto (incluye borrados) y formatea
   const handleChangeValue = (text: string) => {
@@ -27,6 +28,11 @@ const CreateAndEditTransactions = ({ route }: any) => {
     { label: "Servicios públicos", value: "utilities" },
     { label: "Transporte", value: "transport" },
     { label: "Alimentación", value: "food" },
+  ];
+
+  const PAYMENT_METHODS = [
+    { label: "Efectivo", value: "cash" },
+    { label: "Electrónico", value: "electronic" },
   ];
 
   return (
@@ -64,6 +70,13 @@ const CreateAndEditTransactions = ({ route }: any) => {
           items={CATEGORIES}
           onValueChange={(value) => console.log(value)}
           value={""}
+        />
+        <AppSelect
+          label="Método de Pago"
+          placeholder="Seleccionar"
+          items={PAYMENT_METHODS}
+          onValueChange={(value) => setPaymentMethod(value)}
+          value={paymentMethod}
         />
         <AppButton
           title={`Agregar ${typeTransaction}`}
