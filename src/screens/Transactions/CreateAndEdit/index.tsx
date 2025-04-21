@@ -6,11 +6,15 @@ import colors from "@/src/constants/colors";
 import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import { AppButton } from "@/src/components/AppButton";
+import { AppDateField } from "@/src/components/Inputs/AppDateField";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const { type: typeTransaction } = route.params; // "ingreso" o "gasto"
   const [nameTransaction, setNameTransaction] = useState("");
   const [valueTransaction, setValueTransaction] = useState("");
+  const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
+  const [descriptionTransaction, setDescriptionTransaction] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   // Cada cambio: extrae dígitos del texto (incluye borrados) y formatea
   const handleChangeValue = (text: string) => {
@@ -24,6 +28,11 @@ const CreateAndEditTransactions = ({ route }: any) => {
     { label: "Servicios públicos", value: "utilities" },
     { label: "Transporte", value: "transport" },
     { label: "Alimentación", value: "food" },
+  ];
+
+  const PAYMENT_METHODS = [
+    { label: "Efectivo", value: "cash" },
+    { label: "Electrónico", value: "electronic" },
   ];
 
   return (
@@ -42,12 +51,32 @@ const CreateAndEditTransactions = ({ route }: any) => {
           type="number"
           onChangeText={handleChangeValue}
         />
+        <AppTextInput
+          label="Descripción"
+          placeholder="Agrega una descripción"
+          value={descriptionTransaction}
+          onChangeText={setDescriptionTransaction}
+          multiline={true}
+          numberOfLines={3}
+        />
+        <AppDateField
+          label="Fecha"
+          value={dateTransaction}
+          onChange={setDateTransaction}
+        />
         <AppSelect
           label="Categoría"
           placeholder="Seleccionar"
           items={CATEGORIES}
           onValueChange={(value) => console.log(value)}
           value={""}
+        />
+        <AppSelect
+          label="Método de Pago"
+          placeholder="Seleccionar"
+          items={PAYMENT_METHODS}
+          onValueChange={(value) => setPaymentMethod(value)}
+          value={paymentMethod}
         />
         <AppButton
           title={`Agregar ${typeTransaction}`}
