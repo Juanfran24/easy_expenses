@@ -6,11 +6,14 @@ import colors from "@/src/constants/colors";
 import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import { AppButton } from "@/src/components/AppButton";
+import { AppDateField } from "@/src/components/Inputs/AppDateField";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const { type: typeTransaction } = route.params; // "ingreso" o "gasto"
   const [nameTransaction, setNameTransaction] = useState("");
   const [valueTransaction, setValueTransaction] = useState("");
+  const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
+  const [descriptionTransaction, setDescriptionTransaction] = useState("");
 
   // Cada cambio: extrae dígitos del texto (incluye borrados) y formatea
   const handleChangeValue = (text: string) => {
@@ -41,6 +44,19 @@ const CreateAndEditTransactions = ({ route }: any) => {
           value={valueTransaction}
           type="number"
           onChangeText={handleChangeValue}
+        />
+        <AppTextInput
+          label="Descripción"
+          placeholder="Agrega una descripción"
+          value={descriptionTransaction}
+          onChangeText={setDescriptionTransaction}
+          multiline={true}
+          numberOfLines={3}
+        />
+        <AppDateField
+          label="Fecha"
+          value={dateTransaction}
+          onChange={setDateTransaction}
         />
         <AppSelect
           label="Categoría"
