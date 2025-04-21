@@ -13,7 +13,6 @@ const SpeedFabView = () => {
 
   const handleNewTransaction = (type: string) => {
     // // Handle new transaction logic here
-    // console.log(`New ${type} transaction`);
     if (type === "ingreso") {
       navigation.navigate("CreateAndEditTransactions", {
         type: "ingreso",
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
   container: {
     position: "absolute",
     right: 20,
-    bottom: 85,
+    bottom: 95,
     alignItems: "flex-end",
   },
   fabButton: {

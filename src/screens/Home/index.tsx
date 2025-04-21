@@ -8,6 +8,8 @@ import colors from "@/src/constants/colors";
 import { Navigation } from "@/src/utils";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { TransactionType } from "../Transactions/interfaces";
+import NotificationCard from "@/src/components/NotificationCard";
 
 const Home = () => {
   const navigation = Navigation();
@@ -31,26 +33,29 @@ const Home = () => {
     },
   ];
 
-  const transactions = [
+  const transactions: TransactionType[] = [
     {
+      id: "1",
       type: "income",
-      amount: 5500.0,
+      amount: 2500000,
       category: "Salario principal",
-      description: "Pago mensual",
+      name: "Pago mensual",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "2",
       type: "expense",
-      amount: 200.0,
+      amount: 200000,
       category: "Servicios públicos",
-      description: "Pago de electricidad",
+      name: "Pago de electricidad",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "3",
       type: "income",
-      amount: 5500.0,
+      amount: 500000,
       category: "Salario principal",
-      description: "Pago mensual2",
+      name: "Pago mensual2",
       date: "20 Oct 2025, 3:15pm",
     },
   ];
@@ -76,12 +81,9 @@ const Home = () => {
             <FlexBox style={{ gap: 10, width: "100%" }}>
               {transactions.map((transaction, index) => (
                 <TransactionCard
+                  transaction={transaction}
                   key={index}
-                  type={transaction.type}
-                  amount={transaction.amount}
-                  category={transaction.category}
-                  description={transaction.description}
-                  date={transaction.date}
+                  withoutActions
                 />
               ))}
             </FlexBox>
@@ -97,6 +99,10 @@ const Home = () => {
               }}
             />
           </FlexBox>
+          <NotificationCard
+            title="¡Vence pronto!"
+            description="Pago cuota deuda 1 - 10 Jul 2025"
+          />
         </View>
       </ScrollView>
       <SpeedFabView />
@@ -135,6 +141,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 16,
     marginTop: 32,
-    gap: 10,
+    gap: 18,
   },
 });

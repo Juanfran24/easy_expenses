@@ -8,14 +8,7 @@ import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
-
-type TransactionType = {
-  type: "income" | "expense";
-  amount: number;
-  category: string;
-  description: string;
-  date: string;
-};
+import { TransactionType } from "./interfaces";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -49,45 +42,51 @@ const Transactions = () => {
 
   const transactions: TransactionType[] = [
     {
+      id: "1",
       type: "income",
       amount: 5500.0,
       category: "Salario principal",
-      description: "Pago mensual",
+      name: "Pago mensual",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "2",
       type: "expense",
       amount: 200.0,
       category: "Servicios públicos",
-      description: "Pago de electricidad",
+      name: "Pago de electricidad",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "3",
       type: "income",
       amount: 5500.0,
       category: "Salario principal",
-      description: "Pago mensual2",
+      name: "Pago mensual2",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "4",
       type: "expense",
       amount: 200.0,
       category: "Servicios públicos",
-      description: "Pago de electricidad2",
+      name: "Pago de electricidad2",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "5",
       type: "income",
       amount: 5500.0,
       category: "Salario principal",
-      description: "Pago mensual3",
+      name: "Pago mensual3",
       date: "20 Oct 2025, 3:15pm",
     },
     {
+      id: "6",
       type: "expense",
       amount: 200.0,
       category: "Servicios públicos",
-      description: "Pago de electricidad3",
+      name: "Pago de electricidad3",
       date: "20 Oct 2025, 3:15pm",
     },
   ];
@@ -107,14 +106,13 @@ const Transactions = () => {
           onTabChange={handleTabChange}
         />
 
-        <FlexBetween style={[styles.filterContainer, { gap: 15 }]}>
-          <FlexBetween style={{ gap: 4, flex: 1 }}>
+        <FlexBetween style={[styles.filterContainer]}>
+          <FlexBox style={{ gap: 15, flexDirection: "row" }}>
             <AppComboBox
               label="Categoría"
               value={selectedCategory}
               items={CATEGORIES}
               onSelect={(item) => setSelectedCategory(item.value)}
-              containerStyle={{ flex: 1, height: 28 }}
               dropdownAlign="left"
             />
             <AppComboBox
@@ -122,33 +120,24 @@ const Transactions = () => {
               value={selectedPaymentType}
               items={PAYMENT_TYPES}
               onSelect={(item) => setSelectedPaymentType(item.value)}
-              containerStyle={{ flex: 1, height: 28, marginLeft: 4 }}
               dropdownAlign="left"
             />
-          </FlexBetween>
+          </FlexBox>
           <AppComboBox
             icon="sort"
             iconOnly={true}
             value={selectedSort}
             items={SORT_OPTIONS}
             onSelect={(item) => setSelectedSort(item.value)}
-            containerStyle={{ marginLeft: 8, height: 28 }}
             dropdownAlign="right"
           />
         </FlexBetween>
 
-        <FlexBox style={{ paddingLeft: 16, paddingRight: 16 }}>
+        <FlexBox style={{ paddingLeft: 16, paddingRight: 16, gap: 10 }}>
           {transactions
             .filter((t) => t.type === selectedTabId)
             .map((transaction, idx) => (
-              <TransactionCard
-                key={idx}
-                type={transaction.type}
-                amount={transaction.amount}
-                category={transaction.category}
-                description={transaction.description}
-                date={transaction.date}
-              />
+              <TransactionCard key={idx} transaction={transaction} />
             ))}
         </FlexBox>
       </ScrollView>

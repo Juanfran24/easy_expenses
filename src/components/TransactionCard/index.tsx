@@ -1,32 +1,38 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated, Modal, Dimensions } from 'react-native';
-import Typography from '../Typography';
-import colors from '@/src/constants/colors';
-import { MaterialIcons } from '@expo/vector-icons';
-import { FlexBetween } from '../FlexBox/FlexBetween';
-import { FlexBox } from '../FlexBox';
+import React, { useState, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Modal,
+  Dimensions,
+} from "react-native";
+import Typography from "../Typography";
+import colors from "@/src/constants/colors";
+import { MaterialIcons } from "@expo/vector-icons";
+import { FlexBetween } from "../FlexBox/FlexBetween";
+import { FlexBox } from "../FlexBox";
+import { TransactionType } from "@/src/screens/Transactions/interfaces";
+import { styles } from "./styles";
+import { transformToCurrency } from "@/src/utils";
 
 interface TransactionCardProps {
-  type: 'income' | 'expense';
-  amount: number;
-  category: string;
-  description: string;
-  date: string;
+  transaction: TransactionType;
+  withoutActions?: boolean;
 }
 
 export const TransactionCard: React.FC<TransactionCardProps> = ({
-  type,
-  amount,
-  category,
-  description,
-  date,
+  transaction,
+  withoutActions = false,
 }) => {
+  const { type, amount, name, date } = transaction;
+
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const isIncome = type === 'income';
+  const isIncome = type === "income";
   const menuButtonRef = useRef<View>(null);
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = Dimensions.get("window").width;
   const menuWidth = 150; // Ancho fijo del menú
 
   const handleMenuPress = () => {
@@ -34,12 +40,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       menuButtonRef.current.measureInWindow((x, y, width, height) => {
         // Calcular la posición X para que el menú no se salga de la pantalla
         let menuX = x - menuWidth + 30;
-        
+
         // Si el menú se sale por la derecha, ajustarlo
         if (menuX + menuWidth > screenWidth - 16) {
           menuX = screenWidth - menuWidth - 16; // 16 es el padding de la pantalla
         }
-        
+
         // Si el menú se sale por la izquierda, ajustarlo
         if (menuX < 16) {
           menuX = 16;
@@ -66,13 +72,13 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     });
   };
 
-  const handleMenuAction = (action: 'edit' | 'delete') => {
-    if (action === 'edit') {
+  const handleMenuAction = (action: "edit" | "delete") => {
+    if (action === "edit") {
       // Handle edit action
-      console.log('Edit pressed');
+      console.log("Edit pressed");
     } else {
       // Handle delete action
-      console.log('Delete pressed');
+      console.log("Delete pressed");
     }
     handleCloseMenu();
   };
@@ -82,36 +88,44 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       <FlexBetween>
         <FlexBox style={styles.leftContent}>
           <View style={styles.iconContainer}>
-            <MaterialIcons 
-              name={isIncome ? 'arrow-upward' : 'arrow-downward'} 
-              size={24} 
+            <MaterialIcons
+              name={isIncome ? "arrow-upward" : "arrow-downward"}
+              size={24}
               color={isIncome ? colors.complements.green : colors.error.main}
             />
           </View>
           <FlexBox style={{ flex: 1 }}>
-            <Typography.H6.SemiBold>{description}</Typography.H6.SemiBold>
-            <Typography.P4.Regular styles={styles.date}>{date}</Typography.P4.Regular>
+            <Typography.H6.SemiBold>{name}</Typography.H6.SemiBold>
+            <Typography.P3.Light styles={styles.date}>
+              {date}
+            </Typography.P3.Light>
           </FlexBox>
         </FlexBox>
 
         <FlexBox style={styles.rightContent}>
           <Typography.H6.SemiBold
             styles={{
-              color: isIncome ? colors.complements.green : colors.error.main,
+              color: isIncome ? colors.success : colors.error.main,
             }}
           >
-            {isIncome ? '+' : '-'}${amount.toFixed(2)}
+            {isIncome ? "+" : "-"}
+            {transformToCurrency(String(amount))}
           </Typography.H6.SemiBold>
-          
-          <View ref={menuButtonRef}>
-            <TouchableOpacity onPress={handleMenuPress} style={styles.menuButton}>
-              <MaterialIcons 
-                name="more-vert" 
-                size={24} 
-                color={colors.textsAndIcons.dark} 
-              />
-            </TouchableOpacity>
-          </View>
+
+          {!withoutActions && (
+            <View ref={menuButtonRef}>
+              <TouchableOpacity
+                onPress={handleMenuPress}
+                style={styles.menuButton}
+              >
+                <MaterialIcons
+                  name="more-vert"
+                  size={24}
+                  color={colors.textsAndIcons.dark}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </FlexBox>
       </FlexBetween>
 
@@ -126,38 +140,52 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
           onPress={handleCloseMenu}
           activeOpacity={1}
         >
-          <Animated.View 
+          <Animated.View
             style={[
               styles.menuContent,
               {
                 opacity: fadeAnim,
-                transform: [{
-                  translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-20, 0]
-                  })
-                }],
-                position: 'absolute',
+                transform: [
+                  {
+                    translateY: fadeAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-20, 0],
+                    }),
+                  },
+                ],
+                position: "absolute",
                 left: menuPosition.x,
                 top: menuPosition.y,
                 width: menuWidth,
-              }
+              },
             ]}
           >
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
-              onPress={() => handleMenuAction('edit')}
+              onPress={() => handleMenuAction("edit")}
             >
-              <MaterialIcons name="edit" size={20} color={colors.textsAndIcons.main} />
-              <Typography.P3.Regular styles={styles.menuItemText}>Editar</Typography.P3.Regular>
+              <MaterialIcons
+                name="edit"
+                size={20}
+                color={colors.textsAndIcons.main}
+              />
+              <Typography.P3.Regular styles={styles.menuItemText}>
+                Editar
+              </Typography.P3.Regular>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.menuItem}
-              onPress={() => handleMenuAction('delete')}
+              onPress={() => handleMenuAction("delete")}
             >
-              <MaterialIcons name="delete" size={20} color={colors.error.main} />
-              <Typography.P3.Regular styles={[styles.menuItemText, { color: colors.error.main }]}>
+              <MaterialIcons
+                name="delete"
+                size={20}
+                color={colors.error.main}
+              />
+              <Typography.P3.Regular
+                styles={[styles.menuItemText, { color: colors.error.main }]}
+              >
                 Eliminar
               </Typography.P3.Regular>
             </TouchableOpacity>
@@ -167,62 +195,5 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.backgrounds.medium,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  leftContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  iconContainer: {
-    backgroundColor: colors.backgrounds.light,
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  rightContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  date: {
-    color: colors.textsAndIcons.dark,
-    marginTop: 4,
-  },
-  menuButton: {
-    padding: 4,
-  },
-  menuContent: {
-    backgroundColor: colors.backgrounds.light,
-    borderRadius: 8,
-    padding: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    gap: 8,
-  },
-  menuItemText: {
-    color: colors.textsAndIcons.main,
-  },
-});
 
 export default TransactionCard;

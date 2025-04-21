@@ -91,7 +91,6 @@ const Register = () => {
             onPress={() => {
               //@ts-ignore
               navigation.navigate("Login");
-              console.log("Ya tengo cuenta presionado");
             }}
           />
         </FlexBox>

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { auth } from "../../database";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [login, setLogin] = useState(false);
@@ -11,8 +15,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkLoginState = async () => {
       try {
-        const storedLoginState = await AsyncStorage.getItem('userLoginState');
-        if (storedLoginState === 'true') {
+        const storedLoginState = await AsyncStorage.getItem("userLoginState");
+        if (storedLoginState === "true") {
           setLogin(true);
         }
       } catch (error) {
@@ -29,8 +33,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password
       );
-      console.log("User registered:", userCredential.user);
-      await AsyncStorage.setItem('userLoginState', 'true');
+      // console.log("User registered:", userCredential.user);
+      await AsyncStorage.setItem("userLoginState", "true");
       setLogin(true);
       setError(null);
     } catch (error: any) {
@@ -47,8 +51,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password
       );
-      console.log("User logged in:", userCredential.user);
-      await AsyncStorage.setItem('userLoginState', 'true');
+      // console.log("User logged in:", userCredential.user);
+      await AsyncStorage.setItem("userLoginState", "true");
       setLogin(true);
       setError(null);
     } catch (error: any) {
@@ -61,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      await AsyncStorage.removeItem('userLoginState');
+      await AsyncStorage.removeItem("userLoginState");
       setLogin(false);
       setError(null);
     } catch (error: any) {
@@ -71,7 +75,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ login, error, handleLogin, handleRegister, handleLogout }}>
+    <AuthContext.Provider
+      value={{ login, error, handleLogin, handleRegister, handleLogout }}
+    >
       {children}
     </AuthContext.Provider>
   );

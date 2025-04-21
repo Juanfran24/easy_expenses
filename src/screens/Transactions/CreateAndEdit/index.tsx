@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
@@ -7,6 +7,7 @@ import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import { AppButton } from "@/src/components/AppButton";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
+import AppRadio from "@/src/components/Inputs/AppRadio";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const { type: typeTransaction } = route.params; // "ingreso" o "gasto"
@@ -14,7 +15,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [valueTransaction, setValueTransaction] = useState("");
   const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
   const [descriptionTransaction, setDescriptionTransaction] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState(0);
 
   // Cada cambio: extrae dígitos del texto (incluye borrados) y formatea
   const handleChangeValue = (text: string) => {
@@ -36,7 +37,10 @@ const CreateAndEditTransactions = ({ route }: any) => {
   ];
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 50 }}
+    >
       <FlexBox style={styles.formContainer}>
         <AppTextInput
           label={`Nombre ${typeTransaction}`}
@@ -51,14 +55,6 @@ const CreateAndEditTransactions = ({ route }: any) => {
           type="number"
           onChangeText={handleChangeValue}
         />
-        <AppTextInput
-          label="Descripción"
-          placeholder="Agrega una descripción"
-          value={descriptionTransaction}
-          onChangeText={setDescriptionTransaction}
-          multiline={true}
-          numberOfLines={3}
-        />
         <AppDateField
           label="Fecha"
           value={dateTransaction}
@@ -71,12 +67,23 @@ const CreateAndEditTransactions = ({ route }: any) => {
           onValueChange={(value) => console.log(value)}
           value={""}
         />
-        <AppSelect
-          label="Método de Pago"
-          placeholder="Seleccionar"
-          items={PAYMENT_METHODS}
-          onValueChange={(value) => setPaymentMethod(value)}
+        <AppRadio
+          label="Metodo de pago"
           value={paymentMethod}
+          onValueChange={setPaymentMethod}
+          items={PAYMENT_METHODS.map((category) => ({
+            label: category.label,
+            value: category.value,
+          }))}
+        />
+        <AppTextInput
+          style={styles.textArea}
+          label="Descripción"
+          placeholder="Añade una descripción..."
+          value={descriptionTransaction}
+          onChangeText={setDescriptionTransaction}
+          multiline={true}
+          numberOfLines={4}
         />
         <AppButton
           title={`Agregar ${typeTransaction}`}
@@ -84,7 +91,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
           variant="outlined"
         />
       </FlexBox>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -98,5 +105,9 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     gap: 20,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
   },
 });
