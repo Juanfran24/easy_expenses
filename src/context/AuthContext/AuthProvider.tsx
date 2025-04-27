@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { auth } from "../../database";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const provider = new GoogleAuthProvider();
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [login, setLogin] = useState(false);
@@ -70,8 +72,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      const user = result.user;
+      
+      if (!token) {
+        throw new Error("No se pudo obtener el token de acceso");
+      }
+
+      console.log("User logged in with Google:", user);
+      console.log("Google Access Token:", token);
+      
+      await AsyncStorage.setItem('userToken', token);
+      await AsyncStorage.setItem('userLoginState', 'true');
+      setLogin(true);
+      setError(null);
+    } catch (error: any) {
+      console.error("Error during Google login:", error);
+      setError(error.message);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ login, error, handleLogin, handleRegister, handleLogout }}>
+    <AuthContext.Provider value={{ login, error, handleLogin, handleRegister, handleLogout, handleGoogleLogin }}>
       {children}
     </AuthContext.Provider>
   );

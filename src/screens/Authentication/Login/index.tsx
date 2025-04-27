@@ -11,7 +11,7 @@ import ProviderButton from "@/src/components/AppButton/ProviderButton";
 
 const Login = () => {
   const navigation = useNavigation();
-  const { handleLogin, error: contextError } = useAuth();
+  const { handleLogin, handleGoogleLogin, error: contextError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +37,17 @@ const Login = () => {
         } else {
           setError("Error al iniciar sesión. Por favor, intente nuevamente");
         }
+      }
+    }
+  };
+
+  const onGoogleLogin = async () => {
+    try {
+      await handleGoogleLogin();
+      setError(null);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError("Error al iniciar sesión con Google. Por favor, intente nuevamente");
       }
     }
   };
@@ -88,7 +99,7 @@ const Login = () => {
           <ProviderButton
             provider="google"
             title="Ingresar con Google"
-            onPress={() => null}
+            onPress={onGoogleLogin}
           />
 
           <ProviderButton

@@ -12,7 +12,7 @@ import ProviderButton from "@/src/components/AppButton/ProviderButton";
 
 const Register = () => {
   const navigation = useNavigation();
-  const { handleRegister } = useAuth();
+  const { handleRegister, handleGoogleLogin } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -29,6 +29,17 @@ const Register = () => {
       navigation.navigate("Login");
     } catch (err) {
       setError("Error al registrar el usuario");
+    }
+  };
+
+  const onGoogleLogin = async () => {
+    try {
+      await handleGoogleLogin();
+      setError(null);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError("Error al iniciar sesión con Google. Por favor, intente nuevamente");
+      }
     }
   };
 
@@ -74,7 +85,7 @@ const Register = () => {
           <ProviderButton
             provider="google"
             title="Ingresar con Google"
-            onPress={() => null}
+            onPress={() => onGoogleLogin()}
           />
 
           <ProviderButton
