@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { auth } from "../../database";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const provider = new GoogleAuthProvider();
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkLoginState();
   }, []);
 
-  const handleRegister = async (email: string, password: string) => {
+  const handleRegister = async (email: string, password: string, displayName: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -32,6 +32,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         password
       );
       console.log("User registered:", userCredential.user);
+      const user = userCredential.user;
+      if (user) {
+        await updateProfile(user, { displayName });
+      }      
       await AsyncStorage.setItem('userLoginState', 'true');
       setLogin(true);
       setError(null);

@@ -13,18 +13,23 @@ import ProviderButton from "@/src/components/AppButton/ProviderButton";
 const Register = () => {
   const navigation = useNavigation();
   const { handleRegister, handleGoogleLogin } = useAuth();
+  const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
 
   const onRegister = async () => {
+    if (!username.trim()) {
+      setError("El nombre de usuario es requerido");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
     }
     try {
-      await handleRegister(email, password);
+      await handleRegister(email, password, username);
       //@ts-ignore
       navigation.navigate("Login");
     } catch (err) {
@@ -48,6 +53,12 @@ const Register = () => {
       <FlexBox style={{ gap: 40 }}>
         <Typography.H2 styles={styles.heading}>Registro</Typography.H2>
         <FlexBox style={{ width: "100%", gap: 20 }}>
+          <AppTextInput
+            label="Nombre de usuario"
+            placeholder="Ingresa tu nombre"
+            value={username}
+            onChangeText={setUsername}
+          />
           <AppTextInput
             label="Correo electrónico"
             placeholder="ejemplo@correo.com"
@@ -102,7 +113,6 @@ const Register = () => {
             onPress={() => {
               //@ts-ignore
               navigation.navigate("Login");
-              console.log("Ya tengo cuenta presionado");
             }}
           />
         </FlexBox>
