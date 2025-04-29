@@ -5,8 +5,13 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export const provider = new GoogleAuthProvider();
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [login, setLogin] = useState(false);
@@ -26,14 +31,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkLoginState();
   }, []);
 
-  const handleRegister = async (email: string, password: string) => {
+  const handleRegister = async (
+    email: string,
+    password: string,
+    displayName: string
+  ) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      // console.log("User registered:", userCredential.user);
+      console.log("User registered:", userCredential.user);
       await AsyncStorage.setItem("userLoginState", "true");
       setLogin(true);
       setError(null);
@@ -71,6 +80,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("Error during logout:", error);
       setError(error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      const user = result.user;
+
+      if (!token) {
+        throw new Error("No se pudo obtener el token de acceso");
+      }
+
+      console.log("User logged in with Google:", user);
+      console.log("Google Access Token:", token);
+
+      await AsyncStorage.setItem("userToken", token);
+      await AsyncStorage.setItem("userLoginState", "true");
+      setLogin(true);
+      setError(null);
+    } catch (error: any) {
+      console.error("Error during Google login:", error);
+      setError(error.message);
+      throw error;
     }
   };
 
