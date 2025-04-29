@@ -5,8 +5,9 @@ interface AuthContextType {
   login: boolean;
   error: string | null;
   handleLogin: (email: string, password: string) => Promise<void>;
-  handleRegister: (email: string, password: string) => Promise<void>;
+  handleRegister: (email: string, password: string, username: string) => Promise<void>;
   handleLogout: () => Promise<void>;
+  handleGoogleLogin: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -15,4 +16,5 @@ export const AuthContext = createContext<AuthContextType>({
   handleLogin: async () => {},
   handleRegister: async () => {},
   handleLogout: async () => {},
+  handleGoogleLogin: async () => {},
 });
