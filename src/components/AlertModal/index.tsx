@@ -35,24 +35,17 @@ const AlertModal: React.FC<AlertModalProps> = ({
         activeOpacity={1}
       >
         <View style={styles.alertContainer}>          
-          <FlexBox style={[styles.contentContainer, { gap: 13 }]}>
+          <FlexBox style={styles.contentContainer}>
             <MaterialIcons
               name="error"
               size={24}
               color={textColor}
-              style={{ 
-                width: 20,
-                height: 20,
-                top: 2.22,
-                left: 1.89
-              }}
+              style={styles.icon}
             />
-            <FlexBox style={[{gap:8}]}>
+            <FlexBox style={styles.textContainer}>
               <Typography.H6.Regular
                 styles={{ 
                   color: textColor,
-                  flex: 1,
-                  marginLeft: 12
                 }}
               >
                 {titleMessage}
@@ -60,8 +53,7 @@ const AlertModal: React.FC<AlertModalProps> = ({
               <Typography.P4.Regular
                 styles={{ 
                   color: textColor,
-                  flex: 1,
-                  marginLeft: 12 }}
+                }}
               >
                 {textMessage}
               </Typography.P4.Regular>
@@ -90,7 +82,17 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: 13,
+  },
+  icon: { 
+    width: 20,
+    height: 20,
+    marginTop: 2,
+  },
+  textContainer: {
+    flex: 1,
+    gap: 8,
   },
   bottomContainer: {
     position: 'absolute',

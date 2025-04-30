@@ -32,9 +32,9 @@ const ResetPassword = () => {
   return (
     <View style={styles.container}>
       <FlexBox style={{ gap: 40 }}>
-        <Typography.H2 styles={styles.heading}>
+        <Typography.H3>
           Recuperar contraseña
-        </Typography.H2>
+        </Typography.H3>
         <FlexBox style={{ width: "100%", gap: 20 }}>
           <AppTextInput
             label="Correo electrónico"
@@ -67,7 +67,7 @@ const ResetPassword = () => {
         onDismiss={() => {
           setShowAlert(false);
           //@ts-ignore
-          navigation.navigate("Login");
+          navigation.navigate("NewPassword");
         }}
       />
     </View>
@@ -80,10 +80,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgrounds.base,
     paddingHorizontal: 20,
     justifyContent: "center",
-  },
-  heading: {
-    fontWeight: "bold",
-    color: colors.textsAndIcons.main,
   },
 });
 
