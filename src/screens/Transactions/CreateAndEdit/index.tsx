@@ -7,14 +7,19 @@ import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import { AppButton } from "@/src/components/AppButton";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
+import { createTransaction } from "@/src/services/transactions";
+import { Transaction } from "@/src/models/Transaction";
+import { useNavigation } from "@react-navigation/native";
 
 const CreateAndEditTransactions = ({ route }: any) => {
+  const navigation = useNavigation();
   const { type: typeTransaction } = route.params; // "ingreso" o "gasto"
   const [nameTransaction, setNameTransaction] = useState("");
   const [valueTransaction, setValueTransaction] = useState("");
   const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
   const [descriptionTransaction, setDescriptionTransaction] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [category, setCategory] = useState("");
 
   // Cada cambio: extrae dígitos del texto (incluye borrados) y formatea
   const handleChangeValue = (text: string) => {
@@ -34,6 +39,33 @@ const CreateAndEditTransactions = ({ route }: any) => {
     { label: "Efectivo", value: "cash" },
     { label: "Electrónico", value: "electronic" },
   ];
+
+  const onSaveTransaction = async () => {
+    try{
+      const now = new Date();
+    
+    const transaction: Transaction = {
+      name: nameTransaction,
+      amount: parseFloat(valueTransaction.replace(/[^0-9.-]+/g, "")),
+      description: descriptionTransaction,
+      date: dateTransaction,
+      category: category || "all",
+      type: typeTransaction,
+      paymentMethod: paymentMethod as 'cash' | 'electronic',
+      userId: "",
+      createdAt: now,
+      updatedAt: now
+    };
+
+      await createTransaction(transaction);
+      //@ts-ignore
+      navigation.navigate("Home", {
+        screen: "Transacciones"
+      });
+    }catch (error) {
+      console.error("Error al guardar la transacción:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -68,8 +100,8 @@ const CreateAndEditTransactions = ({ route }: any) => {
           label="Categoría"
           placeholder="Seleccionar"
           items={CATEGORIES}
-          onValueChange={(value) => console.log(value)}
-          value={""}
+          onValueChange={(value) => setCategory(value)}
+          value={category}
         />
         <AppSelect
           label="Método de Pago"
@@ -80,7 +112,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
         />
         <AppButton
           title={`Agregar ${typeTransaction}`}
-          onPress={() => console.log("Guardar")}
+          onPress={() => onSaveTransaction()}
           variant="outlined"
         />
       </FlexBox>

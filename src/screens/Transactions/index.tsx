@@ -33,7 +33,7 @@ const CATEGORIES = [
 const PAYMENT_TYPES = [
   { label: "Tipo de pago", value: "all" },
   { label: "Efectivo", value: "cash" },
-  { label: "Electrónico", value: "credit_card" },
+  { label: "Electrónico", value: "electronic" },
 ];
 
 const SORT_OPTIONS = [
