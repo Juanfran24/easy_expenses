@@ -1,5 +1,5 @@
 import { database, auth } from "../database";
-import { collection, addDoc} from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, getDocs} from "firebase/firestore";
 import { Transaction } from "../models/Transaction";
 
 export const createTransaction = async (transaction: Omit<Transaction, "id">) => {
@@ -14,6 +14,31 @@ export const createTransaction = async (transaction: Omit<Transaction, "id">) =>
         return transaction;
     }catch (error) {
         console.error("Error creating transaction:", error);
+        throw error;
+    }
+}
+
+export const getUserTransactions = async (): Promise<Transaction[]> => {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("Usuario no autenticado");
+
+        const q = query(collection(database, "transactions"), where("userId", "==", user.uid), orderBy("date", "desc"));
+        const querySnapshot = await getDocs(q);
+        const transactions: Transaction[] = querySnapshot.docs.map((doc) => {
+            const data = doc.data() as Transaction;
+            return { 
+                id: doc.id, 
+                ...data,
+                date: doc.data().date.toDate(),
+                createdAt: doc.data().createdAt.toDate(),
+                updatedAt: doc.data().updatedAt.toDate(),
+            };
+        });
+        return transactions;
+
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
         throw error;
     }
 }

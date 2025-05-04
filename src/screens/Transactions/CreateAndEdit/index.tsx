@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const navigation = useNavigation();
-  const { type: typeTransaction } = route.params; // "ingreso" o "gasto"
+  const { type: typeTransaction } = route.params;
   const [nameTransaction, setNameTransaction] = useState("");
   const [valueTransaction, setValueTransaction] = useState("");
   const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
@@ -21,7 +21,6 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [category, setCategory] = useState("");
 
-  // Cada cambio: extrae dígitos del texto (incluye borrados) y formatea
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");
     setValueTransaction(transformToCurrency(digitsOnly));
@@ -41,28 +40,31 @@ const CreateAndEditTransactions = ({ route }: any) => {
   ];
 
   const onSaveTransaction = async () => {
-    try{
+    try {
       const now = new Date();
-    
-    const transaction: Transaction = {
-      name: nameTransaction,
-      amount: parseFloat(valueTransaction.replace(/[^0-9.-]+/g, "")),
-      description: descriptionTransaction,
-      date: dateTransaction,
-      category: category || "all",
-      type: typeTransaction,
-      paymentMethod: paymentMethod as 'cash' | 'electronic',
-      userId: "",
-      createdAt: now,
-      updatedAt: now
-    };
+      
+      // Remover el formato de moneda y convertir a número
+      const cleanAmount = valueTransaction.replace(/[$.]/g, '').replace(/,/g, '');
+      
+      const transaction: Transaction = {
+        name: nameTransaction,
+        amount: parseInt(cleanAmount, 10),
+        description: descriptionTransaction,
+        date: dateTransaction,
+        category: category || "all",
+        type: typeTransaction,
+        paymentMethod: paymentMethod as 'cash' | 'electronic',
+        userId: "",
+        createdAt: now,
+        updatedAt: now
+      };
 
       await createTransaction(transaction);
       //@ts-ignore
       navigation.navigate("Home", {
         screen: "Transacciones"
       });
-    }catch (error) {
+    } catch (error) {
       console.error("Error al guardar la transacción:", error);
     }
   };

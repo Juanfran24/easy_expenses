@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { StyleSheet, ScrollView, Platform } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, Platform, ActivityIndicator, View } from "react-native";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
@@ -8,14 +8,9 @@ import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
-
-type TransactionType = {
-  type: "income" | "expense";
-  amount: number;
-  category: string;
-  description: string;
-  date: string;
-};
+import { getUserTransactions } from "@/src/services/transactions";
+import { Transaction } from "@/src/models/Transaction";
+import Typography from "@/src/components/Typography";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -46,57 +41,47 @@ const Transactions = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>("newest");
-
-  const transactions: TransactionType[] = [
-    {
-      type: "income",
-      amount: 5500.0,
-      category: "Salario principal",
-      description: "Pago mensual",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      type: "expense",
-      amount: 200.0,
-      category: "Servicios públicos",
-      description: "Pago de electricidad",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      type: "income",
-      amount: 5500.0,
-      category: "Salario principal",
-      description: "Pago mensual2",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      type: "expense",
-      amount: 200.0,
-      category: "Servicios públicos",
-      description: "Pago de electricidad2",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      type: "income",
-      amount: 5500.0,
-      category: "Salario principal",
-      description: "Pago mensual3",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      type: "expense",
-      amount: 200.0,
-      category: "Servicios públicos",
-      description: "Pago de electricidad3",
-      date: "20 Oct 2025, 3:15pm",
-    },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleTabChange = (tabId: string) => {
-    if (Platform.OS === "web") return setSelectedTabId(tabId); //Evita que se rompa en web
+    if (Platform.OS === "web") return setSelectedTabId(tabId);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedTabId(tabId);
   };
+
+  const fetchTransactions = async () => {
+    try {
+      setIsLoading(true);
+      const transactionsData = await getUserTransactions();
+      setTransactions(transactionsData);
+      console.log("Transactions fetched successfully:", transactionsData);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFilteredTransactions = () => {
+    return transactions
+      .filter(transaction => {
+        const tabType = selectedTabId === "income" ? "ingreso" : "gasto";
+        if (transaction.type !== tabType) return false;
+        if (selectedCategory !== 'all' && transaction.category !== selectedCategory) return false;
+        if (selectedPaymentType !== 'all' && transaction.paymentMethod !== selectedPaymentType) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return selectedSort === 'newest' ? dateB - dateA : dateA - dateB;
+      });
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   return (
     <>
@@ -138,18 +123,34 @@ const Transactions = () => {
         </FlexBetween>
 
         <FlexBox style={{ paddingLeft: 16, paddingRight: 16 }}>
-          {transactions
-            .filter((t) => t.type === selectedTabId)
-            .map((transaction, idx) => (
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary.main} />
+            </View>
+          ) : getFilteredTransactions().length > 0 ? (
+            getFilteredTransactions().map((transaction, idx) => (
               <TransactionCard
                 key={idx}
-                type={transaction.type}
+                type={transaction.type === "ingreso" ? "income" : "expense"}
                 amount={transaction.amount}
                 category={transaction.category}
                 description={transaction.description}
-                date={transaction.date}
+                date={transaction.date.toLocaleString('es-ES', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               />
-            ))}
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Typography.H6.Regular styles={{ color: colors.textsAndIcons.dark }}>
+                No hay transacciones para mostrar
+              </Typography.H6.Regular>
+            </View>
+          )}
         </FlexBox>
       </ScrollView>
       <SpeedFabView />
@@ -166,6 +167,18 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 32,
   },
   fab: {
     position: "absolute",
