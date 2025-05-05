@@ -1,19 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ScrollView, 
-  ViewStyle, 
-  Animated, 
+import React, { useState, useRef, useEffect } from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ViewStyle,
+  Animated,
   Modal,
   Dimensions,
-  LayoutRectangle 
-} from 'react-native';
-import Typography from '../../Typography';
-import colors from '@/src/constants/colors';
-import { MaterialIcons } from '@expo/vector-icons';
-import { FlexBetween } from '../../FlexBox/FlexBetween';
+} from "react-native";
+import Typography from "../../Typography";
+import colors from "@/src/constants/colors";
+import { MaterialIcons } from "@expo/vector-icons";
+import { FlexBetween } from "../../FlexBox/FlexBetween";
 
 interface ComboBoxItem {
   label: string;
@@ -30,7 +29,7 @@ interface AppComboBoxProps {
   containerStyle?: ViewStyle;
   icon?: keyof typeof MaterialIcons.glyphMap;
   iconOnly?: boolean;
-  dropdownAlign?: 'left' | 'right';
+  dropdownAlign?: "left" | "right";
 }
 
 export const AppComboBox: React.FC<AppComboBoxProps> = ({
@@ -43,13 +42,18 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
   containerStyle,
   icon,
   iconOnly = false,
-  dropdownAlign = 'left',
+  dropdownAlign = "left",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [buttonPosition, setButtonPosition] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const selectedItem = items.find(item => item.value === value);
-  const screenWidth = Dimensions.get('window').width;
+  const selectedItem = items.find((item) => item.value === value);
+  const screenWidth = Dimensions.get("window").width;
 
   useEffect(() => {
     if (isOpen) {
@@ -88,11 +92,9 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
   const renderButton = () => (
     <View ref={buttonRef} collapsable={false}>
       <TouchableOpacity onPress={handlePress}>
-        <FlexBetween style={[
-          styles.selectButton,
-          iconOnly && styles.iconOnlyButton,
-          { gap: 4 }
-          ]}>
+        <FlexBetween
+          style={[styles.selectButton, iconOnly && styles.iconOnlyButton]}
+        >
           {icon && (
             <MaterialIcons
               name={icon}
@@ -104,21 +106,21 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
             <FlexBetween style={{ gap: 4, flex: 1 }}>
               <Typography.P3.Regular
                 styles={{
-                  color: selectedItem ? colors.textsAndIcons.main : colors.textsAndIcons.dark,
+                  color: selectedItem
+                    ? colors.textsAndIcons.main
+                    : colors.textsAndIcons.dark,
                   flex: 1,
                   marginRight: 24,
-                  ellipsizeMode: 'tail',
-                  numberOfLines: 1,
                 }}
                 numberOfLines={1}
               >
                 {selectedItem ? selectedItem.label : label}
               </Typography.P3.Regular>
               <MaterialIcons
-                  name="arrow-drop-down"
-                  size={24}
-                  color={colors.textsAndIcons.dark}
-                  style={{ position: 'absolute', right: 0 }}
+                name="arrow-drop-down"
+                size={24}
+                color={colors.textsAndIcons.dark}
+                style={{ position: "absolute", right: 0 }}
               />
             </FlexBetween>
           )}
@@ -135,20 +137,22 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
     const shouldAlignRight = rightSpace < buttonPosition.width;
 
     const dropdownStyle: ViewStyle = {
-      position: 'absolute',
+      position: "absolute",
       top: buttonPosition.y + buttonPosition.height + 4,
       width: Math.max(buttonPosition.width, 150), // Minimum width for dropdown
       opacity: fadeAnim,
-      transform: [{
-        translateY: fadeAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [-20, 0],
-        })
-      }],
+      transform: [
+        {
+          translateY: fadeAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [-20, 0],
+          }),
+        },
+      ],
     };
 
     // Aplicar alineación según el parámetro dropdownAlign
-    if (dropdownAlign === 'right') {
+    if (dropdownAlign === "right") {
       dropdownStyle.right = SCREEN_PADDING;
     } else {
       dropdownStyle.left = buttonPosition.x;
@@ -173,15 +177,16 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
                   key={item.value}
                   style={[
                     styles.option,
-                    item.value === value && styles.selectedOption
+                    item.value === value && styles.selectedOption,
                   ]}
                   onPress={() => handleSelect(item)}
                 >
                   <Typography.P3.Regular
                     styles={{
-                      color: item.value === value 
-                        ? colors.primary.main 
-                        : colors.textsAndIcons.main,
+                      color:
+                        item.value === value
+                          ? colors.primary.main
+                          : colors.textsAndIcons.main,
                     }}
                   >
                     {item.label}
@@ -203,33 +208,32 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
   };
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <>
       {renderButton()}
       {renderDropdown()}
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
   selectButton: {
     borderWidth: 1,
     borderColor: colors.textsAndIcons.dark,
     borderRadius: 50,
     padding: 4,
-    backgroundColor: colors.backgrounds.light,
+    backgroundColor: "transparent",
+    minWidth: 120,
   },
   iconOnlyButton: {
     width: 40,
     paddingHorizontal: 8,
+    minWidth: 40,
   },
   dropdown: {
     backgroundColor: colors.backgrounds.light,
     borderRadius: 12,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -242,9 +246,9 @@ const styles = StyleSheet.create({
     maxHeight: 200,
   },
   option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,

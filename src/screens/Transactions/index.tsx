@@ -106,8 +106,8 @@ const Transactions = () => {
           onTabChange={handleTabChange}
         />
 
-        <FlexBetween style={[styles.filterContainer]}>
-          <FlexBox style={{ gap: 15, flexDirection: "row" }}>
+        <FlexBox style={styles.filterContainer}>
+          <FlexBox style={{ flexDirection: "row", gap: 15 }}>
             <AppComboBox
               label="Categoría"
               value={selectedCategory}
@@ -123,15 +123,17 @@ const Transactions = () => {
               dropdownAlign="left"
             />
           </FlexBox>
-          <AppComboBox
-            icon="sort"
-            iconOnly={true}
-            value={selectedSort}
-            items={SORT_OPTIONS}
-            onSelect={(item) => setSelectedSort(item.value)}
-            dropdownAlign="right"
-          />
-        </FlexBetween>
+          <FlexBox style={{ alignSelf: "flex-end" }}>
+            <AppComboBox
+              icon="sort"
+              iconOnly={true}
+              value={selectedSort}
+              items={SORT_OPTIONS}
+              onSelect={(item) => setSelectedSort(item.value)}
+              dropdownAlign="right"
+            />
+          </FlexBox>
+        </FlexBox>
 
         <FlexBox style={{ paddingLeft: 16, paddingRight: 16, gap: 10 }}>
           {transactions
@@ -153,8 +155,10 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     padding: 16,
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   fab: {
     position: "absolute",
