@@ -42,7 +42,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password
       );
-      console.log("User registered:", userCredential.user);
+      const user = userCredential.user;
+      if (user) {
+        await updateProfile(user, { displayName });
+      }
       await AsyncStorage.setItem("userLoginState", "true");
       setLogin(true);
       setError(null);
@@ -60,7 +63,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password
       );
-      // console.log("User logged in:", userCredential.user);
       await AsyncStorage.setItem("userLoginState", "true");
       setLogin(true);
       setError(null);

@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { StyleSheet, ScrollView, Platform } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  ScrollView,
+  Platform,
+  ActivityIndicator,
+  View,
+} from "react-native";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
@@ -8,7 +14,10 @@ import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
-import { TransactionType } from "./interfaces";
+import { getUserTransactions } from "@/src/services/transactions";
+import { Transaction } from "@/src/models/Transaction";
+import Typography from "@/src/components/Typography";
+import { Navigation } from "@/src/utils";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -16,7 +25,6 @@ const TRANSACTION_TABS = [
 ];
 
 const CATEGORIES = [
-  { label: "Categorías", value: "all" },
   { label: "Salario principal", value: "main_salary" },
   { label: "Servicios públicos", value: "utilities" },
   { label: "Transporte", value: "transport" },
@@ -26,7 +34,7 @@ const CATEGORIES = [
 const PAYMENT_TYPES = [
   { label: "Tipo de pago", value: "all" },
   { label: "Efectivo", value: "cash" },
-  { label: "Electrónico", value: "credit_card" },
+  { label: "Electrónico", value: "electronic" },
 ];
 
 const SORT_OPTIONS = [
@@ -35,67 +43,59 @@ const SORT_OPTIONS = [
 ];
 
 const Transactions = () => {
+  const navigation = Navigation();
   const [selectedTabId, setSelectedTabId] = useState<string>("income");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>("newest");
-
-  const transactions: TransactionType[] = [
-    {
-      id: "1",
-      type: "income",
-      amount: 5500.0,
-      category: "Salario principal",
-      name: "Pago mensual",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      id: "2",
-      type: "expense",
-      amount: 200.0,
-      category: "Servicios públicos",
-      name: "Pago de electricidad",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      id: "3",
-      type: "income",
-      amount: 5500.0,
-      category: "Salario principal",
-      name: "Pago mensual2",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      id: "4",
-      type: "expense",
-      amount: 200.0,
-      category: "Servicios públicos",
-      name: "Pago de electricidad2",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      id: "5",
-      type: "income",
-      amount: 5500.0,
-      category: "Salario principal",
-      name: "Pago mensual3",
-      date: "20 Oct 2025, 3:15pm",
-    },
-    {
-      id: "6",
-      type: "expense",
-      amount: 200.0,
-      category: "Servicios públicos",
-      name: "Pago de electricidad3",
-      date: "20 Oct 2025, 3:15pm",
-    },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleTabChange = (tabId: string) => {
-    if (Platform.OS === "web") return setSelectedTabId(tabId); //Evita que se rompa en web
+    if (Platform.OS === "web") return setSelectedTabId(tabId);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedTabId(tabId);
   };
+
+  const fetchTransactions = async () => {
+    try {
+      setIsLoading(true);
+      const transactionsData = await getUserTransactions();
+      setTransactions(transactionsData);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFilteredTransactions = () => {
+    return transactions
+      .filter((transaction) => {
+        const tabType = selectedTabId === "income" ? "ingreso" : "gasto";
+        if (transaction.type !== tabType) return false;
+        if (
+          selectedCategory !== "all" &&
+          transaction.category !== selectedCategory
+        )
+          return false;
+        if (
+          selectedPaymentType !== "all" &&
+          transaction.paymentMethod !== selectedPaymentType
+        )
+          return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return selectedSort === "newest" ? dateB - dateA : dateA - dateB;
+      });
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   return (
     <>
@@ -135,12 +135,34 @@ const Transactions = () => {
           </FlexBox>
         </FlexBox>
 
-        <FlexBox style={{ paddingLeft: 16, paddingRight: 16, gap: 10 }}>
-          {transactions
-            .filter((t) => t.type === selectedTabId)
-            .map((transaction, idx) => (
-              <TransactionCard key={idx} transaction={transaction} />
-            ))}
+        <FlexBox style={{ paddingLeft: 16, paddingRight: 16 }}>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary.main} />
+            </View>
+          ) : getFilteredTransactions().length > 0 ? (
+            getFilteredTransactions().map((transaction, idx) => (
+              <TransactionCard
+                key={idx}
+                transaction={transaction}
+                onEdit={(tx) => {
+                  navigation.navigate("CreateAndEditTransactions", {
+                    type: tx.type,
+                    isEditing: true,
+                    transaction: tx,
+                  });
+                }}
+              />
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Typography.H6.Regular
+                styles={{ color: colors.textsAndIcons.dark }}
+              >
+                No hay transacciones para mostrar
+              </Typography.H6.Regular>
+            </View>
+          )}
         </FlexBox>
       </ScrollView>
       <SpeedFabView />
@@ -158,7 +180,18 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 32,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 32,
   },
   fab: {
     position: "absolute",

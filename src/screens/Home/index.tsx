@@ -10,6 +10,7 @@ import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { TransactionType } from "../Transactions/interfaces";
 import NotificationCard from "@/src/components/NotificationCard";
+import { Transaction } from "@/src/models/Transaction";
 
 const Home = () => {
   const navigation = Navigation();
@@ -81,9 +82,22 @@ const Home = () => {
             <FlexBox style={{ gap: 10, width: "100%" }}>
               {transactions.map((transaction, index) => (
                 <TransactionCard
-                  transaction={transaction}
+                  // transaction={transaction}
                   key={index}
-                  withoutActions
+                  // type={transaction.type}
+                  // amount={transaction.amount}
+                  // category={transaction.category}
+                  // description={transaction.description}
+                  // date={transaction.date}
+                  transaction={
+                    {
+                      type: transaction.type,
+                      amount: transaction.amount,
+                      category: transaction.category,
+                      description: transaction.description,
+                      date: new Date(transaction.date),
+                    } as Transaction
+                  }
                 />
               ))}
             </FlexBox>
