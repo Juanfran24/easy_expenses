@@ -18,7 +18,12 @@ export type RootStackParamList = {
   Home: NavigatorScreenParams<BottomTabParamList>;
   Configuration: undefined;
   CreateCategory: undefined;
-  CreateAndEditTransactions: { type: string; id?: string };
+  CreateAndEditTransactions: { 
+    type: string; 
+    id?: string;
+    isEditing?: boolean;
+    transaction?: any;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

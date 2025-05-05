@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import Divider from "@/src/components/Divider";
 import ProviderButton from "@/src/components/AppButton/ProviderButton";
+import { TouchableOpacity } from "react-native";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -85,11 +86,16 @@ const Login = () => {
             </Typography.P3.Regular>
           )}
         </FlexBox>
-        <Typography.P3.Underline
-          styles={{ textAlign: "right", color: colors.primary.main }}
-        >
-          ¿Has olvidado la contraseña?
-        </Typography.P3.Underline>
+        <TouchableOpacity onPress={() => {
+          //@ts-ignore
+          navigation.navigate("ResetPassword");
+        }}>
+          <Typography.P3.Underline
+            styles={{ textAlign: "right", color: colors.primary.main }}
+          >
+            ¿Has olvidado la contraseña?
+          </Typography.P3.Underline>
+        </TouchableOpacity>
         <FlexBox style={{ width: "100%", gap: 16 }}>
           <AppButton
             title="Iniciar sesión"

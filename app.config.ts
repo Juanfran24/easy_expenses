@@ -16,6 +16,7 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
+      package: "com.easyexpenses.app",
     },
     web: {
       bundler: "metro",
