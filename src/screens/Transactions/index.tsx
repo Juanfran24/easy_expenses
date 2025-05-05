@@ -11,6 +11,7 @@ import SpeedFabView from "@/src/components/FABButtom";
 import { getUserTransactions } from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
 import Typography from "@/src/components/Typography";
+import { Navigation } from "@/src/utils";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -18,7 +19,6 @@ const TRANSACTION_TABS = [
 ];
 
 const CATEGORIES = [
-  { label: "Categorías", value: "all" },
   { label: "Salario principal", value: "main_salary" },
   { label: "Servicios públicos", value: "utilities" },
   { label: "Transporte", value: "transport" },
@@ -37,6 +37,7 @@ const SORT_OPTIONS = [
 ];
 
 const Transactions = () => {
+  const navigation = Navigation();
   const [selectedTabId, setSelectedTabId] = useState<string>("income");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
@@ -55,7 +56,6 @@ const Transactions = () => {
       setIsLoading(true);
       const transactionsData = await getUserTransactions();
       setTransactions(transactionsData);
-      console.log("Transactions fetched successfully:", transactionsData);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     } finally {
@@ -131,17 +131,14 @@ const Transactions = () => {
             getFilteredTransactions().map((transaction, idx) => (
               <TransactionCard
                 key={idx}
-                type={transaction.type === "ingreso" ? "income" : "expense"}
-                amount={transaction.amount}
-                category={transaction.category}
-                description={transaction.description}
-                date={transaction.date.toLocaleString('es-ES', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+                transaction={transaction}
+                onEdit={(tx) => {
+                  navigation.navigate("CreateAndEditTransactions", {
+                    type: tx.type,
+                    isEditing: true,
+                    transaction: tx
+                  });
+                }}
               />
             ))
           ) : (

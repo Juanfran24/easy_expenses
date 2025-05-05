@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
@@ -7,13 +7,12 @@ import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import { AppButton } from "@/src/components/AppButton";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
-import { createTransaction } from "@/src/services/transactions";
-import { Transaction } from "@/src/models/Transaction";
+import { createTransaction, updateTransaction } from "@/src/services/transactions";
 import { useNavigation } from "@react-navigation/native";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const navigation = useNavigation();
-  const { type: typeTransaction } = route.params;
+  const { type: typeTransaction, isEditing, transaction: editingTransaction } = route.params;
   const [nameTransaction, setNameTransaction] = useState("");
   const [valueTransaction, setValueTransaction] = useState("");
   const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
@@ -21,13 +20,23 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [category, setCategory] = useState("");
 
+  useEffect(() => {
+    if (isEditing && editingTransaction) {
+      setNameTransaction(editingTransaction.name);
+      setValueTransaction(transformToCurrency(editingTransaction.amount.toString()));
+      setDateTransaction(new Date(editingTransaction.date));
+      setDescriptionTransaction(editingTransaction.description);
+      setPaymentMethod(editingTransaction.paymentMethod);
+      setCategory(editingTransaction.category);
+    }
+  }, [isEditing, editingTransaction]);
+
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");
     setValueTransaction(transformToCurrency(digitsOnly));
   };
 
   const CATEGORIES = [
-    { label: "Categorías", value: "all" },
     { label: "Salario principal", value: "main_salary" },
     { label: "Servicios públicos", value: "utilities" },
     { label: "Transporte", value: "transport" },
@@ -43,10 +52,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
     try {
       const now = new Date();
       
-      // Remover el formato de moneda y convertir a número
       const cleanAmount = valueTransaction.replace(/[$.]/g, '').replace(/,/g, '');
       
-      const transaction: Transaction = {
+      const transactionData = {
         name: nameTransaction,
         amount: parseInt(cleanAmount, 10),
         description: descriptionTransaction,
@@ -54,12 +62,19 @@ const CreateAndEditTransactions = ({ route }: any) => {
         category: category || "all",
         type: typeTransaction,
         paymentMethod: paymentMethod as 'cash' | 'electronic',
-        userId: "",
-        createdAt: now,
         updatedAt: now
       };
 
-      await createTransaction(transaction);
+      if (isEditing && editingTransaction?.id) {
+        await updateTransaction(editingTransaction.id, transactionData);
+      } else {
+        await createTransaction({
+          ...transactionData,
+          userId: "",
+          createdAt: now
+        });
+      }
+
       //@ts-ignore
       navigation.navigate("Home", {
         screen: "Transacciones"
@@ -113,7 +128,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
           value={paymentMethod}
         />
         <AppButton
-          title={`Agregar ${typeTransaction}`}
+          title={`${isEditing ? 'Actualizar' : 'Agregar'} ${typeTransaction}`}
           onPress={() => onSaveTransaction()}
           variant="outlined"
         />

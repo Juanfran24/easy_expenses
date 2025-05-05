@@ -13,7 +13,6 @@ const SpeedFabView = () => {
 
   const handleNewTransaction = (type: string) => {
     // // Handle new transaction logic here
-    // console.log(`New ${type} transaction`);
     if (type === "ingreso") {
       navigation.navigate("CreateAndEditTransactions", {
         type: "ingreso",

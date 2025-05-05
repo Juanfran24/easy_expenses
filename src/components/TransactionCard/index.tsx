@@ -5,33 +5,35 @@ import colors from '@/src/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FlexBetween } from '../FlexBox/FlexBetween';
 import { FlexBox } from '../FlexBox';
+import { Transaction } from '@/src/models/Transaction';
 
-interface TransactionCardProps {
-  type: 'income' | 'expense';
-  amount: number;
-  category: string;
-  description: string;
-  date: string;
+interface TransactionCardProps{
+  transaction: Transaction;
+  onEdit?: (transaction: Transaction) => void;
 }
 
 export const TransactionCard: React.FC<TransactionCardProps> = ({
-  type,
-  amount,
-  category,
-  description,
-  date,
+  transaction,
+  onEdit,
 }) => {
+  const {
+    type,
+    amount,
+    description,
+    date,
+  } = transaction;
+
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const isIncome = type === 'income';
+  const isIncome = type === 'ingreso';
   const menuButtonRef = useRef<View>(null);
   const screenWidth = Dimensions.get('window').width;
   const menuWidth = 150; // Ancho fijo del menú
-
+  
   const handleMenuPress = () => {
     if (menuButtonRef.current) {
-      menuButtonRef.current.measureInWindow((x, y, width, height) => {
+      menuButtonRef.current.measureInWindow((x, y, height) => {
         // Calcular la posición X para que el menú no se salga de la pantalla
         let menuX = x - menuWidth + 30;
         
@@ -68,13 +70,18 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
 
   const handleMenuAction = (action: 'edit' | 'delete') => {
     if (action === 'edit') {
-      // Handle edit action
-      console.log('Edit pressed');
+      handleEditTransaction();
     } else {
       // Handle delete action
       console.log('Delete pressed');
     }
     handleCloseMenu();
+  };
+
+  const handleEditTransaction = () => {
+    if (onEdit) {
+      onEdit(transaction);
+    }
   };
 
   return (
@@ -90,7 +97,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
           </View>
           <FlexBox style={{ flex: 1 }}>
             <Typography.H6.SemiBold>{description}</Typography.H6.SemiBold>
-            <Typography.P4.Regular styles={styles.date}>{date}</Typography.P4.Regular>
+            <Typography.P4.Regular styles={styles.date}>{date.toLocaleDateString()}</Typography.P4.Regular>
           </FlexBox>
         </FlexBox>
 
