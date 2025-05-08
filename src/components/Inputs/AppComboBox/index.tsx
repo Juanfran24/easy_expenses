@@ -26,7 +26,6 @@ interface AppComboBoxProps {
   onSelect?: (item: ComboBoxItem) => void;
   onCustomAction?: () => void;
   customActionEnabled?: boolean;
-  containerStyle?: ViewStyle;
   icon?: keyof typeof MaterialIcons.glyphMap;
   iconOnly?: boolean;
   dropdownAlign?: "left" | "right";
@@ -39,7 +38,6 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
   onSelect,
   onCustomAction,
   customActionEnabled = false,
-  containerStyle,
   icon,
   iconOnly = false,
   dropdownAlign = "left",
@@ -106,9 +104,6 @@ export const AppComboBox: React.FC<AppComboBoxProps> = ({
             <FlexBetween style={{ gap: 4, flex: 1 }}>
               <Typography.P3.Regular
                 styles={{
-                  color: selectedItem
-                    ? colors.textsAndIcons.main
-                    : colors.textsAndIcons.dark,
                   flex: 1,
                   marginRight: 24,
                 }}

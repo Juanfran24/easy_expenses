@@ -1,15 +1,22 @@
 import { AppButton } from "@/src/components/AppButton";
 import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
 import AppSelect from "@/src/components/Inputs/AppSelect";
-import AppSwitch from "@/src/components/Inputs/AppSwitch";
+import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
+import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { Navigation } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import { User } from "firebase/auth";
+import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Configuration = () => {
+  const { user } = useAuth();
+  const { displayName, email: userEmail } = user as User;
+  const [currentCurrency, setCurrentCurrency] = useState<string>("COP");
+  const [username, setUsername] = useState<string>(displayName || "");
+  const [email, setEmail] = useState<string>(userEmail || "");
   const navigation = Navigation();
 
   const handleCreateCategory = () => {
@@ -39,8 +46,8 @@ const Configuration = () => {
       <View style={{ marginTop: 36 }}>
         <AppSelect
           label="Moneda predeterminada"
-          value={null}
-          onValueChange={() => {}}
+          value={currentCurrency}
+          onValueChange={(itemValue) => setCurrentCurrency(itemValue)}
           placeholder="Selecciona una opción"
           items={[
             { label: "Peso Colombiano (COP)", value: "COP" },
@@ -50,11 +57,20 @@ const Configuration = () => {
         />
       </View>
 
-      <View style={{ marginTop: 36 }}>
+      <View style={{ marginTop: 36, gap: 24 }}>
         <Typography.H5.SemiBold>Cuenta de usuario</Typography.H5.SemiBold>
-        <View style={{ marginTop: 24 }}>
-          <AppSwitch label="Activar notificaciones al correo" />
-        </View>
+        <AppTextInput
+          label="Nombre de usuario"
+          value={username}
+          onChangeText={(text) => setUsername(text)}
+          placeholder="Escribe tu nombre de usuario"
+        />
+        <AppTextInput
+          label="Correo electrónico"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          placeholder="Escribe tu correo electrónico"
+        />
         <View style={{ marginTop: 24 }}>
           <AppButton
             variant="text-icon"

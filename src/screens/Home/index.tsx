@@ -8,11 +8,14 @@ import colors from "@/src/constants/colors";
 import { Navigation } from "@/src/utils";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { TransactionType } from "../Transactions/interfaces";
 import NotificationCard from "@/src/components/NotificationCard";
 import { Transaction } from "@/src/models/Transaction";
+import { useAuth } from "@/src/context/AuthContext/useAuth";
+import { User } from "firebase/auth";
 
 const Home = () => {
+  const { user } = useAuth();
+  const { displayName } = user as User;
   const navigation = Navigation();
   const pieData = [
     {
@@ -34,30 +37,33 @@ const Home = () => {
     },
   ];
 
-  const transactions: TransactionType[] = [
+  const transactions: Transaction[] = [
     {
       id: "1",
-      type: "income",
+      type: "ingreso",
       amount: 2500000,
       category: "Salario principal",
       name: "Pago mensual",
       date: "20 Oct 2025, 3:15pm",
+      paymentMethod: "cash",
     },
     {
       id: "2",
-      type: "expense",
+      type: "gasto",
       amount: 200000,
       category: "Servicios públicos",
       name: "Pago de electricidad",
       date: "20 Oct 2025, 3:15pm",
+      paymentMethod: "cash",
     },
     {
       id: "3",
-      type: "income",
+      type: "ingreso",
       amount: 500000,
       category: "Salario principal",
       name: "Pago mensual2",
       date: "20 Oct 2025, 3:15pm",
+      paymentMethod: "cash",
     },
   ];
 
@@ -65,8 +71,14 @@ const Home = () => {
     <View style={styles.primaryContainer}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ flex: 1 }}>
         <FlexBox style={styles.balanceContainer}>
-          <Typography.H6.Regular>Saldo Disponible</Typography.H6.Regular>
-          <Typography.H1 styles={{ color: colors.primary.medium }}>
+          <Typography.P2.Regular>
+            ¡Hola,{" "}
+            {<Typography.P2.SemiBold>{displayName}</Typography.P2.SemiBold>}!
+          </Typography.P2.Regular>
+          <Typography.H6.Regular>Tu saldo disponible es:</Typography.H6.Regular>
+          <Typography.H1
+            styles={{ color: colors.primary.medium, marginTop: 5 }}
+          >
             $ 1.500.000 COP
           </Typography.H1>
         </FlexBox>
@@ -82,22 +94,9 @@ const Home = () => {
             <FlexBox style={{ gap: 10, width: "100%" }}>
               {transactions.map((transaction, index) => (
                 <TransactionCard
-                  // transaction={transaction}
                   key={index}
-                  // type={transaction.type}
-                  // amount={transaction.amount}
-                  // category={transaction.category}
-                  // description={transaction.description}
-                  // date={transaction.date}
-                  transaction={
-                    {
-                      type: transaction.type,
-                      amount: transaction.amount,
-                      category: transaction.category,
-                      description: transaction.description,
-                      date: new Date(transaction.date),
-                    } as Transaction
-                  }
+                  transaction={transaction}
+                  withoutActions
                 />
               ))}
             </FlexBox>
@@ -135,8 +134,7 @@ const styles = StyleSheet.create({
   balanceContainer: {
     alignSelf: "center",
     alignItems: "center",
-    top: 50,
-    gap: 8,
+    top: 45,
   },
   secondContainer: {
     marginTop: 88,

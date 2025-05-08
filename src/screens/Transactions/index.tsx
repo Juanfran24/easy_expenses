@@ -126,7 +126,7 @@ const Transactions = () => {
           <FlexBox style={{ alignSelf: "flex-end" }}>
             <AppComboBox
               icon="sort"
-              iconOnly={true}
+              iconOnly
               value={selectedSort}
               items={SORT_OPTIONS}
               onSelect={(item) => setSelectedSort(item.value)}
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     padding: 16,
     flex: 1,
     flexDirection: "row",
-    alignItems: "center",
+    justifyContent: "space-between",
   },
   loadingContainer: {
     flex: 1,

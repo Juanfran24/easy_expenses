@@ -27,7 +27,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   onEdit,
   withoutActions = false,
 }) => {
-  const { type, amount, description, date } = transaction;
+  const { type, amount, category, date } = transaction;
 
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -102,9 +102,9 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
             />
           </View>
           <FlexBox style={{ flex: 1 }}>
-            <Typography.H6.SemiBold>{description}</Typography.H6.SemiBold>
+            <Typography.H6.SemiBold>{category}</Typography.H6.SemiBold>
             <Typography.P4.Regular styles={styles.date}>
-              {date.toLocaleDateString()}
+              {date}
             </Typography.P4.Regular>
           </FlexBox>
         </FlexBox>
