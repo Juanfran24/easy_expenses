@@ -5,19 +5,16 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  GoogleAuthProvider,
-  signInWithPopup,
   updateProfile,
   User,
   onAuthStateChanged,
 } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export const googleProvider = new GoogleAuthProvider();
+import { useGoogleAuth } from "@/src/hooks/useGoogleAuth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { handleGoogleAuth } = useGoogleAuth();
 
   useEffect(() => {
     const checkLoginState = () => {
@@ -51,8 +48,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (user) {
         await updateProfile(user, { displayName });
       }
-      // await AsyncStorage.setItem("userLoginState", "true");
-      // setUser(true);
     } catch (error: any) {
       console.error("Error during registration:", error);
       setError(error.message);
@@ -61,14 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogin = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      // await AsyncStorage.setItem("userLoginState", "true");
-      setUser(user);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       console.error("Error during login:", error);
       setError(error.message);
@@ -87,20 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential?.accessToken;
-      const user = result.user;
-
-      if (!token) {
-        throw new Error("No se pudo obtener el token de acceso");
-      }
-
-      console.log("User logged in with Google:", user);
-      console.log("Google Access Token:", token);
-
-      // setUser(true);
-      setError(null);
+      handleGoogleAuth();
     } catch (error: any) {
       console.error("Error during Google login:", error);
       setError(error.message);
