@@ -1,17 +1,21 @@
 import { createContext } from "react";
-import { User } from "../interfaces";
+import { User } from "firebase/auth";
 
 interface AuthContextType {
-  login: boolean;
+  user: User | null;
   error: string | null;
   handleLogin: (email: string, password: string) => Promise<void>;
-  handleRegister: (email: string, password: string, username: string) => Promise<void>;
+  handleRegister: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<void>;
   handleLogout: () => Promise<void>;
   handleGoogleLogin: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
-  login: false,
+  user: null,
   error: null,
   handleLogin: async () => {},
   handleRegister: async () => {},

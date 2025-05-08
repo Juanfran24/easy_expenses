@@ -4,11 +4,11 @@ import { useAuth } from "../context/AuthContext/useAuth";
 import AuthStack from "../navigation/auth";
 
 const RootLayout = () => {
-  const { login } = useAuth();
+  const { user } = useAuth();
 
-  useEffect(() => {}, [login]);
+  useEffect(() => {}, [user]);
 
-  return <>{login ? <RootStack /> : <AuthStack />}</>;
+  return <>{user ? <RootStack /> : <AuthStack />}</>;
 };
 
 export default RootLayout;

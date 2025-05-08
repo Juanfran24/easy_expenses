@@ -8,24 +8,29 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
+  User,
+  onAuthStateChanged,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const provider = new GoogleAuthProvider();
+export const googleProvider = new GoogleAuthProvider();
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [login, setLogin] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkLoginState = async () => {
+    const checkLoginState = () => {
       try {
-        const storedLoginState = await AsyncStorage.getItem("userLoginState");
-        if (storedLoginState === "true") {
-          setLogin(true);
-        }
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            return setUser(user);
+          }
+          setUser(null);
+        });
       } catch (error) {
         console.error("Error checking login state:", error);
+        setError("Error checking login state");
       }
     };
     checkLoginState();
@@ -46,13 +51,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (user) {
         await updateProfile(user, { displayName });
       }
-      await AsyncStorage.setItem("userLoginState", "true");
-      setLogin(true);
-      setError(null);
+      // await AsyncStorage.setItem("userLoginState", "true");
+      // setUser(true);
     } catch (error: any) {
       console.error("Error during registration:", error);
       setError(error.message);
-      throw error;
     }
   };
 
@@ -63,22 +66,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password
       );
-      await AsyncStorage.setItem("userLoginState", "true");
-      setLogin(true);
-      setError(null);
+      const user = userCredential.user;
+      // await AsyncStorage.setItem("userLoginState", "true");
+      setUser(user);
     } catch (error: any) {
       console.error("Error during login:", error);
       setError(error.message);
-      throw error;
     }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      await AsyncStorage.removeItem("userLoginState");
-      setLogin(false);
-      setError(null);
+      setUser(null);
     } catch (error: any) {
       console.error("Error during logout:", error);
       setError(error.message);
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, googleProvider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
       const user = result.user;
@@ -99,20 +99,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("User logged in with Google:", user);
       console.log("Google Access Token:", token);
 
-      await AsyncStorage.setItem("userToken", token);
-      await AsyncStorage.setItem("userLoginState", "true");
-      setLogin(true);
+      // setUser(true);
       setError(null);
     } catch (error: any) {
       console.error("Error during Google login:", error);
       setError(error.message);
-      throw error;
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ login, error, handleLogin, handleRegister, handleLogout }}
+      value={{
+        user,
+        error,
+        handleLogin,
+        handleRegister,
+        handleLogout,
+        handleGoogleLogin,
+      }}
     >
       {children}
     </AuthContext.Provider>
