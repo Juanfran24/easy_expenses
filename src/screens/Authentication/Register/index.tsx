@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import Typography from "@/src/components/Typography";
 import { AppButton } from "@/src/components/AppButton";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
@@ -18,22 +18,57 @@ const Register = () => {
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
-
   const onRegister = async () => {
+    setError(null);
+    
     if (!username.trim()) {
       setError("El nombre de usuario es requerido");
+      return;
+    }
+    if (!email.trim()) {
+      setError("El correo electrónico es requerido");
+      return;
+    }
+    if (!password.trim()) {
+      setError("La contraseña es requerida");
       return;
     }
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
     }
-    try {
+      try {
       await handleRegister(email, password, username);
       //@ts-ignore
       navigation.navigate("Login");
-    } catch (err) {
-      setError("Error al registrar el usuario");
+      
+      // Después del registro, mostramos el alert y luego redirigimos al login
+      Alert.alert(
+        "Registro exitoso",
+        "Te hemos enviado un correo de verificación. Por favor, verifica tu correo electrónico antes de iniciar sesión.",
+        [
+          {
+            text: "Entendido",
+            onPress: () => {
+            }
+          }
+        ]
+      );
+    }catch (err: any) {
+      console.error("Error durante el registro:", err);
+      
+      // Manejar tipos específicos de errores
+      if (err.code === "auth/email-already-in-use" || 
+          (err.message && err.message.includes("ya está registrado"))) {
+        setError("Este correo ya está registrado");
+      } else if (err.code === "auth/weak-password") {
+        setError("La contraseña es demasiado débil. Debe tener al menos 6 caracteres.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("El formato del correo electrónico es inválido.");
+      } else {
+        // Error genérico
+        setError("Error al registrar el usuario: " + (err.message || "Error desconocido"));
+      }
     }
   };
 

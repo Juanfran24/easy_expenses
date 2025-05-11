@@ -16,18 +16,17 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
   const onLogin = async () => {
+    setError(null);
     try {
       if (!email || !password) {
         setError("Por favor, complete todos los campos");
         return;
       }
       await handleLogin(email, password);
-      // El manejo del redireccionamiento se hace automáticamente por el RootLayout
-      // basado en el estado de login
+      // No necesitamos hacer nada más aquí, ya que AuthProvider manejará
+      // la redirección si el login es exitoso
     } catch (err) {
-      // Mostrar mensaje de error específico según el código de error de Firebase
       if (err instanceof Error) {
         if (err.message.includes("auth/invalid-email")) {
           setError("Correo electrónico inválido");
@@ -35,6 +34,10 @@ const Login = () => {
           setError("Contraseña incorrecta");
         } else if (err.message.includes("auth/user-not-found")) {
           setError("Usuario no encontrado");
+        } else if (err.message.includes("email-not-verified") || 
+                  err.message.includes("verifica tu correo")) {
+          setError("Por favor, verifica tu correo electrónico antes de iniciar sesión");
+          // No navegamos a ninguna otra pantalla, nos quedamos en login
         } else {
           setError("Error al iniciar sesión. Por favor, intente nuevamente");
         }
