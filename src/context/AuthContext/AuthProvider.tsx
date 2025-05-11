@@ -16,6 +16,7 @@ import { useGoogleAuth } from "@/src/hooks/useGoogleAuth";
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const { handleGoogleAuth } = useGoogleAuth();
 
   useEffect(() => {
@@ -41,6 +42,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     displayName: string
   ) => {
     try {
+      setError(null);
+      
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
       
       if (signInMethods.length > 0) {
@@ -59,6 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await updateProfile(user, { displayName });
         await signOut(auth);
         setUser(null);
+        setUnverifiedEmail(email);
         await sendEmailVerification(user);
       }
     } catch (error: any) {
@@ -78,24 +82,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogin = async (email: string, password: string) => {
     try {
+      setError(null);
+      setUnverifiedEmail(null);
+      
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
       if (!user.emailVerified) {
-        // Cerrar sesión pero no actualizar el estado de usuario todavía
         await signOut(auth);
-        
-        // Enviar un nuevo correo de verificación
-        await sendEmailVerification(user);
-        
-        // Crear un error personalizado
+        setUnverifiedEmail(email);
+        //await sendEmailVerification(user);
         const error = new Error("Por favor, verifica tu correo electrónico antes de iniciar sesión. Se ha enviado un nuevo correo de verificación.");
         // @ts-ignore
         error.code = "auth/email-not-verified";
         throw error;
       }
       
-      // Si llegamos aquí, el usuario está verificado y podemos establecer el estado
       setUser(user);
       setError(null);
       
@@ -121,6 +123,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await signOut(auth);
       setUser(null);
+      setUnverifiedEmail(null);
     } catch (error: any) {
       console.error("Error during logout:", error);
       setError(error.message);
@@ -141,6 +144,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         user,
         error,
+        unverifiedEmail,
         handleLogin,
         handleRegister,
         handleLogout,

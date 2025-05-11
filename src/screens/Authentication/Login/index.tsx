@@ -22,22 +22,17 @@ const Login = () => {
       if (!email || !password) {
         setError("Por favor, complete todos los campos");
         return;
-      }
+      }      
       await handleLogin(email, password);
-      // No necesitamos hacer nada más aquí, ya que AuthProvider manejará
-      // la redirección si el login es exitoso
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message.includes("auth/invalid-email")) {
-          setError("Correo electrónico inválido");
-        } else if (err.message.includes("auth/wrong-password")) {
-          setError("Contraseña incorrecta");
-        } else if (err.message.includes("auth/user-not-found")) {
-          setError("Usuario no encontrado");
-        } else if (err.message.includes("email-not-verified") || 
-                  err.message.includes("verifica tu correo")) {
+    } catch (err) {      if (err instanceof Error) {
+        if ((err as any).code === "auth/email-not-verified" || 
+            err.message.includes("email-not-verified") || 
+            err.message.includes("verifica tu correo")) {
           setError("Por favor, verifica tu correo electrónico antes de iniciar sesión");
-          // No navegamos a ninguna otra pantalla, nos quedamos en login
+        } else if (err.message.includes("auth/invalid-email") || (err as any).code === "auth/invalid-email") {
+          setError("Correo electrónico inválido");
+                } else if (err.message.includes("auth/user-not-found") || (err as any).code === "auth/user-not-found") {
+          setError("Usuario no encontrado");
         } else {
           setError("Error al iniciar sesión. Por favor, intente nuevamente");
         }

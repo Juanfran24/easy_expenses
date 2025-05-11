@@ -32,32 +32,29 @@ const Register = () => {
     if (!password.trim()) {
       setError("La contraseña es requerida");
       return;
-    }
-    if (password !== confirmPassword) {
+    }    if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
     }
-      try {
+    
+    try {
       await handleRegister(email, password, username);
-      //@ts-ignore
-      navigation.navigate("Login");
-      
-      // Después del registro, mostramos el alert y luego redirigimos al login
       Alert.alert(
-        "Registro exitoso",
-        "Te hemos enviado un correo de verificación. Por favor, verifica tu correo electrónico antes de iniciar sesión.",
+        "Verificación requerida",
+        `Te hemos enviado un correo a ${email}. Por favor, verifica tu cuenta haciendo clic en el enlace antes de iniciar sesión.`,
         [
-          {
-            text: "Entendido",
+          { 
+            text: "Entendido", 
             onPress: () => {
+              //@ts-ignore
+              navigation.navigate("Login");
             }
           }
         ]
       );
-    }catch (err: any) {
-      console.error("Error durante el registro:", err);
       
-      // Manejar tipos específicos de errores
+    } catch (err: any) {
+      console.error("Error durante el registro:", err);
       if (err.code === "auth/email-already-in-use" || 
           (err.message && err.message.includes("ya está registrado"))) {
         setError("Este correo ya está registrado");
@@ -66,7 +63,6 @@ const Register = () => {
       } else if (err.code === "auth/invalid-email") {
         setError("El formato del correo electrónico es inválido.");
       } else {
-        // Error genérico
         setError("Error al registrar el usuario: " + (err.message || "Error desconocido"));
       }
     }
