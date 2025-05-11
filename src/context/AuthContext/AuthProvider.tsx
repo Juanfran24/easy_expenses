@@ -10,6 +10,10 @@ import {
   onAuthStateChanged,
   fetchSignInMethodsForEmail,
   sendEmailVerification,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  verifyPasswordResetCode,
+  updatePassword,
 } from "firebase/auth";
 import { useGoogleAuth } from "@/src/hooks/useGoogleAuth";
 
@@ -138,6 +142,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setError(error.message);
     }
   };
+
+  const handleResetPassword = async (email: string) => {
+    try {
+      setError(null);
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      console.error("Error sending reset password email:", error);
+      if (error.code === "auth/user-not-found") {
+        setError("No existe una cuenta con este correo electrónico");
+      } else if (error.code === "auth/invalid-email") {
+        setError("Formato de correo electrónico inválido");
+      } else {
+        setError("Error al enviar el correo de recuperación");
+      }
+      throw error;
+    }
+  };
+
+  const handleUpdatePassword = async (newPassword: string) => {
+    try {
+      setError(null);
+      if (auth.currentUser) {
+        await updatePassword(auth.currentUser, newPassword);
+      } else {
+        throw new Error("No hay usuario autenticado");
+      }
+    } catch (error: any) {
+      console.error("Error updating password:", error);
+      if (error.code === "auth/weak-password") {
+        setError("La contraseña es demasiado débil. Debe tener al menos 6 caracteres");
+      } else {
+        setError("Error al actualizar la contraseña");
+      }
+      throw error;
+    }
+  };
   
   return (
     <AuthContext.Provider
@@ -149,6 +189,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         handleRegister,
         handleLogout,
         handleGoogleLogin,
+        handleResetPassword,
+        handleUpdatePassword,
       }}
     >
       {children}

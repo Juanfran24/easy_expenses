@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Typography from "@/src/components/Typography";
@@ -7,13 +7,28 @@ import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
 import AlertModal from "@/src/components/AlertModal";
+import { useAuth } from "@/src/context/AuthContext/useAuth";
+import { auth } from "@/src/database";
 
 const NewPassword = () => {
   const navigation = useNavigation();
+  const { handleUpdatePassword, user } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Verificar si el usuario está autenticado (llegó aquí después de iniciar sesión)
+  useEffect(() => {
+    if (!auth.currentUser) {
+      // Si no hay usuario autenticado, redirigir a inicio de sesión
+      setError("Debe iniciar sesión para restablecer su contraseña");
+      setTimeout(() => {
+        //@ts-ignore
+        navigation.navigate("Login");
+      }, 2000);
+    }
+  }, []);
 
   const handleCreatePassword = async () => {
     if (!password || !confirmPassword) {
@@ -27,10 +42,14 @@ const NewPassword = () => {
     }
 
     try {
+      // Actualizar la contraseña del usuario actual
+      await handleUpdatePassword(password);
       setShowAlert(true);
       setError(null);
     } catch (err) {
-      setError("Error al actualizar la contraseña");
+      if (err instanceof Error && !err.message.includes("auth/")) {
+        setError("Error al actualizar la contraseña");
+      }
     }
   };
 

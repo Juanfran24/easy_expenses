@@ -13,6 +13,8 @@ interface AuthContextType {
   ) => Promise<void>;
   handleLogout: () => Promise<void>;
   handleGoogleLogin: () => Promise<void>;
+  handleResetPassword: (email: string) => Promise<void>;
+  handleUpdatePassword: (password: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -23,4 +25,6 @@ export const AuthContext = createContext<AuthContextType>({
   handleRegister: async () => {},
   handleLogout: async () => {},
   handleGoogleLogin: async () => {},
+  handleResetPassword: async () => {},
+  handleUpdatePassword: async () => {},
 });
