@@ -142,17 +142,19 @@ const Transactions = () => {
             </View>
           ) : getFilteredTransactions().length > 0 ? (
             getFilteredTransactions().map((transaction, idx) => (
-              <TransactionCard
-                key={idx}
-                transaction={transaction}
-                onEdit={(tx) => {
-                  navigation.navigate("CreateAndEditTransactions", {
-                    type: tx.type,
-                    isEditing: true,
-                    transaction: tx,
-                  });
-                }}
-              />
+              <View style={{ marginBottom: 16 }}>
+                <TransactionCard
+                  key={idx}
+                  transaction={transaction}
+                  onEdit={(tx) => {
+                    navigation.navigate("CreateAndEditTransactions", {
+                      type: tx.type,
+                      isEditing: true,
+                      transaction: tx,
+                    });
+                  }}
+                />
+              </View>
             ))
           ) : (
             <View style={styles.emptyContainer}>

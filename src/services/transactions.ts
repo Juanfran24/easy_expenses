@@ -8,6 +8,8 @@ export const createTransaction = async (transaction: Omit<Transaction, "id">) =>
         if (!user) throw new Error("Usuario no autenticado");
 
         transaction.userId = user.uid;
+        transaction.endDate = transaction.endDate ?? null;
+        transaction.dayOfMonth = transaction.dayOfMonth ?? null;
 
         await addDoc(collection(database, "transactions"), transaction);
         return transaction;
@@ -29,7 +31,7 @@ export const getUserTransactions = async (): Promise<Transaction[]> => {
             return { 
                 id: doc.id, 
                 ...data,
-                date: doc.data().date.toDate(),
+                date: (data.date as any)?.toDate ? (data.date as any).toDate() : data.date,
                 createdAt: doc.data().createdAt.toDate(),
                 updatedAt: doc.data().updatedAt.toDate(),
             };
@@ -46,6 +48,8 @@ export const updateTransaction = async (transactionId: string, transaction: Part
     try {
         const user = auth.currentUser;
         if (!user) throw new Error("Usuario no autenticado");
+
+        transaction.endDate = transaction.endDate ?? null;
 
         const transactionRef = doc(database, "transactions", transactionId);
         await updateDoc(transactionRef, {

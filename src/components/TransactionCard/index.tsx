@@ -104,7 +104,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
           <FlexBox style={{ flex: 1 }}>
             <Typography.H6.SemiBold>{category}</Typography.H6.SemiBold>
             <Typography.P4.Regular styles={styles.date}>
-              {date}
+              {date ? new Date(date).toLocaleDateString() : "Fecha no disponible"}
             </Typography.P4.Regular>
           </FlexBox>
         </FlexBox>

@@ -44,7 +44,7 @@ const Home = () => {
       amount: 2500000,
       category: "Salario principal",
       name: "Pago mensual",
-      date: "20 Oct 2025, 3:15pm",
+      date: new Date("2025-10-20T15:15:00Z"),
       paymentMethod: "cash",
     },
     {
@@ -53,7 +53,7 @@ const Home = () => {
       amount: 200000,
       category: "Servicios públicos",
       name: "Pago de electricidad",
-      date: "20 Oct 2025, 3:15pm",
+      date: new Date("2025-10-20T15:15:00Z"),
       paymentMethod: "cash",
     },
     {
@@ -62,7 +62,7 @@ const Home = () => {
       amount: 500000,
       category: "Salario principal",
       name: "Pago mensual2",
-      date: "20 Oct 2025, 3:15pm",
+      date: new Date("2025-10-20T15:15:00Z"),
       paymentMethod: "cash",
     },
   ];

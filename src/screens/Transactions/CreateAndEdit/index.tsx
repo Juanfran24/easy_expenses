@@ -6,13 +6,13 @@ import colors from "@/src/constants/colors";
 import { transformToCurrency } from "@/src/utils";
 import AppSelect from "@/src/components/Inputs/AppSelect";
 import { AppButton } from "@/src/components/AppButton";
-import { AppDateField } from "@/src/components/Inputs/AppDateField";
 import {
   createTransaction,
   updateTransaction,
 } from "@/src/services/transactions";
 import { useNavigation } from "@react-navigation/native";
 import AppRadio from "@/src/components/Inputs/AppRadio";
+import { AppDateField } from "@/src/components/Inputs/AppDateField";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const navigation = useNavigation();
@@ -25,8 +25,11 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [valueTransaction, setValueTransaction] = useState("");
   const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
   const [descriptionTransaction, setDescriptionTransaction] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("cash");
   const [category, setCategory] = useState("");
+  const [dayOfMonth, setDayOfMonth] = useState<number>(1);
+  const [localTypeTransaction, setLocalTypeTransaction] = useState<string>("fijo");
+  const [endDate, setEndDate] = useState<Date>();
 
   useEffect(() => {
     if (isEditing && editingTransaction) {
@@ -38,6 +41,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
       setDescriptionTransaction(editingTransaction.description);
       setPaymentMethod(editingTransaction.paymentMethod);
       setCategory(editingTransaction.category);
+      setEndDate(new Date(editingTransaction.endDate));
     }
   }, [isEditing, editingTransaction]);
 
@@ -75,6 +79,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
         type: typeTransaction,
         paymentMethod: paymentMethod as "cash" | "electronic",
         updatedAt: now,
+        localTypeTransaction: localTypeTransaction as "fijo" | "variable",
+        dayOfMonth: localTypeTransaction === "fijo" ? dayOfMonth : undefined,
+        endDate: localTypeTransaction === "fijo" ? endDate : undefined,
       };
 
       if (isEditing && editingTransaction?.id) {
@@ -102,6 +109,17 @@ const CreateAndEditTransactions = ({ route }: any) => {
       contentContainerStyle={{ paddingBottom: 50 }}
     >
       <FlexBox style={styles.formContainer}>
+        <AppRadio
+          label="Tipo de ingreso"
+          value={localTypeTransaction === "fijo" ? 0 : 1}
+          onValueChange={(value) =>
+            setLocalTypeTransaction(value === 0 ? "fijo" : "variable")
+          }
+          items={[
+            { label: "Fijo", value: "fijo" },
+            { label: "Variable", value: "variable" },
+          ]}
+        />
         <AppTextInput
           label={`Nombre ${typeTransaction}`}
           placeholder="Ejemplo: Renta"
@@ -110,15 +128,10 @@ const CreateAndEditTransactions = ({ route }: any) => {
         />
         <AppTextInput
           label="Valor"
-          placeholder="Ejemplo: 1000"
+          placeholder="Ejemplo: $2.500.000"
           value={valueTransaction}
           type="number"
           onChangeText={handleChangeValue}
-        />
-        <AppDateField
-          label="Fecha"
-          value={dateTransaction}
-          onChange={setDateTransaction}
         />
         <AppSelect
           label="Categoría"
@@ -127,19 +140,61 @@ const CreateAndEditTransactions = ({ route }: any) => {
           onValueChange={(value) => setCategory(value)}
           value={category}
         />
-        <AppRadio
-          label="Metodo de pago"
-          value={paymentMethod}
-          onValueChange={setPaymentMethod}
-          items={PAYMENT_METHODS.map((category) => ({
-            label: category.label,
-            value: category.value,
-          }))}
+        <AppDateField
+          label="Fecha"
+          value={dateTransaction}
+          onChange={setDateTransaction}
         />
+        {localTypeTransaction === "fijo" ? (
+          <>
+            <AppRadio
+              label="Metodo de pago"
+              value={paymentMethod === "cash" ? 0 : 1}
+              onValueChange={(value) =>
+                setPaymentMethod(value === 0 ? "cash" : "electronic")
+              }
+              items={PAYMENT_METHODS.map((category) => ({
+                label: category.label,
+                value: category.value,
+              }))}
+            />
+            <AppSelect
+              label="Día del mes"
+              placeholder="Seleccionar"
+              items={Array.from({ length: 30 }, (_, i) => ({
+                label: `${i + 1}`,
+                value: (i + 1).toString(),
+              }))}
+              onValueChange={(value) => setDayOfMonth(parseInt(value))}
+              value={dayOfMonth.toString()}
+            />
+            {localTypeTransaction === "fijo" && typeTransaction === "gasto" && (
+              <AppDateField
+                label="Fecha hasta (Opcional)"
+                value={endDate}
+                onChange={setDateTransaction}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <AppRadio
+              label="Metodo de pago"
+              value={paymentMethod === "cash" ? 0 : 1}
+              onValueChange={(value) =>
+                setPaymentMethod(value === 0 ? "cash" : "electronic")
+              }
+              items={PAYMENT_METHODS.map((category) => ({
+                label: category.label,
+                value: category.value,
+              }))}
+            />
+          </>
+        )}
         <AppTextInput
           style={styles.textArea}
-          label="Descripción"
-          placeholder="Añade una descripción..."
+          label="Nota (Opcional)"
+          placeholder="Ingresar descripción"
           value={descriptionTransaction}
           onChangeText={setDescriptionTransaction}
           multiline={true}
