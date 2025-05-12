@@ -4,20 +4,26 @@ import colors from "@/src/constants/colors";
 import Typography from "../../Typography";
 import { AppTextInput } from "../AppTextInput";
 import { MaterialIcons } from "@expo/vector-icons";
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 interface AppDateFieldProps {
   label: string;
-  value: Date | undefined;
+  value: Date | null;
   onChange: (date: Date) => void;
 }
 
-export const AppDateField = ({ label, value = new Date(), onChange }: AppDateFieldProps) => {
+export const AppDateField = ({
+  label,
+  value = new Date(),
+  onChange,
+}: AppDateFieldProps) => {
   const [show, setShow] = useState(false);
 
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShow(Platform.OS === 'ios');
-    if (event.type === 'set' && selectedDate) {
+    setShow(Platform.OS === "ios");
+    if (event.type === "set" && selectedDate) {
       onChange(selectedDate);
     }
   };
@@ -26,11 +32,13 @@ export const AppDateField = ({ label, value = new Date(), onChange }: AppDateFie
     setShow(true);
   };
 
-  const formattedDate = value ? value.toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }) : "";
+  const formattedDate = value
+    ? value.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+    : "";
 
   return (
     <View style={styles.container}>
@@ -39,17 +47,19 @@ export const AppDateField = ({ label, value = new Date(), onChange }: AppDateFie
       >
         {label}
       </Typography.H6.Regular>
-      
-      <TouchableOpacity 
+
+      <TouchableOpacity
         onPress={showDatepicker}
         activeOpacity={0.7}
         style={styles.touchable}
       >
         <View style={styles.inputContainer}>
           <View style={styles.fakeInput}>
-            <Typography.H6.Regular style={formattedDate ? styles.dateText : styles.placeholderText}>
+            <Typography.P1.Regular
+              styles={{ color: colors.textsAndIcons.dark }}
+            >
               {formattedDate || "Seleccionar fecha"}
-            </Typography.H6.Regular>
+            </Typography.P1.Regular>
             <MaterialIcons
               name="calendar-today"
               size={24}
@@ -64,7 +74,7 @@ export const AppDateField = ({ label, value = new Date(), onChange }: AppDateFie
           value={value || new Date()}
           mode="date"
           onChange={onDateChange}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
         />
       )}
     </View>
@@ -73,13 +83,13 @@ export const AppDateField = ({ label, value = new Date(), onChange }: AppDateFie
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
   touchable: {
-    width: '100%',
+    width: "100%",
   },
   inputContainer: {
-    width: '100%',
+    width: "100%",
   },
   fakeInput: {
     height: 48,
@@ -87,18 +97,9 @@ const styles = StyleSheet.create({
     borderColor: colors.textsAndIcons.dark,
     borderRadius: 8,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'transparent'
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "transparent",
   },
-  dateText: {
-    color: colors.textsAndIcons.dark,
-    fontFamily: 'Sora_Regular'
-  },
-  placeholderText: {
-    color: colors.textsAndIcons.dark,
-    opacity: 0.5,
-    fontFamily: 'Sora_Regular'
-  }
 });

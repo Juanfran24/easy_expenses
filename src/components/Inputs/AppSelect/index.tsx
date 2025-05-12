@@ -41,6 +41,8 @@ export const AppSelect: React.FC<AppSelectProps> = ({
           inputAndroid: styles.input,
           placeholder: {
             color: colors.textsAndIcons.dark,
+            fontFamily: "Sora_Regular",
+            fontSize: 15,
           },
           iconContainer: {
             top: "25%",

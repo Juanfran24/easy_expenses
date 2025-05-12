@@ -7,6 +7,7 @@ import Typography from "../../Typography";
 interface AppTextInputProps extends TextInputProps {
   type?: "text" | "email" | "password" | "number";
   label: string;
+  disabled?: boolean;
 }
 
 export const AppTextInput = (props: AppTextInputProps) => {
@@ -31,6 +32,7 @@ export const AppTextInput = (props: AppTextInputProps) => {
         {props.label}
       </Typography.H6.Regular>
       <TextInput
+        editable={!props.disabled}
         inputMode={inputMode}
         keyboardType={keyboardType}
         secureTextEntry={type === "password" ? passwordVisibility : false}
@@ -46,7 +48,9 @@ export const AppTextInput = (props: AppTextInputProps) => {
             paddingVertical: 14.5,
             paddingLeft: 20,
             fontFamily: "Sora_Regular",
+            fontSize: 15,
             color: colors.textsAndIcons.dark,
+            opacity: props.disabled ? 0.5 : 1,
           },
           style,
         ]}
