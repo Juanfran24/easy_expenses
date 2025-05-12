@@ -14,10 +14,11 @@ import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
-import { getUserTransactions } from "@/src/services/transactions";
+import { getUserTransactions, deleteTransaction } from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
 import Typography from "@/src/components/Typography";
 import { Navigation } from "@/src/utils";
+import { AppButton } from "@/src/components/AppButton";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -50,6 +51,8 @@ const Transactions = () => {
   const [selectedSort, setSelectedSort] = useState<string>("newest");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
   const handleTabChange = (tabId: string) => {
     if (Platform.OS === "web") return setSelectedTabId(tabId);
@@ -63,9 +66,29 @@ const Transactions = () => {
       const transactionsData = await getUserTransactions();
       setTransactions(transactionsData);
     } catch (error) {
-      console.error("Error fetching transactions:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    try {
+      await deleteTransaction(id);
+      setTransactions((prev) => prev.filter((transaction) => transaction.id !== id));
+    } catch (error) {
+    }
+  };
+
+  const confirmDeleteTransaction = (id: string) => {
+    setTransactionToDelete(id);
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (transactionToDelete) {
+      await handleDeleteTransaction(transactionToDelete);
+      setTransactionToDelete(null);
+      setIsModalVisible(false);
     }
   };
 
@@ -141,18 +164,20 @@ const Transactions = () => {
               <ActivityIndicator size="large" color={colors.primary.main} />
             </View>
           ) : getFilteredTransactions().length > 0 ? (
-            getFilteredTransactions().map((transaction, idx) => (
-              <TransactionCard
-                key={idx}
-                transaction={transaction}
-                onEdit={(tx) => {
-                  navigation.navigate("CreateAndEditTransactions", {
-                    type: tx.type,
-                    isEditing: true,
-                    transaction: tx,
-                  });
-                }}
-              />
+            getFilteredTransactions().map((transaction) => (
+              <View key={transaction.id} style={{ marginBottom: 16 }}>
+                <TransactionCard
+                  transaction={transaction}
+                  onEdit={(tx) => {
+                    navigation.navigate("CreateAndEditTransactions", {
+                      type: tx.type,
+                      isEditing: true,
+                      transaction: tx,
+                    });
+                  }}
+                  onDelete={(id) => confirmDeleteTransaction(id)}
+                />
+              </View>
             ))
           ) : (
             <View style={styles.emptyContainer}>
@@ -166,6 +191,30 @@ const Transactions = () => {
         </FlexBox>
       </ScrollView>
       <SpeedFabView />
+      {isModalVisible && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Typography.H6.SemiBold styles={{ marginBottom: 16 }}>
+              Confirmar eliminación
+            </Typography.H6.SemiBold>
+            <Typography.P4.Regular styles={{ marginBottom: 24 }}>
+              ¿Estás seguro de que deseas eliminar esta transacción?
+            </Typography.P4.Regular>
+            <FlexBox style={{ flexDirection: "row", gap: 16 }}>
+              <AppButton
+                title="Cancelar"
+                onPress={() => setIsModalVisible(false)}
+                variant="outlined"
+              />
+              <AppButton
+                title="Eliminar"
+                onPress={handleConfirmDelete}
+                variant="contained"
+              />
+            </FlexBox>
+          </View>
+        </View>
+      )}
     </>
   );
 };
@@ -211,6 +260,30 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: colors.backgrounds.base,
+    padding: 24,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 

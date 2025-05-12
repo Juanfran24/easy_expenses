@@ -1,5 +1,5 @@
 import { database, auth } from "../database";
-import { collection, addDoc, query, where, orderBy, getDocs, doc, updateDoc} from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, getDocs, doc, updateDoc, deleteDoc} from "firebase/firestore";
 import { Transaction } from "../models/Transaction";
 
 export const createTransaction = async (transaction: Omit<Transaction, "id">) => {
@@ -8,11 +8,12 @@ export const createTransaction = async (transaction: Omit<Transaction, "id">) =>
         if (!user) throw new Error("Usuario no autenticado");
 
         transaction.userId = user.uid;
+        transaction.endDate = transaction.endDate ?? null;
+        transaction.dayOfMonth = transaction.dayOfMonth ?? null;
 
         await addDoc(collection(database, "transactions"), transaction);
         return transaction;
     }catch (error) {
-        console.error("Error creating transaction:", error);
         throw error;
     }
 }
@@ -29,7 +30,7 @@ export const getUserTransactions = async (): Promise<Transaction[]> => {
             return { 
                 id: doc.id, 
                 ...data,
-                date: doc.data().date.toDate(),
+                date: (data.date as any)?.toDate ? (data.date as any).toDate() : data.date,
                 createdAt: doc.data().createdAt.toDate(),
                 updatedAt: doc.data().updatedAt.toDate(),
             };
@@ -37,7 +38,6 @@ export const getUserTransactions = async (): Promise<Transaction[]> => {
         return transactions;
 
     } catch (error) {
-        console.error("Error fetching transactions:", error);
         throw error;
     }
 }
@@ -47,6 +47,8 @@ export const updateTransaction = async (transactionId: string, transaction: Part
         const user = auth.currentUser;
         if (!user) throw new Error("Usuario no autenticado");
 
+        transaction.endDate = transaction.endDate ?? null;
+
         const transactionRef = doc(database, "transactions", transactionId);
         await updateDoc(transactionRef, {
             ...transaction,
@@ -54,7 +56,17 @@ export const updateTransaction = async (transactionId: string, transaction: Part
         });
         return transaction;
     } catch (error) {
-        console.error("Error updating transaction:", error);
+        throw error;
+    }
+}
+
+export const deleteTransaction = async (transactionId: string) => {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("Usuario no autenticado");
+        const transactionRef = doc(database, "transactions", transactionId);
+        await deleteDoc(transactionRef);
+    } catch (error) {
         throw error;
     }
 }

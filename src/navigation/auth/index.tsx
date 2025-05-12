@@ -15,9 +15,13 @@ export type AuthStackParamList = {
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
-function AuthStack() {
+interface AuthStackProps {
+  initialRouteName?: keyof AuthStackParamList;
+}
+
+function AuthStack({ initialRouteName = "Landing" }: AuthStackProps) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen
         name="Landing"
         component={Landing}

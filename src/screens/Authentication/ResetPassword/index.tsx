@@ -7,25 +7,30 @@ import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
 import AlertModal from "@/src/components/AlertModal";
+import { useAuth } from "@/src/context/AuthContext/useAuth";
 
 const ResetPassword = () => {
   const navigation = useNavigation();
+  const { handleResetPassword } = useAuth();
   const [email, setEmail] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleResetPassword = async () => {
+  const handlePasswordReset = async () => {
     if (!email) {
       setError("Por favor, ingrese su correo electrónico");
       return;
     }
 
     try {
-      // Aquí iría la lógica para enviar el correo de recuperación
+      await handleResetPassword(email);
       setShowAlert(true);
       setError(null);
     } catch (err) {
-      setError("Error al enviar el correo de recuperación");
+      // Los errores específicos ya son manejados en el AuthProvider
+      if (err instanceof Error && !err.message.includes("auth/")) {
+        setError("Error al enviar el correo de recuperación");
+      }
     }
   };
 
@@ -50,11 +55,11 @@ const ResetPassword = () => {
             </Typography.P3.Regular>
           )}
         </FlexBox>
-        <FlexBox style={{ width: "100%", gap: 16 }}>
+        <FlexBox style={{ width: "100%", gap: 16 }}>          
           <AppButton
             title="Enviar a correo"
             variant="contained"
-            onPress={handleResetPassword}
+            onPress={handlePasswordReset}
           />
         </FlexBox>
       </FlexBox>

@@ -19,12 +19,14 @@ import { transformToCurrency } from "@/src/utils";
 interface TransactionCardProps {
   transaction: Transaction;
   onEdit?: (transaction: Transaction) => void;
+  onDelete?: (transactionId: string) => void;
   withoutActions?: boolean;
 }
 
 export const TransactionCard: React.FC<TransactionCardProps> = ({
   transaction,
   onEdit,
+  onDelete,
   withoutActions = false,
 }) => {
   const { type, amount, category, date } = transaction;
@@ -78,8 +80,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     if (action === "edit") {
       handleEditTransaction();
     } else {
-      // Handle delete action
-      console.log("Delete pressed");
+      handleDeleteTransaction();
     }
     handleCloseMenu();
   };
@@ -87,6 +88,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   const handleEditTransaction = () => {
     if (onEdit) {
       onEdit(transaction);
+    }
+  };
+
+  const handleDeleteTransaction = () => {
+    if (onDelete) {
+      onDelete(transaction.id!);
     }
   };
 
@@ -104,7 +111,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
           <FlexBox style={{ flex: 1 }}>
             <Typography.H6.SemiBold>{category}</Typography.H6.SemiBold>
             <Typography.P4.Regular styles={styles.date}>
-              {date}
+              {date ? new Date(date).toLocaleDateString() : "Fecha no disponible"}
             </Typography.P4.Regular>
           </FlexBox>
         </FlexBox>
