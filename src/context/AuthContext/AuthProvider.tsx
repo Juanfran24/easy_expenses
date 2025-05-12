@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(null);
         });
       } catch (error) {
-        console.error("Error checking login state:", error);
         setError("Error checking login state");
       }
     };
@@ -70,7 +69,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await sendEmailVerification(user);
       }
     } catch (error: any) {
-      console.error("Error durante el registro:", error);
       if (error.code === "auth/email-already-in-use") {
         setError("Este correo ya está registrado");
       } else if (error.code === "auth/weak-password") {
@@ -129,7 +127,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       setUnverifiedEmail(null);
     } catch (error: any) {
-      console.error("Error during logout:", error);
       setError(error.message);
     }
   };
@@ -138,7 +135,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       handleGoogleAuth();
     } catch (error: any) {
-      console.error("Error during Google login:", error);
       setError(error.message);
     }
   };
@@ -148,7 +144,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setError(null);
       await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
-      console.error("Error sending reset password email:", error);
       if (error.code === "auth/user-not-found") {
         setError("No existe una cuenta con este correo electrónico");
       } else if (error.code === "auth/invalid-email") {
@@ -169,7 +164,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("No hay usuario autenticado");
       }
     } catch (error: any) {
-      console.error("Error updating password:", error);
       if (error.code === "auth/weak-password") {
         setError("La contraseña es demasiado débil. Debe tener al menos 6 caracteres");
       } else {

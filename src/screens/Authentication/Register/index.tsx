@@ -54,7 +54,6 @@ const Register = () => {
       );
       
     } catch (err: any) {
-      console.error("Error durante el registro:", err);
       if (err.code === "auth/email-already-in-use" || 
           (err.message && err.message.includes("ya está registrado"))) {
         setError("Este correo ya está registrado");

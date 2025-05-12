@@ -35,7 +35,6 @@ export function useGoogleAuth() {
           setUserCredential(userCred);
         })
         .catch((err) => {
-          console.error("❌ Firebase login failed:", err);
           setError(err.message);
         });
     }

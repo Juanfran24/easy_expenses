@@ -99,7 +99,6 @@ const CreateAndEditTransactions = ({ route }: any) => {
         screen: "Transacciones",
       });
     } catch (error) {
-      console.error("Error al guardar la transacción:", error);
     }
   };
 
