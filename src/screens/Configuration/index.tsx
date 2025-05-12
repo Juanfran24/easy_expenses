@@ -5,9 +5,10 @@ import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
+import { auth } from "@/src/database";
 import { Navigation } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
-import { User } from "firebase/auth";
+import { updateProfile, User } from "firebase/auth";
 import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -21,6 +22,23 @@ const Configuration = () => {
 
   const handleCreateCategory = () => {
     navigation.navigate("CreateCategory");
+  };
+
+  const handleEditUser = async (field: string) => {
+    if (field === "username") {
+      if (auth.currentUser) {
+        return await updateProfile(auth.currentUser, {
+          displayName: username,
+        });
+      }
+    }
+    // if (auth.currentUser) {
+    //   try {
+    //     await updateEmail(auth.currentUser, email);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
   };
 
   return (
@@ -64,12 +82,15 @@ const Configuration = () => {
           value={username}
           onChangeText={(text) => setUsername(text)}
           placeholder="Escribe tu nombre de usuario"
+          onEndEditing={() => handleEditUser("username")}
         />
         <AppTextInput
           label="Correo electrónico"
           value={email}
           onChangeText={(text) => setEmail(text)}
           placeholder="Escribe tu correo electrónico"
+          onEndEditing={() => handleEditUser("email")}
+          disabled
         />
         <View style={{ marginTop: 24 }}>
           <AppButton
