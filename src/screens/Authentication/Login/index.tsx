@@ -16,24 +16,22 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
   const onLogin = async () => {
+    setError(null);
     try {
       if (!email || !password) {
         setError("Por favor, complete todos los campos");
         return;
-      }
+      }      
       await handleLogin(email, password);
-      // El manejo del redireccionamiento se hace automáticamente por el RootLayout
-      // basado en el estado de login
-    } catch (err) {
-      // Mostrar mensaje de error específico según el código de error de Firebase
-      if (err instanceof Error) {
-        if (err.message.includes("auth/invalid-email")) {
+    } catch (err) {      if (err instanceof Error) {
+        if ((err as any).code === "auth/email-not-verified" || 
+            err.message.includes("email-not-verified") || 
+            err.message.includes("verifica tu correo")) {
+          setError("Por favor, verifica tu correo electrónico antes de iniciar sesión");
+        } else if (err.message.includes("auth/invalid-email") || (err as any).code === "auth/invalid-email") {
           setError("Correo electrónico inválido");
-        } else if (err.message.includes("auth/wrong-password")) {
-          setError("Contraseña incorrecta");
-        } else if (err.message.includes("auth/user-not-found")) {
+                } else if (err.message.includes("auth/user-not-found") || (err as any).code === "auth/user-not-found") {
           setError("Usuario no encontrado");
         } else {
           setError("Error al iniciar sesión. Por favor, intente nuevamente");
