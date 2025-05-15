@@ -14,8 +14,7 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff",
+        foregroundImage: "./assets/images/icon.png",
       },
       package: "com.easyexpenses.app",
     },

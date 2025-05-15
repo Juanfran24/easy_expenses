@@ -16,8 +16,6 @@ import RootLayout from "../layout";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-SplashScreen.preventAutoHideAsync();
-
 export default function App() {
   const [loaded, error] = useFonts({
     Sora_ExtraBold: Sora_800ExtraBold,
@@ -28,9 +26,13 @@ export default function App() {
   });
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
+    async function prepare() {
+      await SplashScreen.preventAutoHideAsync();
+      if (loaded || error) {
+        await SplashScreen.hideAsync();
+      }
     }
+    prepare();
   }, [loaded, error]);
 
   if (!loaded && !error) {

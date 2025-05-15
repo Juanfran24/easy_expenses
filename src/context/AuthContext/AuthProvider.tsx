@@ -15,13 +15,12 @@ import {
   verifyPasswordResetCode,
   updatePassword,
 } from "firebase/auth";
-import { useGoogleAuth } from "@/src/hooks/useGoogleAuth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
-  const { handleGoogleAuth } = useGoogleAuth();
+  // const { handleGoogleAuth } = useGoogleAuth();
 
   useEffect(() => {
     const checkLoginState = () => {
@@ -46,9 +45,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   ) => {
     try {
       setError(null);
-      
+
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      
+
       if (signInMethods.length > 0) {
         const error = new Error("Este correo ya está registrado");
         // @ts-ignore
@@ -72,7 +71,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error.code === "auth/email-already-in-use") {
         setError("Este correo ya está registrado");
       } else if (error.code === "auth/weak-password") {
-        setError("La contraseña es demasiado débil. Debe tener al menos 6 caracteres.");
+        setError(
+          "La contraseña es demasiado débil. Debe tener al menos 6 caracteres."
+        );
       } else if (error.code === "auth/invalid-email") {
         setError("El formato del correo electrónico es inválido.");
       } else {
@@ -86,26 +87,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setError(null);
       setUnverifiedEmail(null);
-      
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
-      
+
       if (!user.emailVerified) {
         await signOut(auth);
         setUnverifiedEmail(email);
         //await sendEmailVerification(user);
-        const error = new Error("Por favor, verifica tu correo electrónico antes de iniciar sesión. Se ha enviado un nuevo correo de verificación.");
+        const error = new Error(
+          "Por favor, verifica tu correo electrónico antes de iniciar sesión. Se ha enviado un nuevo correo de verificación."
+        );
         // @ts-ignore
         error.code = "auth/email-not-verified";
         throw error;
       }
-      
+
       setUser(user);
       setError(null);
-      
     } catch (error: any) {
       if (error.code === "auth/email-not-verified") {
-        setError("Por favor, verifica tu correo electrónico antes de iniciar sesión. Se ha enviado un nuevo correo de verificación.");
+        setError(
+          "Por favor, verifica tu correo electrónico antes de iniciar sesión. Se ha enviado un nuevo correo de verificación."
+        );
       } else if (error.code === "auth/user-not-found") {
         setError("Usuario no encontrado. Verifica el correo electrónico.");
       } else if (error.code === "auth/wrong-password") {
@@ -115,7 +123,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else if (error.code === "auth/user-disabled") {
         setError("Esta cuenta ha sido deshabilitada. Contacta a soporte.");
       } else {
-        setError(error.message || "Error al iniciar sesión. Inténtalo de nuevo.");
+        setError(
+          error.message || "Error al iniciar sesión. Inténtalo de nuevo."
+        );
       }
       throw error;
     }
@@ -132,11 +142,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      handleGoogleAuth();
-    } catch (error: any) {
-      setError(error.message);
-    }
+    // try {
+    //   handleGoogleAuth();
+    // } catch (error: any) {
+    //   setError(error.message);
+    // }
   };
 
   const handleResetPassword = async (email: string) => {
@@ -165,14 +175,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error: any) {
       if (error.code === "auth/weak-password") {
-        setError("La contraseña es demasiado débil. Debe tener al menos 6 caracteres");
+        setError(
+          "La contraseña es demasiado débil. Debe tener al menos 6 caracteres"
+        );
       } else {
         setError("Error al actualizar la contraseña");
       }
       throw error;
     }
   };
-  
+
   return (
     <AuthContext.Provider
       value={{
