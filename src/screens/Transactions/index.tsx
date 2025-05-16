@@ -27,13 +27,6 @@ const TRANSACTION_TABS = [
   { id: "expense", title: "Gastos" },
 ];
 
-const CATEGORIES = [
-  { label: "Salario principal", value: "main_salary" },
-  { label: "Servicios públicos", value: "utilities" },
-  { label: "Transporte", value: "transport" },
-  { label: "Alimentación", value: "food" },
-];
-
 const PAYMENT_TYPES = [
   { label: "Tipo de pago", value: "all" },
   { label: "Efectivo", value: "cash" },
@@ -146,6 +139,11 @@ const Transactions = () => {
     ];
   };
 
+  const getCategoryTransaction = (idCategory : string) => {
+    const category = categories.find((cat) => cat.id === idCategory);
+    return category ? category.name : "Sin categoría";
+  }
+
   useEffect(() => {
     fetchTransactions();
     fetchCategories();
@@ -199,8 +197,8 @@ const Transactions = () => {
               <View key={transaction.id} style={{ marginBottom: 16 }}>
                 <TransactionCard
                   transaction={transaction}
+                  categoryName={getCategoryTransaction(transaction.category)}
                   onEdit={(tx) => {
-                    // Convertir fechas a strings ISO antes de pasar a la navegación
                     const serializedTx = {
                       ...tx,
                       date: tx.date instanceof Date ? tx.date.toISOString() : tx.date,
