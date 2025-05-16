@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, Alert } from "react-native";
 import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
@@ -10,6 +10,8 @@ import {
   createTransaction,
   updateTransaction,
 } from "@/src/services/transactions";
+import { getUserCategories } from "@/src/services/categories";
+import { Category } from "@/src/models/Category";
 import { useNavigation } from "@react-navigation/native";
 import AppRadio from "@/src/components/Inputs/AppRadio";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
@@ -30,6 +32,8 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [dayOfMonth, setDayOfMonth] = useState<number>(1);
   const [localTypeTransaction, setLocalTypeTransaction] = useState<string>("fijo");
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
     if (isEditing && editingTransaction) {
@@ -37,7 +41,6 @@ const CreateAndEditTransactions = ({ route }: any) => {
       setValueTransaction(
         transformToCurrency(editingTransaction.amount.toString())
       );
-      // Asegúrate de convertir las fechas recibidas como strings a objetos Date
       setDateTransaction(editingTransaction.date ? new Date(editingTransaction.date) : new Date());
       setDescriptionTransaction(editingTransaction.description || "");
       setPaymentMethod(editingTransaction.paymentMethod);
@@ -56,16 +59,36 @@ const CreateAndEditTransactions = ({ route }: any) => {
     }
   }, [isEditing, editingTransaction]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const userCategories = await getUserCategories();
+        setCategories(userCategories.filter(cat => cat.type === 
+          (typeTransaction === "ingreso" ? "Ingreso" : "Gasto")));
+      } catch (error) {
+        console.error("Error al cargar categorías:", error);
+        Alert.alert("Error", "No se pudieron cargar las categorías");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, [typeTransaction]);
+
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");
     setValueTransaction(transformToCurrency(digitsOnly));
   };
 
-  const CATEGORIES = [
-    { label: "Salario principal", value: "main_salary" },
-    { label: "Servicios públicos", value: "utilities" },
-    { label: "Transporte", value: "transport" },
-    { label: "Alimentación", value: "food" },
+  const categoryItems = categories.map(cat => ({
+    label: cat.name,
+    value: cat.id || "",
+  }));
+
+  const categoriesWithDefault = [
+    ...categoryItems
   ];
 
   const PAYMENT_METHODS = [
@@ -86,7 +109,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
         amount: parseInt(cleanAmount, 10),
         description: descriptionTransaction,
         date: dateTransaction,
-        category: category || "all",
+        category: category || "none",
         type: typeTransaction,
         paymentMethod: paymentMethod as "cash" | "electronic",
         updatedAt: now,
@@ -146,8 +169,8 @@ const CreateAndEditTransactions = ({ route }: any) => {
         />
         <AppSelect
           label="Categoría"
-          placeholder="Seleccionar"
-          items={CATEGORIES}
+          placeholder={loadingCategories ? "Cargando categorías..." : "Seleccionar"}
+          items={categoriesWithDefault}
           onValueChange={(value) => setCategory(value)}
           value={category}
         />

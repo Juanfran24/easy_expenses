@@ -16,6 +16,8 @@ import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
 import { getUserTransactions, deleteTransaction } from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
+import { getUserCategories } from "@/src/services/categories";
+import { Category } from "@/src/models/Category";
 import Typography from "@/src/components/Typography";
 import { Navigation } from "@/src/utils";
 import { AppButton } from "@/src/components/AppButton";
@@ -50,6 +52,7 @@ const Transactions = () => {
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>("newest");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
@@ -66,8 +69,18 @@ const Transactions = () => {
       const transactionsData = await getUserTransactions();
       setTransactions(transactionsData);
     } catch (error) {
+      console.error("Error al obtener transacciones:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const categoriesData = await getUserCategories();
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error("Error al obtener categorías:", error);
     }
   };
 
@@ -116,8 +129,26 @@ const Transactions = () => {
       });
   };
 
+  const getCategoryItems = () => {
+    const tabType = selectedTabId === "income" ? "Ingreso" : "Gasto";
+    const filteredCategories = categories.filter(
+      (category) => category.type === tabType
+    );
+
+    const categoryItems = filteredCategories.map((category) => ({
+      label: category.name,
+      value: category.id || "",
+    }));
+
+    return [
+      { label: "Categorías", value: "all" },
+      ...categoryItems,
+    ];
+  };
+
   useEffect(() => {
     fetchTransactions();
+    fetchCategories();
   }, []);
 
   return (
@@ -134,7 +165,7 @@ const Transactions = () => {
             <AppComboBox
               label="Categoría"
               value={selectedCategory}
-              items={CATEGORIES}
+              items={getCategoryItems()}
               onSelect={(item) => setSelectedCategory(item.value)}
               dropdownAlign="left"
             />
