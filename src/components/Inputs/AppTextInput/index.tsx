@@ -39,7 +39,7 @@ export const AppTextInput = (props: AppTextInputProps) => {
         secureTextEntry={type === "password" ? passwordVisibility : false}
         selectionColor={colors.textsAndIcons.light}
         placeholderTextColor={colors.textsAndIcons.dark}
-        maxLength={props.maxLength ?? 15} // valor por defecto 15
+        maxLength={props.maxLength ?? 50}
         style={[
           {
             height: 48,

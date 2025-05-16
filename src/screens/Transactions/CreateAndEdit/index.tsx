@@ -142,6 +142,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
           value={valueTransaction}
           type="number"
           onChangeText={handleChangeValue}
+          maxLength={20}
         />
         <AppSelect
           label="Categoría"
