@@ -29,7 +29,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [category, setCategory] = useState("");
   const [dayOfMonth, setDayOfMonth] = useState<number>(1);
   const [localTypeTransaction, setLocalTypeTransaction] = useState<string>("fijo");
-  const [endDate, setEndDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   useEffect(() => {
     if (isEditing && editingTransaction) {
@@ -37,11 +37,22 @@ const CreateAndEditTransactions = ({ route }: any) => {
       setValueTransaction(
         transformToCurrency(editingTransaction.amount.toString())
       );
-      setDateTransaction(new Date(editingTransaction.date));
-      setDescriptionTransaction(editingTransaction.description);
+      // Asegúrate de convertir las fechas recibidas como strings a objetos Date
+      setDateTransaction(editingTransaction.date ? new Date(editingTransaction.date) : new Date());
+      setDescriptionTransaction(editingTransaction.description || "");
       setPaymentMethod(editingTransaction.paymentMethod);
       setCategory(editingTransaction.category);
-      setEndDate(new Date(editingTransaction.endDate));
+      if (editingTransaction.endDate) {
+        setEndDate(new Date(editingTransaction.endDate));
+      } else {
+        setEndDate(null);
+      }
+      if (editingTransaction.localTypeTransaction) {
+        setLocalTypeTransaction(editingTransaction.localTypeTransaction);
+      }
+      if (editingTransaction.dayOfMonth) {
+        setDayOfMonth(editingTransaction.dayOfMonth);
+      }
     }
   }, [isEditing, editingTransaction]);
 

@@ -29,7 +29,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   onDelete,
   withoutActions = false,
 }) => {
-  const { type, amount, category, date } = transaction;
+  const { type, amount, category, date, name } = transaction;
 
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -109,7 +109,8 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
             />
           </View>
           <FlexBox style={{ flex: 1 }}>
-            <Typography.H6.SemiBold>{category}</Typography.H6.SemiBold>
+            <Typography.H6.SemiBold>{name.length > 15 ? `${name.slice(0, 12)}...` : name}</Typography.H6.SemiBold>
+            <Typography.P4.Regular>{category}</Typography.P4.Regular>
             <Typography.P4.Regular styles={styles.date}>
               {date ? new Date(date).toLocaleDateString() : "Fecha no disponible"}
             </Typography.P4.Regular>

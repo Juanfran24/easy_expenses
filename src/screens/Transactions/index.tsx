@@ -169,10 +169,19 @@ const Transactions = () => {
                 <TransactionCard
                   transaction={transaction}
                   onEdit={(tx) => {
+                    // Convertir fechas a strings ISO antes de pasar a la navegación
+                    const serializedTx = {
+                      ...tx,
+                      date: tx.date instanceof Date ? tx.date.toISOString() : tx.date,
+                      createdAt: tx.createdAt instanceof Date ? tx.createdAt.toISOString() : tx.createdAt,
+                      updatedAt: tx.updatedAt instanceof Date ? tx.updatedAt.toISOString() : tx.updatedAt,
+                      endDate: tx.endDate instanceof Date ? tx.endDate.toISOString() : tx.endDate,
+                    };
+                    
                     navigation.navigate("CreateAndEditTransactions", {
                       type: tx.type,
                       isEditing: true,
-                      transaction: tx,
+                      transaction: serializedTx,
                     });
                   }}
                   onDelete={(id) => confirmDeleteTransaction(id)}

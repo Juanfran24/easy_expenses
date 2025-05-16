@@ -8,6 +8,7 @@ interface AppTextInputProps extends TextInputProps {
   type?: "text" | "email" | "password" | "number";
   label: string;
   disabled?: boolean;
+  maxLength?: number; // nuevo parámetro opcional
 }
 
 export const AppTextInput = (props: AppTextInputProps) => {
@@ -38,6 +39,7 @@ export const AppTextInput = (props: AppTextInputProps) => {
         secureTextEntry={type === "password" ? passwordVisibility : false}
         selectionColor={colors.textsAndIcons.light}
         placeholderTextColor={colors.textsAndIcons.dark}
+        maxLength={props.maxLength ?? 15} // valor por defecto 15
         style={[
           {
             height: 48,
