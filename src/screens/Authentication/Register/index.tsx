@@ -9,16 +9,19 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import Divider from "@/src/components/Divider";
 import ProviderButton from "@/src/components/AppButton/ProviderButton";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "@/src/navigation/auth";
+
+type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList>;
 
 const Register = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<RegisterScreenNavigationProp>();
   const { handleRegister, handleGoogleLogin } = useAuth();
   const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
-  const onRegister = async () => {
+  const [error, setError] = React.useState<string | null>(null);  const onRegister = async () => {
     setError(null);
     
     if (!username.trim()) {
@@ -36,9 +39,12 @@ const Register = () => {
       setError("Las contraseñas no coinciden");
       return;
     }
-    
-    try {
+      try {
+      // Primero realizamos el registro
       await handleRegister(email, password, username);
+      
+      // Después mostramos la alerta y esperamos que el usuario confirme
+      // El sistema ya estableció unverifiedEmail en el AuthContext
       Alert.alert(
         "Verificación requerida",
         `Te hemos enviado un correo a ${email}. Por favor, verifica tu cuenta haciendo clic en el enlace antes de iniciar sesión.`,
@@ -46,11 +52,15 @@ const Register = () => {
           { 
             text: "Entendido", 
             onPress: () => {
-              //@ts-ignore
-              navigation.navigate("Login");
+              // Eliminamos el @ts-ignore ya que ahora tenemos tipado correcto
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+              });
             }
           }
-        ]
+        ],
+        { cancelable: false } // Previene que se cierre sin presionar el botón
       );
       
     } catch (err: any) {
@@ -142,12 +152,10 @@ const Register = () => {
             />
 
             <Divider style={{ marginHorizontal: 0, marginVertical: 0 }} />
-
             <AppButton
               title="Ya tengo cuenta"
               variant="outlined"
               onPress={() => {
-                //@ts-ignore
                 navigation.navigate("Login");
               }}
             />

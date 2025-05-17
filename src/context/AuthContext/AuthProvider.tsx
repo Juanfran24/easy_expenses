@@ -27,9 +27,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            return setUser(user);
+            // Solo establecer el usuario si está verificado o si no estamos en el proceso de registro
+            if (user.emailVerified) {
+              return setUser(user);
+            } else {
+              // Si el usuario no está verificado, cerrar la sesión
+              signOut(auth).then(() => {
+                setUnverifiedEmail(user.email || null);
+                setUser(null);
+              });
+            }
+          } else {
+            setUser(null);
           }
-          setUser(null);
         });
       } catch (error) {
         setError("Error checking login state");
@@ -54,18 +64,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         error.code = "auth/email-already-in-use";
         throw error;
       }
+      
+      // Crear el usuario pero con un indicador de registro en proceso
+      // Esto evita que el listener de autenticación maneje este estado transitorio
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      const user = userCredential.user;
-      if (user) {
-        await updateProfile(user, { displayName });
+      const newUser = userCredential.user;
+      
+      if (newUser) {
+        // Actualizar el perfil y enviar verificación
+        await updateProfile(newUser, { displayName });
+        await sendEmailVerification(newUser);
+        
+        // Inmediatamente cerrar la sesión y establecer el estado correcto
         await signOut(auth);
-        setUser(null);
         setUnverifiedEmail(email);
-        await sendEmailVerification(user);
       }
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
