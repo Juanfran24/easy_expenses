@@ -47,7 +47,9 @@ export const updateTransaction = async (transactionId: string, transaction: Part
         const user = auth.currentUser;
         if (!user) throw new Error("Usuario no autenticado");
 
+        console.log("transaction1", transaction);
         transaction.endDate = transaction.endDate ?? null;
+        console.log("transaction2", transaction);
 
         const transactionRef = doc(database, "transactions", transactionId);
         await updateDoc(transactionRef, {
@@ -56,6 +58,7 @@ export const updateTransaction = async (transactionId: string, transaction: Part
         });
         return transaction;
     } catch (error) {
+        console.error("Error al actualizar la transacción:", error);
         throw error;
     }
 }

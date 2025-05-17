@@ -1,16 +1,19 @@
 import { create } from "zustand";
 import { getUserCategories } from "../services/categories";
 import { Category } from "../models/Category";
+import { Transaction } from "../models/Transaction";
+import { getUserTransactions } from "../services/transactions";
 
 export interface StoreState {
   currency: string;
   setCurrency: (currency: string) => void;
+  transactions: Transaction[];
+  setTransactionList: (transactionList: Transaction[]) => void;
+  loadTransactions: () => Promise<void>;
   incomeList: string[];
   setIncomeList: (incomeList: string[]) => void;
   expenseList: string[];
-  setExpenseList: (expenseList: string[]) => void;
-  categoryList: string[];
-  setCategoryList: (categoryList: string[]) => void;
+  setExpenseList: (expenseList: string[]) => void;  
   categories: Category[];
   setCategories: (categories: Category[]) => void;
   loadCategories: () => Promise<void>;
@@ -26,11 +29,11 @@ export const useStore = create<StoreState>((set) => ({
   expenseList: [],
   setExpenseList: (expenseList: string[]) => set({ expenseList }),
 
-  categoryList: [],
-  setCategoryList: (categoryList: string[]) => set({ categoryList }),
-
   categories: [],
   setCategories: (categories: Category[]) => set({ categories }),
+
+  transactions: [],
+  setTransactionList: (transactions: Transaction[]) => set({ transactions: transactions }),
 
   loadCategories: async () => {
     try {
@@ -40,4 +43,14 @@ export const useStore = create<StoreState>((set) => ({
       console.error("Error al cargar las categorías:", error);
     }
   },
+
+  loadTransactions: async () => {
+    try {
+      const transactions = await getUserTransactions();
+      set({ transactions: transactions });
+    }
+    catch (error) {
+      console.error("Error al cargar las transacciones:", error);
+    }
+  }
 }));
