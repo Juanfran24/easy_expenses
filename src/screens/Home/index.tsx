@@ -6,66 +6,130 @@ import TransactionCard from "@/src/components/TransactionCard";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
 import { Navigation } from "@/src/utils";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import NotificationCard from "@/src/components/NotificationCard";
 import { Transaction } from "@/src/models/Transaction";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { User } from "firebase/auth";
+import { getUserTransactions } from "@/src/services/transactions";
+import { transformToCurrency } from "@/src/utils";
 
 const Home = () => {
   const { user } = useAuth();
   const { displayName } = user as User;
   const navigation = Navigation();
-  const pieData = [
-    {
-      value: 40,
-      type: "expense",
-      mount: "3500000",
-      color: colors.error.main,
-      text: "40%",
-      shiftTextX: -22,
-    },
-    {
-      value: 60,
-      type: "income",
-      mount: "5000000",
-      color: colors.success,
-      text: "60%",
-      shiftTextX: -5,
-      shiftTextY: 30,
-    },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [balance, setBalance] = useState<number>(0);
+  const [pieData, setPieData] = useState<any[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
 
-  const transactions: Transaction[] = [
-    {
-      id: "1",
-      type: "ingreso",
-      amount: 2500000,
-      category: "Salario principal",
-      name: "Pago mensual",
-      date: new Date("2025-10-20T15:15:00Z"),
-      paymentMethod: "cash",
-    },
-    {
-      id: "2",
-      type: "gasto",
-      amount: 200000,
-      category: "Servicios públicos",
-      name: "Pago de electricidad",
-      date: new Date("2025-10-20T15:15:00Z"),
-      paymentMethod: "cash",
-    },
-    {
-      id: "3",
-      type: "ingreso",
-      amount: 500000,
-      category: "Salario principal",
-      name: "Pago mensual2",
-      date: new Date("2025-10-20T15:15:00Z"),
-      paymentMethod: "cash",
-    },
-  ];
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const userTransactions = await getUserTransactions();
+      setTransactions(userTransactions);
+      calculateBalanceAndChartData(userTransactions);
+      getRecentTransactions(userTransactions);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      setLoading(false);
+    }
+  };
+
+  const calculateBalanceAndChartData = (transactions: Transaction[]) => {
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    transactions.forEach((transaction) => {
+      if (transaction.type === 'ingreso') {
+        totalIncome += transaction.amount;
+      } else if (transaction.type === 'gasto') {
+        totalExpenses += transaction.amount;
+      }
+    });
+    const availableBalance = totalIncome - totalExpenses;
+    setBalance(availableBalance);
+
+    if (totalIncome === 0 && totalExpenses === 0) {
+      const chartData = [
+        {
+          value: 100,
+          type: "nodata",
+          mount: "0",
+          color: colors.textsAndIcons.dark,
+          text: "100%",
+          shiftTextX: -22,
+        }
+      ];
+      setPieData(chartData);
+      return;
+    }
+
+    const total = totalIncome + totalExpenses;
+    const incomePercentage = total > 0 ? Math.round((totalIncome / total) * 100) : 0;
+    const expensePercentage = total > 0 ? 100 - incomePercentage : 0;
+
+    const chartData = [
+      {
+        value: expensePercentage,
+        type: "expense",
+        mount: totalExpenses.toString(),
+        color: colors.error.main,
+        text: `${expensePercentage}%`,
+        shiftTextX: -22,
+      },
+      {
+        value: incomePercentage,
+        type: "income",
+        mount: totalIncome.toString(),
+        color: colors.success,
+        text: `${incomePercentage}%`,
+        shiftTextX: -5,
+        shiftTextY: 30,
+      },
+    ];
+
+    setPieData(chartData);
+  };
+
+  const getRecentTransactions = (transactions: Transaction[]) => {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const currentMonthTransactions = transactions.filter(
+      (transaction) => transaction.date >= firstDayOfMonth
+    );
+    const sortedTransactions = currentMonthTransactions.sort(
+      (a, b) => b.date.getTime() - a.date.getTime()
+    );
+    setRecentTransactions(sortedTransactions.slice(0, 3));
+  };
+  
+  const renderPercentages = () => {
+    if (pieData.length === 1 && pieData[0].type === "nodata") return null;
+    
+    return (
+      <FlexBox style={styles.percentagesContainer}>
+        {pieData.map((item, index) => (
+          <View key={index} style={styles.percentageItem}>
+            <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
+            <Typography.H6.SemiBold
+              styles={{
+                color: item.type === "expense" ? colors.error.main : colors.success,
+              }}
+            >
+              {item.text}
+            </Typography.H6.SemiBold>
+          </View>
+        ))}
+      </FlexBox>
+    );
+  };
 
   return (
     <View style={styles.primaryContainer}>
@@ -79,10 +143,11 @@ const Home = () => {
           <Typography.H1
             styles={{ color: colors.primary.medium, marginTop: 5 }}
           >
-            $ 1.500.000 COP
+            {transformToCurrency(balance.toString())} COP
           </Typography.H1>
         </FlexBox>
         <View style={styles.secondContainer}>
+          {renderPercentages()}
           <Typography.H5.SemiBold>
             Ingresos vs gastos del mes
           </Typography.H5.SemiBold>
@@ -92,13 +157,19 @@ const Home = () => {
               Transacciones recientes
             </Typography.H5.SemiBold>
             <FlexBox style={{ gap: 10, width: "100%" }}>
-              {transactions.map((transaction, index) => (
-                <TransactionCard
-                  key={index}
-                  transaction={transaction}
-                  withoutActions
-                />
-              ))}
+              {recentTransactions.length > 0 ? (
+                recentTransactions.map((transaction, index) => (
+                  <TransactionCard
+                    key={index}
+                    transaction={transaction}
+                    withoutActions
+                  />
+                ))
+              ) : (
+                <Typography.P2.Regular>
+                  No hay transacciones recientes este mes
+                </Typography.P2.Regular>
+              )}
             </FlexBox>
             <AppButton
               variant="text-icon"
@@ -154,5 +225,22 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginTop: 32,
     gap: 18,
+  },
+  percentagesContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    gap: 15,
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  percentageItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  colorIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
 });

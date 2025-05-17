@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { FlexBox } from "../FlexBox";
 import { PieChart } from "react-native-gifted-charts";
 import { FlexBetween } from "../FlexBox/FlexBetween";
@@ -13,17 +13,13 @@ const DonutChartHome = ({ data }: any) => {
       <FlexBox style={{ alignItems: "center", marginTop: 20 }}>
         <PieChart
           donut
-          showText
-          textColor={colors.textsAndIcons.onColor}
+          showText={false}
           radius={100}
-          textSize={13}
-          showTextBackground={false}
           data={data}
           font="Sora_Regular"
           innerCircleColor={colors.backgrounds.base}
           innerRadius={70}
           initialAngle={45}
-          labelsPosition="onBorder"
         />
       </FlexBox>
       <Legend data={data} />
@@ -34,6 +30,24 @@ const DonutChartHome = ({ data }: any) => {
 export default DonutChartHome;
 
 const Legend = ({ data }: any) => {
+  // Verificar si se trata del caso especial de "Sin datos"
+  if (data.length === 1 && data[0].type === "nodata") {
+    return (
+      <FlexBox
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginTop: 20,
+          width: "100%",
+        }}
+      >
+        <Typography.H6.Regular styles={{ letterSpacing: 1 }}>
+          No hay datos para mostrar
+        </Typography.H6.Regular>
+      </FlexBox>
+    );
+  }
+
   return (
     <FlexBox
       style={{

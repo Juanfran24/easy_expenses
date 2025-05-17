@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
-import { FlexBetween } from "@/src/components/FlexBox/FlexBetween";
 import TransactionCard from "@/src/components/TransactionCard";
 import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
