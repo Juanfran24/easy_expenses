@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   h3: {
     fontFamily: "Sora_Bold",
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: "600",
     color: colors.textsAndIcons.main,
   },
   h4: {
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
   h5Bold: {
     fontFamily: "Sora_Bold",
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "600",
     color: colors.textsAndIcons.main,
   },
   h5SemiBold: {
