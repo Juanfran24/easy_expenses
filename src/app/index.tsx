@@ -15,8 +15,10 @@ import { AppProvider } from "../context";
 import RootLayout from "../layout";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useAuth } from "../context/AuthContext/useAuth";
 
 export default function App() {
+  const { isLoading: isLoadingSignIn } = useAuth();
   const [loaded, error] = useFonts({
     Sora_ExtraBold: Sora_800ExtraBold,
     Sora_Bold: Sora_700Bold,
@@ -28,14 +30,16 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       await SplashScreen.preventAutoHideAsync();
-      if (loaded || error) {
+      // Ocultar el splash solo cuando las fuentes estén listas (o haya error) y no esté cargando el signin
+      if ((loaded || error) && !isLoadingSignIn) {
         await SplashScreen.hideAsync();
       }
     }
     prepare();
-  }, [loaded, error]);
+  }, [loaded, error, isLoadingSignIn]);
 
-  if (!loaded && !error) {
+  // Mientras las fuentes no estén listas o esté cargando el signin, mantener splash
+  if (!loaded || isLoadingSignIn) {
     return null;
   }
 
