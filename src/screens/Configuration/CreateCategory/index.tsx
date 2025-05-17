@@ -4,16 +4,58 @@ import AppRadio from "@/src/components/Inputs/AppRadio";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
+import { Category } from "@/src/models/Category";
+import { createCategory } from "@/src/services/categories";
 import { Navigation } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View, Alert } from "react-native";
+
+const AVAILABLE_ICONS = [
+  "home",
+  "work",
+  "restaurant",
+  "school"
+];
 
 const CreateCategory = () => {
   const navigation = Navigation();
   const [valueCategory, setValueCategory] = useState(0);
   const [categoryName, setCategoryName] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState("");
+  const [selectedColor, setSelectedColor] = useState("#FAFAFA");
   const categories = ["Ingreso", "Gasto"];
+
+  const handleCreateCategory = async () => {
+    if (!categoryName.trim()) {
+      Alert.alert("Error", "El nombre de la categoría es obligatorio");
+      return;
+    }
+
+    if (!selectedIcon) {
+      Alert.alert("Error", "Debes seleccionar un ícono");
+      return;
+    }
+
+    try {
+      const newCategory: Category = {
+        name: categoryName,
+        type: categories[valueCategory] as "Ingreso" | "Gasto",
+        icon: selectedIcon,
+        color: selectedColor,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const createdCategory = await createCategory(newCategory);
+      console.log("Categoría creada:", createdCategory);
+      
+      Alert.alert("Éxito", `Categoría ${categoryName} creada correctamente`);
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error al crear la categoría:", error);
+    }
+  };
 
   return (
     <ScrollView style={styles.viewContainer}>
@@ -48,13 +90,20 @@ const CreateCategory = () => {
           placeholder="Ingresar nombre"
           value={categoryName}
           onChangeText={setCategoryName}
+          maxLength={20}
         />
       </View>
       <Typography.H5.SemiBold>Seleccionar ícono</Typography.H5.SemiBold>
       <FlexBox style={styles.containerCardIcon}>
-        {[0, 0, 0, 0, 0, 0, 0, 0, 0].map((_, index) => (
-          <TouchableOpacity key={index}>
-            <CardIcon icon={index === 8 ? "add" : null} />
+        {AVAILABLE_ICONS.map((icon, index) => (
+          <TouchableOpacity 
+            key={index}
+            onPress={() => setSelectedIcon(icon !== "add" ? icon : "")}
+            style={selectedIcon === icon ? styles.selectedContainer : null}
+          >
+            <CardIcon 
+              icon={icon}
+            />
           </TouchableOpacity>
         ))}
       </FlexBox>
@@ -70,8 +119,15 @@ const CreateCategory = () => {
           "#3BC3FD",
           "#74DB6B",
         ].map((color, index) => (
-          <TouchableOpacity key={index}>
-            <CircleColor color={color} icon={index === 0 ? "add" : null} />
+          <TouchableOpacity 
+            key={index} 
+            onPress={() => setSelectedColor(color)}
+            style={selectedColor === color ? styles.selectedColorContainer : null}
+          >
+            <CircleColor 
+              color={color} 
+              icon={index === 0 ? "add" : null}
+            />
           </TouchableOpacity>
         ))}
       </FlexBox>
@@ -79,7 +135,7 @@ const CreateCategory = () => {
         <AppButton
           title="Crear categoría"
           variant="contained"
-          onPress={() => {}}
+          onPress={handleCreateCategory}
         />
       </View>
     </ScrollView>
@@ -137,6 +193,8 @@ const styles = StyleSheet.create({
     padding: 16,
     width: 56,
     height: 56,
+    alignItems: "center",
+    justifyContent: "center",
   },
   containerCircleColor: {
     flexDirection: "row",
@@ -150,5 +208,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+  },
+  selectedContainer: {
+    borderWidth: 2,
+    borderColor: colors.primary.main,
+    borderRadius: 12,
+  },
+  selectedColorContainer: {
+    borderWidth: 2,
+    borderColor: colors.primary.main,
+    borderRadius: 14,
+    padding: 2,
   },
 });
