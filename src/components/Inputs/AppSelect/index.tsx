@@ -1,8 +1,21 @@
-import RNPickerSelect, { Item } from "react-native-picker-select";
-import { View, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+  Modal,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  Text,
+  FlatList,
+  Pressable,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import colors from "@/src/constants/colors";
 import Typography from "../../Typography";
+
+interface Item {
+  label: string;
+  value: string;
+}
 
 interface AppSelectProps {
   label: string;
@@ -16,9 +29,14 @@ export const AppSelect: React.FC<AppSelectProps> = ({
   label,
   value,
   onValueChange,
-  placeholder,
+  placeholder = "Selecciona una opción",
   items,
 }) => {
+  const [visible, setVisible] = useState(false);
+
+  const selectedLabel =
+    items.find((item) => item.value === value)?.label || placeholder;
+
   return (
     <View>
       <Typography.H6.Regular
@@ -27,37 +45,49 @@ export const AppSelect: React.FC<AppSelectProps> = ({
         {label}
       </Typography.H6.Regular>
 
-      <RNPickerSelect
-        value={value}
-        onValueChange={onValueChange}
-        placeholder={{
-          label: placeholder || "Selecciona una opción",
-          value: null,
-          color: colors.textsAndIcons.dark,
-        }}
-        items={items}
-        style={{
-          inputIOS: styles.input,
-          inputAndroid: styles.input,
-          placeholder: {
-            color: colors.textsAndIcons.dark,
-            fontFamily: "Sora_Regular",
-            fontSize: 15,
-          },
-          iconContainer: {
-            top: "25%",
-            right: 15,
-          },
-        }}
-        useNativeAndroidPickerStyle={false}
-        Icon={() => (
-          <MaterialIcons
-            name="arrow-drop-down"
-            size={24}
-            color={colors.textsAndIcons.dark}
-          />
-        )}
-      />
+      <TouchableOpacity
+        style={styles.input}
+        onPress={() => setVisible(true)}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.valueText}>{selectedLabel}</Text>
+        <MaterialIcons
+          name="arrow-drop-down"
+          size={24}
+          color={colors.textsAndIcons.dark}
+          style={styles.icon}
+        />
+      </TouchableOpacity>
+
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPressOut={() => setVisible(false)}
+        >
+          <View style={styles.modal}>
+            <FlatList
+              data={items}
+              keyExtractor={(item) => item.value}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.option}
+                  onPress={() => {
+                    onValueChange(item.value);
+                    setVisible(false);
+                  }}
+                >
+                  <Text style={styles.optionText}>{item.label}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -71,8 +101,39 @@ const styles = StyleSheet.create({
     paddingVertical: 14.5,
     paddingLeft: 20,
     paddingRight: 40,
+    justifyContent: "center",
+  },
+  valueText: {
+    fontFamily: "Sora_Regular",
+    fontSize: 15,
+    color: colors.textsAndIcons.dark,
+  },
+  icon: {
+    position: "absolute",
+    right: 12,
+    top: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  modal: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 8,
+    maxHeight: "50%",
+  },
+  option: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  optionText: {
+    fontSize: 16,
     fontFamily: "Sora_Regular",
     color: colors.textsAndIcons.dark,
   },
 });
+
 export default AppSelect;

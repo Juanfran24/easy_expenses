@@ -1,7 +1,7 @@
 export default {
   expo: {
     owner: "easy_expenses",
-    name: "easy_expenses",
+    name: "Easy expenses",
     slug: "easy-expenses-app",
     version: "1.0.0",
     orientation: "portrait",
