@@ -20,7 +20,6 @@ export const createCategory = async (category: Omit<Category, "id">) => {
             ...category
         };
 
-        // Actualizar el store con la nueva categoría
         const store = useStore.getState();
         store.setCategories([...store.categories, newCategory]);
         

@@ -70,15 +70,12 @@ const CreateAndEditTransactions = ({ route }: any) => {
           setLoadingCategories(false);
           return;
         }
-
       } catch (error) {
         console.error("Error al cargar categorías:", error);
-        Alert.alert("Error", "No se pudieron cargar las categorías");
       } finally {
         setLoadingCategories(false);
       }
     };
-
     fetchCategories();
   }, [categories, loadCategories]);
 

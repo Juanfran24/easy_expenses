@@ -28,15 +28,25 @@ type Option = {
 type Props = {
   label?: string;
   options: Option[];
+  onSelectionChange?: (selectedValues: string[]) => void;
+  selectedValues?: string[];
 };
 
 const MultiSelectWithChips: React.FC<Props> = ({
   label = "Seleccionar",
   options,
+  onSelectionChange,
+  selectedValues: externalSelectedValues,
 }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [selectedValues, setSelectedValues] = useState<string[]>(externalSelectedValues || []);
   const dropdownAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (externalSelectedValues !== undefined) {
+      setSelectedValues(externalSelectedValues);
+    }
+  }, [externalSelectedValues]);
 
   useEffect(() => {
     if (dropdownVisible) {
@@ -60,13 +70,22 @@ const MultiSelectWithChips: React.FC<Props> = ({
   };
 
   const toggleSelect = (value: string) => {
-    setSelectedValues((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    const newValues = selectedValues.includes(value)
+      ? selectedValues.filter((v) => v !== value)
+      : [...selectedValues, value];
+    
+    setSelectedValues(newValues);
+    if (onSelectionChange) {
+      onSelectionChange(newValues);
+    }
   };
 
   const removeChip = (value: string) => {
-    setSelectedValues((prev) => prev.filter((v) => v !== value));
+    const newValues = selectedValues.filter((v) => v !== value);
+    setSelectedValues(newValues);
+    if (onSelectionChange) {
+      onSelectionChange(newValues);
+    }
   };
 
   const renderDropdown = () => {

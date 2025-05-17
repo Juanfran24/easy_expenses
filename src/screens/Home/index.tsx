@@ -12,7 +12,6 @@ import NotificationCard from "@/src/components/NotificationCard";
 import { Transaction } from "@/src/models/Transaction";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { User } from "firebase/auth";
-import { getUserTransactions } from "@/src/services/transactions";
 import { transformToCurrency } from "@/src/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useStore } from "@/src/store";
@@ -21,7 +20,6 @@ const Home = () => {
   const { user } = useAuth();
   const { displayName } = user as User;
   const navigation = Navigation();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0);
   const [pieData, setPieData] = useState<any[]>([]);
@@ -30,6 +28,7 @@ const Home = () => {
   );
 
   const categories = useStore(state => state.categories);
+  const transactions = useStore(state => state.transactions);
 
   useEffect(() => {
     fetchTransactions();
@@ -38,8 +37,7 @@ const Home = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const userTransactions = await getUserTransactions();
-      setTransactions(userTransactions);
+      const userTransactions = transactions;
       calculateBalanceAndChartData(userTransactions);
       getRecentTransactions(userTransactions);
       setLoading(false);

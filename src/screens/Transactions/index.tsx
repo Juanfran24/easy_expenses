@@ -14,7 +14,6 @@ import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
 import {
-  getUserTransactions,
   deleteTransaction,
 } from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
@@ -46,7 +45,6 @@ const Transactions = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>("newest");
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
@@ -54,6 +52,7 @@ const Transactions = () => {
   );
   
   const categories = useStore(state => state.categories);
+  const transactions = useStore(state => state.transactions);
 
   const handleTabChange = (tabId: string) => {
     if (Platform.OS === "web") return setSelectedTabId(tabId);
@@ -62,23 +61,12 @@ const Transactions = () => {
   };
 
   const fetchTransactions = async () => {
-    try {
-      setIsLoading(true);
-      const transactionsData = await getUserTransactions();
-      setTransactions(transactionsData);
-    } catch (error) {
-      console.error("Error al obtener transacciones:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
 
   const handleDeleteTransaction = async (id: string) => {
     try {
       await deleteTransaction(id);
-      setTransactions((prev) =>
-        prev.filter((transaction) => transaction.id !== id)
-      );
     } catch (error) {}
   };
 
@@ -132,8 +120,6 @@ const Transactions = () => {
 
     return [{ label: "Categorías", value: "all" }, ...categoryItems];
   };
-
-  // Usamos la función utilitaria desde utils/index.ts
 
   useEffect(() => {
     fetchTransactions();

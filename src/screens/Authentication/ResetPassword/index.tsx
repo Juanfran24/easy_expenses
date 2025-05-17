@@ -63,7 +63,6 @@ const ResetPassword = () => {
           />
         </FlexBox>
       </FlexBox>
-      
 
       <AlertModal
         visible={showAlert}
