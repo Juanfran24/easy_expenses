@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { auth } from "../../database";
+import { useStore } from "../../store";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -19,6 +20,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const loadCategories = useStore((state) => state.loadCategories);
+  const loadTransactions = useStore((state) => state.loadTransactions);
 
   useEffect(() => {
     const checkLoginState = () => {
@@ -26,11 +29,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
-            // Solo establecer el usuario si está verificado o si no estamos en el proceso de registro
             if (user.emailVerified) {
               setUser(user);
+              await loadCategories();
+              await loadTransactions();
             } else {
-              // Si el usuario no está verificado, cerrar la sesión
               await signOut(auth);
               setUnverifiedEmail(user.email || null);
               setUser(null);
@@ -38,15 +41,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           } else {
             setUser(null);
           }
-          setIsLoading(false); // Mover aquí para asegurarse de que el estado de usuario esté completamente procesado
+          setIsLoading(false);
         });
       } catch (error) {
         setError("Error checking login state");
-        setIsLoading(false); // Asegurarse de que isLoading se actualice incluso en caso de error
+        setIsLoading(false);
       }
     };
     checkLoginState();
-  }, []);
+  }, [loadCategories, loadTransactions]);
 
   const handleRegister = async (
     email: string,
@@ -65,8 +68,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw error;
       }
 
-      // Crear el usuario pero con un indicador de registro en proceso
-      // Esto evita que el listener de autenticación maneje este estado transitorio
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -75,11 +76,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const newUser = userCredential.user;
 
       if (newUser) {
-        // Actualizar el perfil y enviar verificación
         await updateProfile(newUser, { displayName });
         await sendEmailVerification(newUser);
 
-        // Inmediatamente cerrar la sesión y establecer el estado correcto
         await signOut(auth);
         setUnverifiedEmail(email);
       }
@@ -114,7 +113,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!user.emailVerified) {
         await signOut(auth);
         setUnverifiedEmail(email);
-        //await sendEmailVerification(user);
         const error = new Error(
           "Por favor, verifica tu correo electrónico antes de iniciar sesión. Se ha enviado un nuevo correo de verificación."
         );

@@ -14,16 +14,14 @@ import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
 import {
-  getUserTransactions,
   deleteTransaction,
 } from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
-import { getUserCategories } from "@/src/services/categories";
-import { Category } from "@/src/models/Category";
 import Typography from "@/src/components/Typography";
-import { Navigation } from "@/src/utils";
+import { Navigation, getCategoryTransaction } from "@/src/utils";
 import { AppButton } from "@/src/components/AppButton";
 import NoData from "@/src/components/NoData";
+import { useStore } from "@/src/store";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -47,13 +45,14 @@ const Transactions = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>("newest");
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
     null
   );
+  
+  const categories = useStore(state => state.categories);
+  const transactions = useStore(state => state.transactions);
 
   const handleTabChange = (tabId: string) => {
     if (Platform.OS === "web") return setSelectedTabId(tabId);
@@ -62,32 +61,12 @@ const Transactions = () => {
   };
 
   const fetchTransactions = async () => {
-    try {
-      setIsLoading(true);
-      const transactionsData = await getUserTransactions();
-      setTransactions(transactionsData);
-    } catch (error) {
-      console.error("Error al obtener transacciones:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const categoriesData = await getUserCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error("Error al obtener categorías:", error);
-    }
+    setIsLoading(false);
   };
 
   const handleDeleteTransaction = async (id: string) => {
     try {
       await deleteTransaction(id);
-      setTransactions((prev) =>
-        prev.filter((transaction) => transaction.id !== id)
-      );
     } catch (error) {}
   };
 
@@ -142,14 +121,8 @@ const Transactions = () => {
     return [{ label: "Categorías", value: "all" }, ...categoryItems];
   };
 
-  const getCategoryTransaction = (idCategory: string) => {
-    const category = categories.find((cat) => cat.id === idCategory);
-    return category ? category.name : "Sin categoría";
-  };
-
   useEffect(() => {
     fetchTransactions();
-    fetchCategories();
   }, []);
 
   return (
@@ -200,7 +173,7 @@ const Transactions = () => {
               <View key={transaction.id} style={{ marginBottom: 16 }}>
                 <TransactionCard
                   transaction={transaction}
-                  categoryName={getCategoryTransaction(transaction.category)}
+                  categoryName={getCategoryTransaction(transaction.category, categories)}
                   onEdit={(tx) => {
                     const serializedTx = {
                       ...tx,

@@ -5,28 +5,30 @@ import { FlexBox } from "@/src/components/FlexBox";
 import TransactionCard from "@/src/components/TransactionCard";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
-import { Navigation } from "@/src/utils";
+import { getCategoryTransaction, Navigation } from "@/src/utils";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import NotificationCard from "@/src/components/NotificationCard";
 import { Transaction } from "@/src/models/Transaction";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { User } from "firebase/auth";
-import { getUserTransactions } from "@/src/services/transactions";
 import { transformToCurrency } from "@/src/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useStore } from "@/src/store";
 
 const Home = () => {
   const { user } = useAuth();
   const { displayName } = user as User;
   const navigation = Navigation();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0);
   const [pieData, setPieData] = useState<any[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     []
   );
+
+  const categories = useStore(state => state.categories);
+  const transactions = useStore(state => state.transactions);
 
   useEffect(() => {
     fetchTransactions();
@@ -35,8 +37,7 @@ const Home = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const userTransactions = await getUserTransactions();
-      setTransactions(userTransactions);
+      const userTransactions = transactions;
       calculateBalanceAndChartData(userTransactions);
       getRecentTransactions(userTransactions);
       setLoading(false);
@@ -186,6 +187,7 @@ const Home = () => {
                     <TransactionCard
                       key={index}
                       transaction={transaction}
+                      categoryName={getCategoryTransaction(transaction.category,categories)}
                       withoutActions
                     />
                   ))

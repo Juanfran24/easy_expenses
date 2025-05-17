@@ -55,7 +55,7 @@ const ResetPassword = () => {
             </Typography.P3.Regular>
           )}
         </FlexBox>
-        <FlexBox style={{ width: "100%", gap: 16 }}>          
+        <FlexBox style={{ width: "100%", gap: 16 }}>
           <AppButton
             title="Enviar a correo"
             variant="contained"
@@ -72,7 +72,7 @@ const ResetPassword = () => {
         onDismiss={() => {
           setShowAlert(false);
           //@ts-ignore
-          navigation.navigate("NewPassword");
+          navigation.navigate("Login");
         }}
       />
     </View>
