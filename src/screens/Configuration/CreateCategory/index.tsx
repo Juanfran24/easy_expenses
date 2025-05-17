@@ -48,7 +48,6 @@ const CreateCategory = () => {
       };
 
       const createdCategory = await createCategory(newCategory);
-      console.log("Categoría creada:", createdCategory);
       
       Alert.alert("Éxito", `Categoría ${categoryName} creada correctamente`);
       navigation.goBack();

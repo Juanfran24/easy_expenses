@@ -18,12 +18,11 @@ import {
   deleteTransaction,
 } from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
-import { getUserCategories } from "@/src/services/categories";
-import { Category } from "@/src/models/Category";
 import Typography from "@/src/components/Typography";
-import { Navigation } from "@/src/utils";
+import { Navigation, getCategoryTransaction } from "@/src/utils";
 import { AppButton } from "@/src/components/AppButton";
 import NoData from "@/src/components/NoData";
+import { useStore } from "@/src/store";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -48,12 +47,13 @@ const Transactions = () => {
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>("newest");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
     null
   );
+  
+  const categories = useStore(state => state.categories);
 
   const handleTabChange = (tabId: string) => {
     if (Platform.OS === "web") return setSelectedTabId(tabId);
@@ -70,15 +70,6 @@ const Transactions = () => {
       console.error("Error al obtener transacciones:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const categoriesData = await getUserCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error("Error al obtener categorías:", error);
     }
   };
 
@@ -142,14 +133,10 @@ const Transactions = () => {
     return [{ label: "Categorías", value: "all" }, ...categoryItems];
   };
 
-  const getCategoryTransaction = (idCategory: string) => {
-    const category = categories.find((cat) => cat.id === idCategory);
-    return category ? category.name : "Sin categoría";
-  };
+  // Usamos la función utilitaria desde utils/index.ts
 
   useEffect(() => {
     fetchTransactions();
-    fetchCategories();
   }, []);
 
   return (
@@ -200,7 +187,7 @@ const Transactions = () => {
               <View key={transaction.id} style={{ marginBottom: 16 }}>
                 <TransactionCard
                   transaction={transaction}
-                  categoryName={getCategoryTransaction(transaction.category)}
+                  categoryName={getCategoryTransaction(transaction.category, categories)}
                   onEdit={(tx) => {
                     const serializedTx = {
                       ...tx,

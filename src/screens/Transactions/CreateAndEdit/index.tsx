@@ -10,11 +10,10 @@ import {
   createTransaction,
   updateTransaction,
 } from "@/src/services/transactions";
-import { getUserCategories } from "@/src/services/categories";
-import { Category } from "@/src/models/Category";
 import { useNavigation } from "@react-navigation/native";
 import AppRadio from "@/src/components/Inputs/AppRadio";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
+import { useStore } from "../../../store";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const navigation = useNavigation();
@@ -33,8 +32,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [localTypeTransaction, setLocalTypeTransaction] =
     useState<string>("fijo");
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  
+  const { categories, loadCategories } = useStore();
 
   useEffect(() => {
     if (isEditing && editingTransaction) {
@@ -66,13 +66,11 @@ const CreateAndEditTransactions = ({ route }: any) => {
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true);
-        const userCategories = await getUserCategories();
-        setCategories(
-          userCategories.filter(
-            (cat) =>
-              cat.type === (typeTransaction === "ingreso" ? "Ingreso" : "Gasto")
-          )
-        );
+        if (categories.length !== 0) {
+          setLoadingCategories(false);
+          return;
+        }
+
       } catch (error) {
         console.error("Error al cargar categorías:", error);
         Alert.alert("Error", "No se pudieron cargar las categorías");
@@ -82,14 +80,18 @@ const CreateAndEditTransactions = ({ route }: any) => {
     };
 
     fetchCategories();
-  }, [typeTransaction]);
+  }, [categories, loadCategories]);
 
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");
     setValueTransaction(transformToCurrency(digitsOnly));
   };
 
-  const categoryItems = categories.map((cat) => ({
+  const filteredCategories = categories.filter(
+    (cat) => cat.type === (typeTransaction === "ingreso" ? "Ingreso" : "Gasto")
+  );
+
+  const categoryItems = filteredCategories.map((cat) => ({
     label: cat.name,
     value: cat.id || "",
   }));
@@ -214,7 +216,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
               <AppDateField
                 label="Fecha hasta (Opcional)"
                 value={endDate}
-                onChange={setDateTransaction}
+                onChange={setEndDate}
               />
             )}
           </>

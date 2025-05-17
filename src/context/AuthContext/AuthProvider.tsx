@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { auth } from "../../database";
+import { useStore } from "../../store"; // Importar el store
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const loadCategories = useStore((state) => state.loadCategories); // Obtener la función del store
 
   useEffect(() => {
     const checkLoginState = () => {
@@ -29,6 +31,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Solo establecer el usuario si está verificado o si no estamos en el proceso de registro
             if (user.emailVerified) {
               setUser(user);
+
+              // Cargar las categorías cuando el usuario esté autenticado
+              await loadCategories();
             } else {
               // Si el usuario no está verificado, cerrar la sesión
               await signOut(auth);
@@ -46,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     checkLoginState();
-  }, []);
+  }, [loadCategories]);
 
   const handleRegister = async (
     email: string,

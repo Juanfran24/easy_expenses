@@ -5,7 +5,7 @@ import { FlexBox } from "@/src/components/FlexBox";
 import TransactionCard from "@/src/components/TransactionCard";
 import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
-import { Navigation } from "@/src/utils";
+import { getCategoryTransaction, Navigation } from "@/src/utils";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import NotificationCard from "@/src/components/NotificationCard";
@@ -15,6 +15,7 @@ import { User } from "firebase/auth";
 import { getUserTransactions } from "@/src/services/transactions";
 import { transformToCurrency } from "@/src/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useStore } from "@/src/store";
 
 const Home = () => {
   const { user } = useAuth();
@@ -27,6 +28,8 @@ const Home = () => {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     []
   );
+
+  const categories = useStore(state => state.categories);
 
   useEffect(() => {
     fetchTransactions();
@@ -186,6 +189,7 @@ const Home = () => {
                     <TransactionCard
                       key={index}
                       transaction={transaction}
+                      categoryName={getCategoryTransaction(transaction.category,categories)}
                       withoutActions
                     />
                   ))

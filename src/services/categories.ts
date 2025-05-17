@@ -1,6 +1,7 @@
 import { database, auth } from "../database";
 import { collection, addDoc, query, where, getDocs, orderBy } from "firebase/firestore";
 import { Category } from "../models/Category";
+import { useStore } from "../store";
 
 export const createCategory = async (category: Omit<Category, "id">) => {
     try {
@@ -14,10 +15,16 @@ export const createCategory = async (category: Omit<Category, "id">) => {
 
         const docRef = await addDoc(collection(database, "categories"), category);
         
-        return {
+        const newCategory = {
             id: docRef.id,
             ...category
         };
+
+        // Actualizar el store con la nueva categoría
+        const store = useStore.getState();
+        store.setCategories([...store.categories, newCategory]);
+        
+        return newCategory;
     } catch (error) {
         console.error("Error al crear la categoría:", error);
         throw error;
