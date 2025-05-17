@@ -2,6 +2,7 @@ import { createContext } from "react";
 import { User } from "firebase/auth";
 
 interface AuthContextType {
+  isLoading: boolean;
   user: User | null;
   error: string | null;
   unverifiedEmail: string | null;
@@ -18,6 +19,7 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType>({
+  isLoading: false,
   user: null,
   error: null,
   unverifiedEmail: null,

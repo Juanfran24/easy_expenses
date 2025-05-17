@@ -50,10 +50,35 @@ export const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    padding: 16,
     gap: 8,
   },
   menuItemText: {
     color: colors.textsAndIcons.main,
+  },
+  noteModal: {
+    position: "absolute",
+    minWidth: 200,
+    top: "50%",
+    left: "30%",
+    backgroundColor: colors.backgrounds.light,
+    borderRadius: 8,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  noteModalCloseButton: {
+    alignSelf: "flex-end",
+  },
+  noteModalContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
   },
 });

@@ -35,6 +35,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
 
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [isOpenNote, setIsOpenNote] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const isIncome = type === "ingreso";
   const menuButtonRef = useRef<View>(null);
@@ -78,11 +79,13 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     });
   };
 
-  const handleMenuAction = (action: "edit" | "delete") => {
+  const handleMenuAction = (action: "edit" | "delete" | "viewNote") => {
     if (action === "edit") {
       handleEditTransaction();
-    } else {
+    } else if (action === "delete") {
       handleDeleteTransaction();
+    } else if (action === "viewNote") {
+      handleViewNote();
     }
     handleCloseMenu();
   };
@@ -99,6 +102,10 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     }
   };
 
+  const handleViewNote = () => {
+    setIsOpenNote(true);
+  };
+
   return (
     <View style={styles.card}>
       <FlexBetween>
@@ -111,10 +118,14 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
             />
           </View>
           <FlexBox style={{ flex: 1 }}>
-            <Typography.H6.SemiBold>{name.length > 15 ? `${name.slice(0, 12)}...` : name}</Typography.H6.SemiBold>
+            <Typography.H6.SemiBold>
+              {name.length > 15 ? `${name.slice(0, 12)}...` : name}
+            </Typography.H6.SemiBold>
             <Typography.P4.Regular>{categoryName}</Typography.P4.Regular>
             <Typography.P4.Regular styles={styles.date}>
-              {date ? new Date(date).toLocaleDateString() : "Fecha no disponible"}
+              {date
+                ? new Date(date).toLocaleDateString()
+                : "Fecha no disponible"}
             </Typography.P4.Regular>
           </FlexBox>
         </FlexBox>
@@ -190,7 +201,21 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                 Editar
               </Typography.P3.Regular>
             </TouchableOpacity>
-
+            {transaction.description && (
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuAction("viewNote")}
+              >
+                <MaterialIcons
+                  name="note"
+                  size={20}
+                  color={colors.textsAndIcons.main}
+                />
+                <Typography.P3.Regular styles={styles.menuItemText}>
+                  Ver nota
+                </Typography.P3.Regular>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => handleMenuAction("delete")}
@@ -208,6 +233,32 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
             </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
+      </Modal>
+
+      <Modal
+        visible={isOpenNote}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsOpenNote(false)}
+      >
+        <View style={styles.noteModal}>
+          <TouchableOpacity
+            style={styles.noteModalCloseButton}
+            onPress={() => setIsOpenNote(false)}
+          >
+            <MaterialIcons
+              name="close"
+              size={24}
+              color={colors.textsAndIcons.dark}
+            />
+          </TouchableOpacity>
+          <Typography.H6.SemiBold>Descripción</Typography.H6.SemiBold>
+          <View style={styles.noteModalContent}>
+            <Typography.P3.Regular>
+              {transaction.description}
+            </Typography.P3.Regular>
+          </View>
+        </View>
       </Modal>
     </View>
   );

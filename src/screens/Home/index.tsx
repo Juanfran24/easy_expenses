@@ -7,23 +7,26 @@ import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
 import { Navigation } from "@/src/utils";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import NotificationCard from "@/src/components/NotificationCard";
 import { Transaction } from "@/src/models/Transaction";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { User } from "firebase/auth";
 import { getUserTransactions } from "@/src/services/transactions";
 import { transformToCurrency } from "@/src/utils";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const Home = () => {
   const { user } = useAuth();
   const { displayName } = user as User;
   const navigation = Navigation();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0);
   const [pieData, setPieData] = useState<any[]>([]);
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
+    []
+  );
 
   useEffect(() => {
     fetchTransactions();
@@ -47,9 +50,9 @@ const Home = () => {
     let totalIncome = 0;
     let totalExpenses = 0;
     transactions.forEach((transaction) => {
-      if (transaction.type === 'ingreso') {
+      if (transaction.type === "ingreso") {
         totalIncome += transaction.amount;
-      } else if (transaction.type === 'gasto') {
+      } else if (transaction.type === "gasto") {
         totalExpenses += transaction.amount;
       }
     });
@@ -65,14 +68,15 @@ const Home = () => {
           color: colors.textsAndIcons.dark,
           text: "100%",
           shiftTextX: -22,
-        }
+        },
       ];
       setPieData(chartData);
       return;
     }
 
     const total = totalIncome + totalExpenses;
-    const incomePercentage = total > 0 ? Math.round((totalIncome / total) * 100) : 0;
+    const incomePercentage =
+      total > 0 ? Math.round((totalIncome / total) * 100) : 0;
     const expensePercentage = total > 0 ? 100 - incomePercentage : 0;
 
     const chartData = [
@@ -109,18 +113,21 @@ const Home = () => {
     );
     setRecentTransactions(sortedTransactions.slice(0, 3));
   };
-  
+
   const renderPercentages = () => {
     if (pieData.length === 1 && pieData[0].type === "nodata") return null;
-    
+
     return (
       <FlexBox style={styles.percentagesContainer}>
         {pieData.map((item, index) => (
           <View key={index} style={styles.percentageItem}>
-            <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
+            <View
+              style={[styles.colorIndicator, { backgroundColor: item.color }]}
+            />
             <Typography.H6.SemiBold
               styles={{
-                color: item.type === "expense" ? colors.error.main : colors.success,
+                color:
+                  item.type === "expense" ? colors.error.main : colors.success,
               }}
             >
               {item.text}
@@ -140,53 +147,99 @@ const Home = () => {
             {<Typography.P2.SemiBold>{displayName}</Typography.P2.SemiBold>}!
           </Typography.P2.Regular>
           <Typography.H6.Regular>Tu saldo disponible es:</Typography.H6.Regular>
-          <Typography.H1
-            styles={{ color: colors.primary.medium, marginTop: 5 }}
-          >
-            {transformToCurrency(balance.toString())} COP
-          </Typography.H1>
+          {!loading ? (
+            <Typography.H1
+              styles={{ color: colors.primary.medium, marginTop: 5 }}
+            >
+              {transformToCurrency(balance.toString())} COP
+            </Typography.H1>
+          ) : (
+            <ActivityIndicator
+              size="large"
+              color={colors.primary.medium}
+              style={{ marginTop: 18 }}
+            />
+          )}
         </FlexBox>
         <View style={styles.secondContainer}>
-          {renderPercentages()}
           <Typography.H5.SemiBold>
             Ingresos vs gastos del mes
           </Typography.H5.SemiBold>
-          <DonutChartHome data={pieData} />
+          {!loading ? (
+            <>
+              {renderPercentages()}
+              <DonutChartHome data={pieData} />
+            </>
+          ) : (
+            <FlexBox style={{ marginVertical: 157 }}>
+              <ActivityIndicator size="large" color={colors.primary.medium} />
+            </FlexBox>
+          )}
           <FlexBox style={styles.transactionsRecentsContainer}>
             <Typography.H5.SemiBold>
               Transacciones recientes
             </Typography.H5.SemiBold>
-            <FlexBox style={{ gap: 10, width: "100%" }}>
-              {recentTransactions.length > 0 ? (
-                recentTransactions.map((transaction, index) => (
-                  <TransactionCard
-                    key={index}
-                    transaction={transaction}
-                    withoutActions
-                  />
-                ))
-              ) : (
-                <Typography.P2.Regular>
-                  No hay transacciones recientes este mes
-                </Typography.P2.Regular>
-              )}
-            </FlexBox>
-            <AppButton
-              variant="text-icon"
-              nameIcon="chevron-right"
-              textAndIconColor={colors.primary.main}
-              title="Ver más"
-              onPress={() => {
-                navigation.navigate("Home", {
-                  screen: "Transacciones",
-                });
-              }}
-            />
+            {!loading ? (
+              <FlexBox style={{ gap: 10, width: "100%" }}>
+                {recentTransactions.length > 0 ? (
+                  recentTransactions.map((transaction, index) => (
+                    <TransactionCard
+                      key={index}
+                      transaction={transaction}
+                      withoutActions
+                    />
+                  ))
+                ) : (
+                  <FlexBox
+                    style={{
+                      justifyContent: "center",
+                      marginTop: 10,
+                      width: "50%",
+                      minWidth: 200,
+                      alignItems: "center",
+                      alignSelf: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="alert-plus-outline"
+                      size={50}
+                      color={colors.textsAndIcons.dark}
+                    />
+                    <Typography.P2.Regular
+                      styles={{
+                        textAlign: "center",
+                        color: colors.textsAndIcons.dark,
+                        letterSpacing: 1,
+                      }}
+                    >
+                      Agrega tu primera transacción.
+                    </Typography.P2.Regular>
+                  </FlexBox>
+                )}
+              </FlexBox>
+            ) : (
+              <FlexBox style={{ marginVertical: 20 }}>
+                <ActivityIndicator size="large" color={colors.primary.medium} />
+              </FlexBox>
+            )}
+            {recentTransactions.length > 0 && (
+              <AppButton
+                variant="text-icon"
+                nameIcon="chevron-right"
+                textAndIconColor={colors.primary.main}
+                title="Ver más"
+                onPress={() => {
+                  navigation.navigate("Home", {
+                    screen: "Transacciones",
+                  });
+                }}
+              />
+            )}
           </FlexBox>
-          <NotificationCard
+          {/* <NotificationCard
             title="¡Vence pronto!"
             description="Pago cuota deuda 1 - 10 Jul 2025"
-          />
+          /> */}
         </View>
       </ScrollView>
       <SpeedFabView />
@@ -227,15 +280,17 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   percentagesContainer: {
-    width: '100%',
-    flexDirection: 'row',
+    width: "100%",
+    flexDirection: "row",
     gap: 15,
-    alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 24,
     marginBottom: 5,
   },
   percentageItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 5,
   },
   colorIndicator: {

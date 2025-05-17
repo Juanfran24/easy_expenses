@@ -246,8 +246,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borders.dark,
   },
   selectedOption: {
     backgroundColor: colors.backgrounds.medium,

@@ -30,7 +30,8 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [paymentMethod, setPaymentMethod] = useState<string>("cash");
   const [category, setCategory] = useState("");
   const [dayOfMonth, setDayOfMonth] = useState<number>(1);
-  const [localTypeTransaction, setLocalTypeTransaction] = useState<string>("fijo");
+  const [localTypeTransaction, setLocalTypeTransaction] =
+    useState<string>("fijo");
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -41,7 +42,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
       setValueTransaction(
         transformToCurrency(editingTransaction.amount.toString())
       );
-      setDateTransaction(editingTransaction.date ? new Date(editingTransaction.date) : new Date());
+      setDateTransaction(
+        editingTransaction.date ? new Date(editingTransaction.date) : new Date()
+      );
       setDescriptionTransaction(editingTransaction.description || "");
       setPaymentMethod(editingTransaction.paymentMethod);
       setCategory(editingTransaction.category);
@@ -64,8 +67,12 @@ const CreateAndEditTransactions = ({ route }: any) => {
       try {
         setLoadingCategories(true);
         const userCategories = await getUserCategories();
-        setCategories(userCategories.filter(cat => cat.type === 
-          (typeTransaction === "ingreso" ? "Ingreso" : "Gasto")));
+        setCategories(
+          userCategories.filter(
+            (cat) =>
+              cat.type === (typeTransaction === "ingreso" ? "Ingreso" : "Gasto")
+          )
+        );
       } catch (error) {
         console.error("Error al cargar categorías:", error);
         Alert.alert("Error", "No se pudieron cargar las categorías");
@@ -82,14 +89,12 @@ const CreateAndEditTransactions = ({ route }: any) => {
     setValueTransaction(transformToCurrency(digitsOnly));
   };
 
-  const categoryItems = categories.map(cat => ({
+  const categoryItems = categories.map((cat) => ({
     label: cat.name,
     value: cat.id || "",
   }));
 
-  const categoriesWithDefault = [
-    ...categoryItems
-  ];
+  const categoriesWithDefault = [...categoryItems];
 
   const PAYMENT_METHODS = [
     { label: "Efectivo", value: "cash" },
@@ -133,6 +138,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
         screen: "Transacciones",
       });
     } catch (error) {
+      console.error("Error al guardar la transacción:", error);
     }
   };
 
@@ -169,7 +175,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
         />
         <AppSelect
           label="Categoría"
-          placeholder={loadingCategories ? "Cargando categorías..." : "Seleccionar"}
+          placeholder={
+            loadingCategories ? "Cargando categorías..." : "Seleccionar"
+          }
           items={categoriesWithDefault}
           onValueChange={(value) => setCategory(value)}
           value={category}

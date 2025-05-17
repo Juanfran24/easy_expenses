@@ -13,13 +13,17 @@ import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
-import { getUserTransactions, deleteTransaction } from "@/src/services/transactions";
+import {
+  getUserTransactions,
+  deleteTransaction,
+} from "@/src/services/transactions";
 import { Transaction } from "@/src/models/Transaction";
 import { getUserCategories } from "@/src/services/categories";
 import { Category } from "@/src/models/Category";
 import Typography from "@/src/components/Typography";
 import { Navigation } from "@/src/utils";
 import { AppButton } from "@/src/components/AppButton";
+import NoData from "@/src/components/NoData";
 
 const TRANSACTION_TABS = [
   { id: "income", title: "Ingresos" },
@@ -47,7 +51,9 @@ const Transactions = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
+    null
+  );
 
   const handleTabChange = (tabId: string) => {
     if (Platform.OS === "web") return setSelectedTabId(tabId);
@@ -79,9 +85,10 @@ const Transactions = () => {
   const handleDeleteTransaction = async (id: string) => {
     try {
       await deleteTransaction(id);
-      setTransactions((prev) => prev.filter((transaction) => transaction.id !== id));
-    } catch (error) {
-    }
+      setTransactions((prev) =>
+        prev.filter((transaction) => transaction.id !== id)
+      );
+    } catch (error) {}
   };
 
   const confirmDeleteTransaction = (id: string) => {
@@ -132,16 +139,13 @@ const Transactions = () => {
       value: category.id || "",
     }));
 
-    return [
-      { label: "Categorías", value: "all" },
-      ...categoryItems,
-    ];
+    return [{ label: "Categorías", value: "all" }, ...categoryItems];
   };
 
-  const getCategoryTransaction = (idCategory : string) => {
+  const getCategoryTransaction = (idCategory: string) => {
     const category = categories.find((cat) => cat.id === idCategory);
     return category ? category.name : "Sin categoría";
-  }
+  };
 
   useEffect(() => {
     fetchTransactions();
@@ -186,7 +190,7 @@ const Transactions = () => {
           </FlexBox>
         </FlexBox>
 
-        <FlexBox style={{ paddingLeft: 16, paddingRight: 16 }}>
+        <FlexBox style={{ flex: 1, paddingLeft: 16, paddingRight: 16 }}>
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.primary.main} />
@@ -200,12 +204,24 @@ const Transactions = () => {
                   onEdit={(tx) => {
                     const serializedTx = {
                       ...tx,
-                      date: tx.date instanceof Date ? tx.date.toISOString() : tx.date,
-                      createdAt: tx.createdAt instanceof Date ? tx.createdAt.toISOString() : tx.createdAt,
-                      updatedAt: tx.updatedAt instanceof Date ? tx.updatedAt.toISOString() : tx.updatedAt,
-                      endDate: tx.endDate instanceof Date ? tx.endDate.toISOString() : tx.endDate,
+                      date:
+                        tx.date instanceof Date
+                          ? tx.date.toISOString()
+                          : tx.date,
+                      createdAt:
+                        tx.createdAt instanceof Date
+                          ? tx.createdAt.toISOString()
+                          : tx.createdAt,
+                      updatedAt:
+                        tx.updatedAt instanceof Date
+                          ? tx.updatedAt.toISOString()
+                          : tx.updatedAt,
+                      endDate:
+                        tx.endDate instanceof Date
+                          ? tx.endDate.toISOString()
+                          : tx.endDate,
                     };
-                    
+
                     navigation.navigate("CreateAndEditTransactions", {
                       type: tx.type,
                       isEditing: true,
@@ -217,13 +233,13 @@ const Transactions = () => {
               </View>
             ))
           ) : (
-            <View style={styles.emptyContainer}>
-              <Typography.H6.Regular
-                styles={{ color: colors.textsAndIcons.dark }}
-              >
-                No hay transacciones para mostrar
-              </Typography.H6.Regular>
-            </View>
+            <FlexBox style={{ marginTop: 200 }}>
+              <NoData
+                icon="announcement"
+                title="No hay transacciones disponibles."
+                style={{ marginTop: 20 }}
+              />
+            </FlexBox>
           )}
         </FlexBox>
       </ScrollView>
