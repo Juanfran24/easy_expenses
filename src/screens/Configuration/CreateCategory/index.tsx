@@ -10,6 +10,7 @@ import { Navigation } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View, Alert } from "react-native";
+import { useStore } from "../../../store";
 
 const AVAILABLE_ICONS = [
   "home",
@@ -48,6 +49,8 @@ const CreateCategory = () => {
       };
 
       const createdCategory = await createCategory(newCategory);
+      const store = useStore.getState();
+      store.setCategories([...store.categories, createdCategory]);
       
       Alert.alert("Éxito", `Categoría ${categoryName} creada correctamente`);
       navigation.goBack();

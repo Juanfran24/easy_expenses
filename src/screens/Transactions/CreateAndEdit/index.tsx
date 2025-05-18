@@ -121,15 +121,24 @@ const CreateAndEditTransactions = ({ route }: any) => {
         dayOfMonth: localTypeTransaction === "fijo" ? dayOfMonth : undefined,
         endDate: localTypeTransaction === "fijo" ? endDate : undefined,
       };
-
+      
+      const store = useStore.getState();
       if (isEditing && editingTransaction?.id) {
-        await updateTransaction(editingTransaction.id, transactionData);
+        const transactionUpdated = await updateTransaction(editingTransaction.id, transactionData);
+        const updatedTransactions = store.transactions.map((tx) =>
+          tx.id === editingTransaction.id
+            ? { ...tx, ...transactionUpdated }
+            : tx
+        );
+        store.setTransactionList(updatedTransactions);
       } else {
-        await createTransaction({
-          ...transactionData,
-          userId: "",
-          createdAt: now,
-        });
+        const newTransaction = 
+          await createTransaction({
+            ...transactionData,
+            userId: "",
+            createdAt: now,
+          });
+        store.setTransactionList([newTransaction, ...store.transactions]);
       }
 
       //@ts-ignore
