@@ -4,6 +4,108 @@ import { Category } from "../models/Category";
 import { Transaction } from "../models/Transaction";
 import { getUserTransactions } from "../services/transactions";
 
+const DEFAULT_CATEGORIES: Category[] = [
+  {
+    id: "default-Ingreso-Salario",
+    name: "Salario",
+    type: "Ingreso",
+    icon: "work",
+    color: "#37CAA0",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Ingreso-Inversiones",
+    name: "Inversiones",
+    type: "Ingreso",
+    icon: "trending-up",
+    color: "#7667F9",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Ingreso-Regalo",
+    name: "Regalo",
+    type: "Ingreso",
+    icon: "card-giftcard",
+    color: "#FD5EED",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Ingreso-Otros",
+    name: "Otros",
+    type: "Ingreso",
+    icon: "attach-money",
+    color: "#FDA23B",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Alimentación",
+    name: "Alimentación",
+    type: "Gasto",
+    icon: "restaurant",
+    color: "#FD523B",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Transporte",
+    name: "Transporte",
+    type: "Gasto",
+    icon: "directions-car",
+    color: "#3BC3FD",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Servicios",
+    name: "Servicios",
+    type: "Gasto",
+    icon: "electric-bolt",
+    color: "#FD5EED",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Entretenimiento",
+    name: "Entretenimiento",
+    type: "Gasto",
+    icon: "movie",
+    color: "#7667F9",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Salud",
+    name: "Salud",
+    type: "Gasto",
+    icon: "medical-services",
+    color: "#FDA23B",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Educación",
+    name: "Educación",
+    type: "Gasto",
+    icon: "school",
+    color: "#37CAA0",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "default-Gasto-Otros",
+    name: "Otros",
+    type: "Gasto",
+    icon: "category",
+    color: "#3BC3FD",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+];
+
 export interface StoreState {
   currency: string;
   setCurrency: (currency: string) => void;
@@ -37,8 +139,19 @@ export const useStore = create<StoreState>((set) => ({
 
   loadCategories: async () => {
     try {
-      const categories = await getUserCategories();
-      set({ categories });
+      const userCategories = await getUserCategories();
+      const defaultCategories = DEFAULT_CATEGORIES.map((cat, index) => ({
+        ...cat,
+        createdAt: cat.createdAt,
+        updatedAt: cat.updatedAt,
+      })) as Category[];
+
+      const filteredUserCategories = userCategories.filter(userCat => 
+        !defaultCategories.some(defCat => defCat.name === userCat.name && defCat.type === userCat.type)
+      );
+      
+      const allCategories = [...defaultCategories, ...filteredUserCategories];
+      set({ categories: allCategories });
     } catch (error) {
       console.error("Error al cargar las categorías:", error);
     }

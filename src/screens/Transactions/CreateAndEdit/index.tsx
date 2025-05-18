@@ -34,7 +34,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   
-  const { categories, loadCategories } = useStore();
+  const categories = useStore(state => state.categories);
 
   useEffect(() => {
     if (isEditing && editingTransaction) {
@@ -77,7 +77,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
       }
     };
     fetchCategories();
-  }, [categories, loadCategories]);
+  }, [categories]);
 
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");

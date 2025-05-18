@@ -16,7 +16,15 @@ const AVAILABLE_ICONS = [
   "home",
   "work",
   "restaurant",
-  "school"
+  "school",
+  "trending-up",
+  "card-giftcard",
+  "attach-money",
+  "directions-car",
+  "electric-bolt",
+  "movie",
+  "medical-services",
+  "category"
 ];
 
 const CreateCategory = () => {

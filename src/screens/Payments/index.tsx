@@ -21,7 +21,7 @@ const Payments = () => {
   const [paymentCategories, setPaymentCategories] = useState<string[]>([]);
   const [alertDaysBefore, setAlertDaysBefore] = useState<string | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const { categories, loadCategories } = useStore();
+  const categories = useStore(state => state.categories);
 
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");
@@ -43,7 +43,7 @@ const Payments = () => {
       }
     };
     fetchCategories();
-  }, [categories, loadCategories]);
+  }, [categories]);
   
   const handleSavePayment = async () => {
     try {
