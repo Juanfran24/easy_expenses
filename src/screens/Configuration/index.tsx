@@ -72,6 +72,7 @@ const Configuration = () => {
             { label: "Dólar estadounidense (USD)", value: "USD" },
             { label: "Euro (EUR)", value: "EUR" },
           ]}
+          disabled
         />
       </View>
 

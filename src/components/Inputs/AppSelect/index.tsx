@@ -23,6 +23,7 @@ interface AppSelectProps {
   onValueChange: (value: string) => void;
   placeholder?: string;
   items: Item[];
+  disabled?: boolean;
 }
 
 export const AppSelect: React.FC<AppSelectProps> = ({
@@ -31,6 +32,7 @@ export const AppSelect: React.FC<AppSelectProps> = ({
   onValueChange,
   placeholder = "Selecciona una opción",
   items,
+  disabled,
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -46,9 +48,10 @@ export const AppSelect: React.FC<AppSelectProps> = ({
       </Typography.H6.Regular>
 
       <TouchableOpacity
-        style={styles.input}
+        style={{ ...styles.input, opacity: !disabled ? 1 : 0.5 }}
         onPress={() => setVisible(true)}
         activeOpacity={0.8}
+        disabled={disabled}
       >
         <Text style={styles.valueText}>{selectedLabel}</Text>
         <MaterialIcons

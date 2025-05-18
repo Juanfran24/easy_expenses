@@ -1,7 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation";
-import { useStore } from "@/src/store";
 
 export const Navigation = () => {
   const navigation =
@@ -26,7 +25,13 @@ export const transformToCurrency = (value: string) => {
   }).format(numberValue);
 };
 
-export const getCategoryTransaction = (idCategory: string, categories: any[]) => {
+export const getCategoryTransaction = (
+  idCategory: string,
+  categories: any[]
+) => {
+  if (!Array.isArray(categories)) {
+    return "Sin categoría";
+  }
   const category = categories.find((cat) => cat.id === idCategory);
   return category ? category.name : "Sin categoría";
 };
