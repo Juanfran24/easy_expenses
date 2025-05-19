@@ -34,7 +34,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   
-  const { categories, loadCategories } = useStore();
+  const categories = useStore(state => state.categories);
 
   useEffect(() => {
     if (isEditing && editingTransaction) {
@@ -77,7 +77,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
       }
     };
     fetchCategories();
-  }, [categories, loadCategories]);
+  }, [categories]);
 
   const handleChangeValue = (text: string) => {
     const digitsOnly = text.replace(/\D/g, "");
@@ -121,15 +121,24 @@ const CreateAndEditTransactions = ({ route }: any) => {
         dayOfMonth: localTypeTransaction === "fijo" ? dayOfMonth : undefined,
         endDate: localTypeTransaction === "fijo" ? endDate : undefined,
       };
-
+      
+      const store = useStore.getState();
       if (isEditing && editingTransaction?.id) {
-        await updateTransaction(editingTransaction.id, transactionData);
+        const transactionUpdated = await updateTransaction(editingTransaction.id, transactionData);
+        const updatedTransactions = store.transactions.map((tx) =>
+          tx.id === editingTransaction.id
+            ? { ...tx, ...transactionUpdated }
+            : tx
+        );
+        store.setTransactionList(updatedTransactions);
       } else {
-        await createTransaction({
-          ...transactionData,
-          userId: "",
-          createdAt: now,
-        });
+        const newTransaction = 
+          await createTransaction({
+            ...transactionData,
+            userId: "",
+            createdAt: now,
+          });
+        store.setTransactionList([newTransaction, ...store.transactions]);
       }
 
       //@ts-ignore

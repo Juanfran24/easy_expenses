@@ -1,7 +1,6 @@
 import { database, auth } from "../database";
 import { collection, addDoc, query, where, orderBy, getDocs, doc, updateDoc, deleteDoc} from "firebase/firestore";
 import { Transaction } from "../models/Transaction";
-import { useStore } from "../store";
 
 export const createTransaction = async (transaction: Omit<Transaction, "id">) => {
     try{
@@ -19,9 +18,6 @@ export const createTransaction = async (transaction: Omit<Transaction, "id">) =>
             ...transaction
         };
 
-        const store = useStore.getState();
-        store.setTransactionList([newTransaction, ...store.transactions]);
-        
         return newTransaction;
     }catch (error) {
         throw error;
@@ -67,18 +63,6 @@ export const updateTransaction = async (transactionId: string, transaction: Part
             ...transaction,
             updatedAt: new Date()
         });
-        const store = useStore.getState();
-        const updatedTransactions = store.transactions.map((tx) => 
-            tx.id === transactionId 
-                ? { 
-                    ...tx, 
-                    ...transaction, 
-                    updatedAt: new Date() 
-                } 
-                : tx
-        );
-        store.setTransactionList(updatedTransactions);
-        
         return transaction;
     } catch (error) {
         console.error("Error al actualizar la transacción:", error);
@@ -92,10 +76,6 @@ export const deleteTransaction = async (transactionId: string) => {
         if (!user) throw new Error("Usuario no autenticado");
         const transactionRef = doc(database, "transactions", transactionId);
         await deleteDoc(transactionRef);
-        
-        const store = useStore.getState();
-        const updatedTransactions = store.transactions.filter(tx => tx.id !== transactionId);
-        store.setTransactionList(updatedTransactions);
     } catch (error) {
         throw error;
     }

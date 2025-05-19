@@ -67,7 +67,12 @@ const Transactions = () => {
   const handleDeleteTransaction = async (id: string) => {
     try {
       await deleteTransaction(id);
-    } catch (error) {}
+      const store = useStore.getState();
+      const updatedTransactions = store.transactions.filter(tx => tx.id !== id);
+      store.setTransactionList(updatedTransactions);
+    } catch (error) {
+      console.error("Error al eliminar la transacción:", error);
+    }
   };
 
   const confirmDeleteTransaction = (id: string) => {
