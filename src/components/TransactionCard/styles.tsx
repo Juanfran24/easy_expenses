@@ -57,13 +57,11 @@ export const styles = StyleSheet.create({
     color: colors.textsAndIcons.main,
   },
   noteModal: {
-    position: "absolute",
-    minWidth: 200,
-    top: "50%",
-    left: "30%",
     backgroundColor: colors.backgrounds.light,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 12,
+    padding: 20,
+    width: "80%",
+    maxWidth: 400,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -75,10 +73,26 @@ export const styles = StyleSheet.create({
   },
   noteModalCloseButton: {
     alignSelf: "flex-end",
+    margin: -8,
+    padding: 8,
   },
   noteModalContent: {
+    marginTop: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  detailRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
+    marginBottom: 8,
+    gap: 8,
+  },
+  description: {
+    marginTop: 4,
+    marginLeft: 28,
   },
 });

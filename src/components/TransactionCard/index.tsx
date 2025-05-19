@@ -45,15 +45,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   const handleMenuPress = () => {
     if (menuButtonRef.current) {
       menuButtonRef.current.measureInWindow((x, y, height) => {
-        // Calcular la posición X para que el menú no se salga de la pantalla
         let menuX = x - menuWidth + 30;
 
-        // Si el menú se sale por la derecha, ajustarlo
         if (menuX + menuWidth > screenWidth - 16) {
-          menuX = screenWidth - menuWidth - 16; // 16 es el padding de la pantalla
+          menuX = screenWidth - menuWidth - 16;
         }
 
-        // Si el menú se sale por la izquierda, ajustarlo
         if (menuX < 16) {
           menuX = 16;
         }
@@ -78,14 +75,11 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       setMenuVisible(false);
     });
   };
-
-  const handleMenuAction = (action: "edit" | "delete" | "viewNote") => {
+  const handleMenuAction = (action: "edit" | "delete") => {
     if (action === "edit") {
       handleEditTransaction();
     } else if (action === "delete") {
       handleDeleteTransaction();
-    } else if (action === "viewNote") {
-      handleViewNote();
     }
     handleCloseMenu();
   };
@@ -95,16 +89,16 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       onEdit(transaction);
     }
   };
-
   const handleDeleteTransaction = () => {
     if (onDelete) {
       onDelete(transaction.id!);
     }
   };
-
-  const handleViewNote = () => {
-    setIsOpenNote(true);
-  };
+  function hendleOnPress(): void {
+    if (transaction.description) {
+      setIsOpenNote(true);
+    }
+  }
 
   return (
     <View style={styles.card}>
@@ -117,17 +111,21 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
               color={isIncome ? colors.complements.green : colors.error.main}
             />
           </View>
-          <FlexBox style={{ flex: 1 }}>
-            <Typography.H6.SemiBold>
-              {name.length > 15 ? `${name.slice(0, 12)}...` : name}
-            </Typography.H6.SemiBold>
-            <Typography.P4.Regular>{categoryName}</Typography.P4.Regular>
-            <Typography.P4.Regular styles={styles.date}>
-              {date
-                ? new Date(date).toLocaleDateString()
-                : "Fecha no disponible"}
-            </Typography.P4.Regular>
-          </FlexBox>
+          <TouchableOpacity
+            onPress={hendleOnPress}
+          >
+            <FlexBox style={{ flex: 1 }}>
+              <Typography.H6.SemiBold>
+                {name.length > 15 ? `${name.slice(0, 12)}...` : name}
+              </Typography.H6.SemiBold>
+              <Typography.P4.Regular>{categoryName}</Typography.P4.Regular>
+              <Typography.P4.Regular styles={styles.date}>
+                {date
+                  ? new Date(date).toLocaleDateString()
+                  : "Fecha no disponible"}
+              </Typography.P4.Regular>
+            </FlexBox>
+          </TouchableOpacity>
         </FlexBox>
 
         <FlexBox style={styles.rightContent}>
@@ -162,7 +160,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
         transparent={true}
         animationType="none"
         onRequestClose={handleCloseMenu}
-      >
+      >        
         <TouchableOpacity
           style={StyleSheet.absoluteFill}
           onPress={handleCloseMenu}
@@ -201,21 +199,6 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                 Editar
               </Typography.P3.Regular>
             </TouchableOpacity>
-            {transaction.description && (
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleMenuAction("viewNote")}
-              >
-                <MaterialIcons
-                  name="note"
-                  size={20}
-                  color={colors.textsAndIcons.main}
-                />
-                <Typography.P3.Regular styles={styles.menuItemText}>
-                  Ver nota
-                </Typography.P3.Regular>
-              </TouchableOpacity>
-            )}
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => handleMenuAction("delete")}
@@ -233,32 +216,37 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
             </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
-      </Modal>
-
+      </Modal>      
       <Modal
         visible={isOpenNote}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setIsOpenNote(false)}
       >
-        <View style={styles.noteModal}>
-          <TouchableOpacity
-            style={styles.noteModalCloseButton}
-            onPress={() => setIsOpenNote(false)}
-          >
-            <MaterialIcons
-              name="close"
-              size={24}
-              color={colors.textsAndIcons.dark}
-            />
-          </TouchableOpacity>
-          <Typography.H6.SemiBold>Descripción</Typography.H6.SemiBold>
-          <View style={styles.noteModalContent}>
-            <Typography.P3.Regular>
-              {transaction.description}
-            </Typography.P3.Regular>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsOpenNote(false)}
+        >
+          <View style={styles.noteModal}>
+            <TouchableOpacity
+              style={styles.noteModalCloseButton}
+              onPress={() => setIsOpenNote(false)}
+            >
+              <MaterialIcons
+                name="close"
+                size={24}
+                color={colors.textsAndIcons.dark}
+              />
+            </TouchableOpacity>
+            <Typography.H6.SemiBold>Descripción</Typography.H6.SemiBold>
+            <View style={styles.noteModalContent}>
+              <Typography.P3.Regular>
+                {transaction.description}
+              </Typography.P3.Regular>
+            </View>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
