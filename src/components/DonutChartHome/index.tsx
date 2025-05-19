@@ -108,7 +108,7 @@ const Legend = ({ data }: any) => {
                   item.type === "expense" ? colors.error.main : colors.success,
               }}
             >
-              {`${transformToCurrency(item.mount)}`}
+              {`${transformToCurrency(String(item.mount))}`}
             </Typography.H6.SemiBold>
           </FlexBetween>
         ))}
