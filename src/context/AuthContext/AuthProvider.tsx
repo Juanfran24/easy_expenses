@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const loadCategories = useStore((state) => state.loadCategories);
   const loadTransactions = useStore((state) => state.loadTransactions);
+  const loadPyments = useStore((state) => state.loadPyments);
 
   useEffect(() => {
     const checkLoginState = () => {
@@ -33,6 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               setUser(user);
               await loadCategories();
               await loadTransactions();
+              await loadPyments();
             } else {
               await signOut(auth);
               setUnverifiedEmail(user.email || null);

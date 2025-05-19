@@ -3,6 +3,8 @@ import { getUserCategories } from "../services/categories";
 import { Category } from "../models/Category";
 import { Transaction } from "../models/Transaction";
 import { getUserTransactions } from "../services/transactions";
+import { Payment } from "../models/Payment";
+import { getUserPayments } from "../services/payments";
 
 const DEFAULT_CATEGORIES: Category[] = [
   {
@@ -112,24 +114,17 @@ export interface StoreState {
   transactions: Transaction[];
   setTransactionList: (transactionList: Transaction[]) => void;
   loadTransactions: () => Promise<void>;
-  incomeList: string[];
-  setIncomeList: (incomeList: string[]) => void;
-  expenseList: string[];
-  setExpenseList: (expenseList: string[]) => void;  
   categories: Category[];
   setCategories: (categories: Category[]) => void;
   loadCategories: () => Promise<void>;
+  pyments: Payment[];
+  setPyments: (pyments: Payment[]) => void;
+  loadPyments: () => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set) => ({
   currency: "MXN",
   setCurrency: (currency: string) => set({ currency }),
-
-  incomeList: [],
-  setIncomeList: (incomeList: string[]) => set({ incomeList }),
-
-  expenseList: [],
-  setExpenseList: (expenseList: string[]) => set({ expenseList }),
 
   categories: [],
   setCategories: (categories: Category[]) => set({ categories }),
@@ -164,6 +159,17 @@ export const useStore = create<StoreState>((set) => ({
     }
     catch (error) {
       console.error("Error al cargar las transacciones:", error);
+    }
+  },
+
+  pyments: [],
+  setPyments: (pyments: Payment[]) => set({ pyments }),
+  loadPyments: async () => {
+    try {
+      const pyments = await getUserPayments();
+      set({ pyments});
+    } catch (error) {
+      console.error("Error al cargar los pagos:", error);
     }
   }
 }));
