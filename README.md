@@ -1,50 +1,119 @@
-# Welcome to your Expo app 👋
+# 📱 Easy Expenses — App de Finanzas Personales
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Easy Expenses** es una aplicación móvil desarrollada con **React Native + Expo**, orientada a la gestión de finanzas personales. Permite al usuario llevar un control detallado de sus ingresos, gastos, pagos recurrentes/no recurrentes, y visualizar reportes útiles para la toma de decisiones financieras.
 
-## Get started
+Este proyecto forma parte de nuestro portafolio profesional y fue desarrollado como requerimiento del curso de **Computación Móvil**.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🚀 Tecnologías principales
 
-2. Start the app
+- **React Native** (Expo SDK 52)
+- **Expo Router** para navegación basada en archivos
+- **Firebase** (Auth, Firestore)
+- **EAS Build** para compilación y despliegue nativo
+- **TypeScript** como lenguaje base
+- **AsyncStorage** para persistencia local
+- **Expo AuthSession + WebBrowser** para login con Google
+- **react-native-svg** y **gifted-charts** para visualización de reportes
+- UI adaptada con diseño responsive y animaciones suaves
 
-   ```bash
-    npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🧩 Características destacadas
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### ✅ Gestión de ingresos y gastos
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Clasificación por categorías fijas y personalizadas
+- Etiquetado de transacciones
+- Ingresos recurrentes y no recurrentes
 
-## Get a fresh project
+### 📊 Reportes visuales
 
-When you're ready, run:
+- Gráficas de ingresos y gastos por periodo
+- Resumen por fuente de ingreso
 
-```bash
-npm run reset-project
+### 🔐 Autenticación
+
+- Registro/Login con correo y contraseña
+- Inicio de sesión con **Google OAuth** (Firebase + Expo AuthSession)
+
+### 🤝 Navegación
+
+- Navegación mixta: `Drawer` + `Bottom Tabs`
+- Navegación anidada (`NativeStack`) para pantallas de configuración y creación
+
+### 🛠️ Extras técnicos
+
+- Custom Hooks (`useAuth`) y contexto global (`AuthContext`)
+- Componente personalizado `AppSelect` para selección sin dependencias nativas
+- Modal animado desde el `headerRight` para acceso rápido a configuración/cierre de sesión
+- Soporte para múltiples fuentes de ingreso (con chips interactivos)
+
+---
+
+## 🏗️ Estructura del proyecto
+
+```
+src/
+├── app/                  # Rutas y navegación (Expo Router)
+├── components/           # UI Components (AppSelect, ModalMenu, Typography, etc.)
+├── constants/            # Paleta de colores, tipografías
+├── context/              # Contextos globales como Auth
+├── database/             # Configuración Firebase
+├── screens/              # Pantallas agrupadas por dominio
+├── navigation/           # Stack y Bottom Tabs
+└── utils/                # Helpers generales y hooks
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🛠️ Instalación local
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+git clone https://github.com/tu-usuario/easy-expenses.git
+cd easy-expenses
+npm install
+npx expo start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+> ⚠️ Requiere Node.js y Expo CLI instalados.
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 📦 Build nativo
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Compilación con EAS:
+
+```bash
+eas build --platform android
+```
+
+---
+
+## 🧠 Lecciones aprendidas
+
+Durante el desarrollo de esta app enfrenté y solucioné varios desafíos técnicos:
+
+- Compatibilidad con SDK 52 y manejo de errores de dependencias nativas
+- Gestión eficiente del estado de autenticación usando `AsyncStorage`
+- Implementación de componentes accesibles y funcionales sin dependencias nativas (`Picker`, `Modal`, etc.)
+
+---
+
+## 📲 Demo
+
+Próximamente disponible en formato APK desde [Releases](https://github.com/juanfran24/easy-expenses/releases)
+
+---
+
+## 👩‍💻 Autores
+
+Juan Esteban Franco Estacio — [LinkedIn](https://www.linkedin.com/in/juanfran24)
+Arnol Meneses — [LinkedIn](https://www.linkedin.com/in/arnol-meneses-782374197)
+
+---
+
+## 🌐 Palabras clave
+
+`react-native` `expo` `firebase` `auth` `typescript` `mobile-app` `finance` `portfolio` `expo-router` `eas-build`

@@ -1,31 +1,112 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import "@/global.css";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import Home from "../screens/Home/index";
-// import Add from "../screens/Add";
-import { StatusBar } from "expo-status-bar";
-import Layout from "../layout";
+import React from "react";
+import Configuration from "../screens/Configuration";
+import BottomTabStack, { BottomTabParamList } from "./bottomTab";
+import colors from "../constants/colors";
+import { FlexBetween } from "../components/FlexBox/FlexBetween";
+import IconApp from "../../assets/images/icon_app.svg";
+import EasyExpenses from "../../assets/images/easy_expenses.svg";
+import AppBarMenu from "../components/AppBarMenu";
+import Typography from "../components/Typography";
+import CreateCategory from "../screens/Configuration/CreateCategory";
+import { NavigatorScreenParams } from "@react-navigation/native";
+import BackButtonHeader from "../components/BackButtonHeader";
+import CreateAndEditTransactions from "../screens/Transactions/CreateAndEdit";
 
-const Stack = createNativeStackNavigator();
+// Definimos los tipos de las rutas
+export type RootStackParamList = {
+  Home: NavigatorScreenParams<BottomTabParamList>;
+  Configuration: undefined;
+  CreateCategory: undefined;
+  CreateAndEditTransactions: { 
+    type: string; 
+    id?: string;
+    isEditing?: boolean;
+    transaction?: any;
+  };
+};
 
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function MyStack() {
-  
+const RootStack = () => {
   return (
-    <GluestackUIProvider mode="light">// <Layout>
-      // </Layout>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
-        {/* <Stack.Screen name="Add" component={Add} /> */}
-      </Stack.Navigator></GluestackUIProvider>
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen
+        name="Home"
+        component={BottomTabStack}
+        options={{
+          headerStyle: {
+            backgroundColor: colors.backgrounds.light,
+            // @ts-ignore
+            borderBottomWidth: 0,
+          },
+          headerRight: () => <AppBarMenu />,
+          headerLeft: () => (
+            <FlexBetween style={{ gap: 11, marginLeft: 10 }}>
+              <IconApp />
+              <EasyExpenses />
+            </FlexBetween>
+          ),
+          headerTitle: "",
+        }}
+      />
+      <Stack.Screen
+        name="Configuration"
+        component={Configuration}
+        options={{
+          headerStyle: {
+            backgroundColor: colors.backgrounds.light,
+            // @ts-ignore
+            borderBottomWidth: 0,
+          },
+          headerTitle: () => (
+            <Typography.H5.Regular>Configuración</Typography.H5.Regular>
+          ),
+          headerLeft: () => <BackButtonHeader />,
+          headerTitleAlign: "center",
+          headerTintColor: colors.textsAndIcons.main,
+        }}
+      />
+      <Stack.Screen
+        name="CreateCategory"
+        component={CreateCategory}
+        options={{
+          headerStyle: {
+            backgroundColor: colors.backgrounds.light,
+            // @ts-ignore
+            borderBottomWidth: 0,
+          },
+          headerTitle: () => (
+            <Typography.H5.Regular>Configuración</Typography.H5.Regular>
+          ),
+          headerLeft: () => <BackButtonHeader />,
+          headerTitleAlign: "center",
+          headerTintColor: colors.textsAndIcons.main,
+        }}
+      />
+      <Stack.Screen
+        name="CreateAndEditTransactions"
+        component={CreateAndEditTransactions}
+        options={({ route }) => {
+          const { type, id } = route.params;
+
+          return {
+            headerStyle: {
+              backgroundColor: colors.backgrounds.light,
+              // @ts-ignore
+              borderBottomWidth: 0,
+            },
+            headerTitle: () => (
+              <Typography.H5.Regular>{`Agregar ${type}`}</Typography.H5.Regular>
+            ),
+            headerLeft: () => <BackButtonHeader />,
+            headerTitleAlign: "center",
+            headerTintColor: colors.textsAndIcons.main,
+          };
+        }}
+      />
+    </Stack.Navigator>
   );
-}
+};
 
-export default function Navigation() {
-  return (
-    <>
-      <MyStack/>
-      <StatusBar style="auto" />
-    </>
-  )
-}
+export default RootStack;

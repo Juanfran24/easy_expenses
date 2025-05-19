@@ -1,59 +1,22 @@
 import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from "../screens/Home";
-import Transactions from "../screens/Transactions";
-import Payments from "../screens/Payments";
-import Reports from "../screens/Reports";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import RootStack from "../navigation";
+import { useAuth } from "../context/AuthContext/useAuth";
+import AuthStack from "../navigation/auth";
 
-const Tab = createBottomTabNavigator();
+const RootLayout = () => {
+  const { user, unverifiedEmail, isLoading: isLoadingSignIn } = useAuth();
 
-const Layout = () => {
+  // No mostrar ninguna pantalla mientras se verifica el estado de autenticación
+  if (isLoadingSignIn) {
+    return null;
+  }
+
+  // Determinar la pantalla inicial del AuthStack basado en si hay un correo sin verificar
+  const initialRoute = unverifiedEmail ? "Login" : "Landing";
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: { backgroundColor: "white" },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="home-filled" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Transactions"
-        component={Transactions}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="sync-alt" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Payments"
-        component={Payments}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="payments" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Reports"
-        component={Reports}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="bar-chart" color={color} size={26} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    <>{user ? <RootStack /> : <AuthStack initialRouteName={initialRoute} />}</>
   );
 };
 
-export default Layout;
+export default RootLayout;
