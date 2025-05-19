@@ -6,8 +6,8 @@ import Typography from "../../Typography";
 
 interface AppRadioProps {
   label?: string;
-  value: number;
-  onValueChange: (value: number) => void;
+  value: string;
+  onValueChange: (value: string) => void;
   items: { label: string; value: string }[];
 }
 
@@ -21,10 +21,10 @@ const AppRadio: React.FC<AppRadioProps> = ({
     <View>
       <Typography.H6.Regular>{label}</Typography.H6.Regular>
       <View style={styles.radioContent}>
-        {items.map((item, key) => {
+        {items.map((item) => {
           return (
             <View key={item.label}>
-              {value == key ? (
+              {value === item.value ? (
                 <TouchableOpacity style={styles.btn}>
                   <MaterialIcons
                     name="radio-button-checked"
@@ -36,7 +36,7 @@ const AppRadio: React.FC<AppRadioProps> = ({
               ) : (
                 <TouchableOpacity
                   onPress={() => {
-                    onValueChange(key);
+                    onValueChange(item.value);
                   }}
                   style={styles.btn}
                 >

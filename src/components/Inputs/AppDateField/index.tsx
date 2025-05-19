@@ -22,9 +22,11 @@ export const AppDateField = ({
   const [show, setShow] = useState(false);
 
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShow(Platform.OS === "ios");
     if (event.type === "set" && selectedDate) {
-      onChange(selectedDate);
+      setShow(false); // Cierra el picker
+      onChange(selectedDate); // Propaga la fecha seleccionada
+    } else {
+      setShow(false); // Cierra el picker si se cancela
     }
   };
 
