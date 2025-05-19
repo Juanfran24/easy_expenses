@@ -5,6 +5,7 @@ import {
   Platform,
   ActivityIndicator,
   View,
+  RefreshControl,
 } from "react-native";
 import colors from "@/src/constants/colors";
 import { FlexBox } from "@/src/components/FlexBox";
@@ -13,10 +14,7 @@ import * as Haptics from "expo-haptics";
 import TransactionTabs from "@/src/components/TransactionTabs";
 import { AppComboBox } from "@/src/components/Inputs/AppComboBox";
 import SpeedFabView from "@/src/components/FABButtom";
-import {
-  deleteTransaction,
-} from "@/src/services/transactions";
-import { Transaction } from "@/src/models/Transaction";
+import { deleteTransaction } from "@/src/services/transactions";
 import Typography from "@/src/components/Typography";
 import { Navigation, getCategoryTransaction } from "@/src/utils";
 import { AppButton } from "@/src/components/AppButton";
@@ -50,9 +48,11 @@ const Transactions = () => {
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
     null
   );
-  
-  const categories = useStore(state => state.categories);
-  const transactions = useStore(state => state.transactions);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const categories = useStore((state) => state.categories);
+  const transactions = useStore((state) => state.transactions);
+  const store = useStore((state) => state);
 
   const handleTabChange = (tabId: string) => {
     if (Platform.OS === "web") return setSelectedTabId(tabId);
@@ -61,6 +61,9 @@ const Transactions = () => {
   };
 
   const fetchTransactions = async () => {
+    await store.loadTransactions();
+    await store.loadCategories();
+    await store.loadPayments();
     setIsLoading(false);
   };
 
@@ -68,7 +71,9 @@ const Transactions = () => {
     try {
       await deleteTransaction(id);
       const store = useStore.getState();
-      const updatedTransactions = store.transactions.filter(tx => tx.id !== id);
+      const updatedTransactions = store.transactions.filter(
+        (tx) => tx.id !== id
+      );
       store.setTransactionList(updatedTransactions);
     } catch (error) {
       console.error("Error al eliminar la transacción:", error);
@@ -126,13 +131,29 @@ const Transactions = () => {
     return [{ label: "Categorías", value: "all" }, ...categoryItems];
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchTransactions();
+    setRefreshing(false);
+  };
+
   useEffect(() => {
     fetchTransactions();
   }, []);
 
   return (
     <>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary.medium]}
+            progressBackgroundColor={colors.backgrounds.medium}
+          />
+        }
+      >
         <TransactionTabs
           tabs={TRANSACTION_TABS}
           selectedTabId={selectedTabId}
@@ -178,7 +199,10 @@ const Transactions = () => {
               <View key={transaction.id} style={{ marginBottom: 16 }}>
                 <TransactionCard
                   transaction={transaction}
-                  categoryName={getCategoryTransaction(transaction.category, categories)}
+                  categoryName={getCategoryTransaction(
+                    transaction.category,
+                    categories
+                  )}
                   onEdit={(tx) => {
                     const serializedTx = {
                       ...tx,

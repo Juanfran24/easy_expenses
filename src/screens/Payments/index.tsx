@@ -8,7 +8,13 @@ import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
 import { transformToCurrency } from "@/src/utils";
 import { createPayment, updatePayment } from "@/src/services/payments";
-import { ScrollView, StyleSheet, View, Alert } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Alert,
+  RefreshControl,
+} from "react-native";
 import { useStore } from "@/src/store";
 import { useNavigation } from "@react-navigation/native";
 import { FlexBox } from "@/src/components/FlexBox";
@@ -23,8 +29,10 @@ const Payments = () => {
   const [currentPaymentId, setCurrentPaymentId] = useState<string | undefined>(
     undefined
   );
+  const [refreshing, setRefreshing] = useState(false);
   const categories = useStore((state) => state.categories);
   const payments = useStore((state) => state.payments);
+  const store = useStore((state) => state);
   const formikRef = useRef<any>(null);
 
   // Corregir el método handleSavePayment para que edite correctamente un pago existente
@@ -115,10 +123,26 @@ const Payments = () => {
     return unsubscribe;
   }, [navigation]);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await store.loadCategories();
+    await store.loadPayments();
+    await store.loadTransactions();
+    setRefreshing(false);
+  };
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 110 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[colors.primary.medium]}
+          progressBackgroundColor={colors.backgrounds.medium}
+        />
+      }
     >
       <Typography.H5.SemiBold>Pagos no recurrentes</Typography.H5.SemiBold>
       <Formik

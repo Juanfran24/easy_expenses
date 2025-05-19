@@ -7,8 +7,13 @@ import Typography from "@/src/components/Typography";
 import colors from "@/src/constants/colors";
 import { getCategoryTransaction, Navigation } from "@/src/utils";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
-import NotificationCard from "@/src/components/NotificationCard";
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Transaction } from "@/src/models/Transaction";
 import { useAuth } from "@/src/context/AuthContext/useAuth";
 import { User } from "firebase/auth";
@@ -26,9 +31,11 @@ const Home = () => {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     []
   );
+  const [refreshing, setRefreshing] = useState(false);
 
-  const categories = useStore(state => state.categories);
-  const transactions = useStore(state => state.transactions);
+  const categories = useStore((state) => state.categories);
+  const transactions = useStore((state) => state.transactions);
+  const store = useStore((state) => state);
 
   useEffect(() => {
     fetchTransactions();
@@ -37,6 +44,9 @@ const Home = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
+      await store.loadCategories();
+      await store.loadTransactions();
+      await store.loadPayments();
       const userTransactions = transactions;
       calculateBalanceAndChartData(userTransactions);
       getRecentTransactions(userTransactions);
@@ -115,6 +125,12 @@ const Home = () => {
     setRecentTransactions(sortedTransactions.slice(0, 3));
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchTransactions();
+    setRefreshing(false);
+  };
+
   const renderPercentages = () => {
     if (pieData.length === 1 && pieData[0].type === "nodata") return null;
 
@@ -141,7 +157,18 @@ const Home = () => {
 
   return (
     <View style={styles.primaryContainer}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={{ flex: 1 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary.medium]}
+            progressBackgroundColor={colors.backgrounds.medium}
+          />
+        }
+      >
         <FlexBox style={styles.balanceContainer}>
           <Typography.P2.Regular>
             ¡Hola,{" "}
@@ -187,7 +214,10 @@ const Home = () => {
                     <TransactionCard
                       key={index}
                       transaction={transaction}
-                      categoryName={getCategoryTransaction(transaction.category,categories)}
+                      categoryName={getCategoryTransaction(
+                        transaction.category,
+                        categories
+                      )}
                       withoutActions
                     />
                   ))
