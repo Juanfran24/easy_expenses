@@ -22,7 +22,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const loadCategories = useStore((state) => state.loadCategories);
   const loadTransactions = useStore((state) => state.loadTransactions);
-  const loadPyments = useStore((state) => state.loadPyments);
+  const loadPayments = useStore((state) => state.loadPayments);
+  const store = useStore((state) => state);
 
   useEffect(() => {
     const checkLoginState = () => {
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               setUser(user);
               await loadCategories();
               await loadTransactions();
-              await loadPyments();
+              await loadPayments();
             } else {
               await signOut(auth);
               setUnverifiedEmail(user.email || null);
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
           } else {
             setUser(null);
+            store.reset();
           }
           setIsLoading(false);
         });
@@ -51,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     checkLoginState();
-  }, [loadCategories, loadTransactions]);
+  }, [user]);
 
   const handleRegister = async (
     email: string,
@@ -152,6 +154,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await signOut(auth);
       setUser(null);
       setUnverifiedEmail(null);
+      store.reset();
     } catch (error: any) {
       setError(error.message);
     }
