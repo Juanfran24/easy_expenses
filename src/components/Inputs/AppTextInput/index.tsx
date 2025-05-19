@@ -9,6 +9,9 @@ interface AppTextInputProps extends TextInputProps {
   label: string;
   disabled?: boolean;
   maxLength?: number; // nuevo parámetro opcional
+  // formik validations
+  error?: boolean;
+  helperText?: string;
 }
 
 export const AppTextInput = (props: AppTextInputProps) => {
@@ -25,10 +28,16 @@ export const AppTextInput = (props: AppTextInputProps) => {
   const inputMode =
     type === "email" ? "email" : type === "number" ? "numeric" : "text";
 
+  // Agregar lógica para manejar las validaciones del formulario
+  const { error, helperText } = props;
+
   return (
     <View style={{ position: "relative" }}>
       <Typography.H6.Regular
-        styles={{ color: colors.textsAndIcons.inputsLabel, marginBottom: 6 }}
+        styles={{
+          color: error ? colors.error.main : colors.textsAndIcons.inputsLabel,
+          marginBottom: 6,
+        }}
       >
         {props.label}
       </Typography.H6.Regular>
@@ -38,14 +47,16 @@ export const AppTextInput = (props: AppTextInputProps) => {
         keyboardType={keyboardType}
         secureTextEntry={type === "password" ? passwordVisibility : false}
         selectionColor={colors.textsAndIcons.light}
-        placeholderTextColor={colors.textsAndIcons.dark}
+        placeholderTextColor={
+          error ? colors.error.main : colors.textsAndIcons.dark
+        }
         maxLength={props.maxLength ?? 50}
         style={[
           {
             height: 48,
             borderWidth: 1,
             padding: 10,
-            borderColor: colors.textsAndIcons.dark,
+            borderColor: error ? colors.error.main : colors.textsAndIcons.dark,
             borderRadius: 8,
             paddingVertical: 14.5,
             paddingLeft: 20,
@@ -78,6 +89,16 @@ export const AppTextInput = (props: AppTextInputProps) => {
           </Pressable>
         </View>
       ) : null}
+      {helperText && (
+        <Typography.P3.Regular
+          styles={{
+            color: error ? colors.error.main : colors.textsAndIcons.dark,
+            marginTop: 4,
+          }}
+        >
+          {helperText}
+        </Typography.P3.Regular>
+      )}
     </View>
   );
 };

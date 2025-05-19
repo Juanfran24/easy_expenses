@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, ScrollView } from "react-native";
 import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
@@ -14,6 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import AppRadio from "@/src/components/Inputs/AppRadio";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
 import { useStore } from "../../../store";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 const CreateAndEditTransactions = ({ route }: any) => {
   const navigation = useNavigation();
@@ -22,45 +24,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
     isEditing,
     transaction: editingTransaction,
   } = route.params;
-  const [nameTransaction, setNameTransaction] = useState("");
-  const [valueTransaction, setValueTransaction] = useState("");
-  const [dateTransaction, setDateTransaction] = useState<Date>(new Date());
-  const [descriptionTransaction, setDescriptionTransaction] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<string>("cash");
-  const [category, setCategory] = useState("");
-  const [dayOfMonth, setDayOfMonth] = useState<number>(1);
-  const [localTypeTransaction, setLocalTypeTransaction] =
-    useState<string>("fijo");
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  
-  const categories = useStore(state => state.categories);
+  const [loadingCategories, setLoadingCategories] = React.useState(true);
 
-  useEffect(() => {
-    if (isEditing && editingTransaction) {
-      setNameTransaction(editingTransaction.name);
-      setValueTransaction(
-        transformToCurrency(editingTransaction.amount.toString())
-      );
-      setDateTransaction(
-        editingTransaction.date ? new Date(editingTransaction.date) : new Date()
-      );
-      setDescriptionTransaction(editingTransaction.description || "");
-      setPaymentMethod(editingTransaction.paymentMethod);
-      setCategory(editingTransaction.category);
-      if (editingTransaction.endDate) {
-        setEndDate(new Date(editingTransaction.endDate));
-      } else {
-        setEndDate(null);
-      }
-      if (editingTransaction.localTypeTransaction) {
-        setLocalTypeTransaction(editingTransaction.localTypeTransaction);
-      }
-      if (editingTransaction.dayOfMonth) {
-        setDayOfMonth(editingTransaction.dayOfMonth);
-      }
-    }
-  }, [isEditing, editingTransaction]);
+  const categories = useStore((state) => state.categories);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -79,11 +45,6 @@ const CreateAndEditTransactions = ({ route }: any) => {
     fetchCategories();
   }, [categories]);
 
-  const handleChangeValue = (text: string) => {
-    const digitsOnly = text.replace(/\D/g, "");
-    setValueTransaction(transformToCurrency(digitsOnly));
-  };
-
   const filteredCategories = categories.filter(
     (cat) => cat.type === (typeTransaction === "ingreso" ? "Ingreso" : "Gasto")
   );
@@ -100,31 +61,40 @@ const CreateAndEditTransactions = ({ route }: any) => {
     { label: "Electrónico", value: "electronic" },
   ];
 
-  const onSaveTransaction = async () => {
+  const onSaveTransaction = async (values: any) => {
     try {
       const now = new Date();
 
-      const cleanAmount = valueTransaction
+      const cleanAmount = values.valueTransaction
         .replace(/[$.]/g, "")
         .replace(/,/g, "");
 
       const transactionData = {
-        name: nameTransaction,
+        name: values.nameTransaction,
         amount: parseInt(cleanAmount, 10),
-        description: descriptionTransaction,
-        date: dateTransaction,
-        category: category || "none",
+        description: values.descriptionTransaction,
+        date: new Date(values.dateTransaction),
+        category: values.category || "none",
         type: typeTransaction,
-        paymentMethod: paymentMethod as "cash" | "electronic",
+        paymentMethod: values.paymentMethod as "cash" | "electronic",
         updatedAt: now,
-        localTypeTransaction: localTypeTransaction as "fijo" | "variable",
-        dayOfMonth: localTypeTransaction === "fijo" ? dayOfMonth : undefined,
-        endDate: localTypeTransaction === "fijo" ? endDate : undefined,
+        localTypeTransaction: values.localTypeTransaction as
+          | "fijo"
+          | "variable",
+        dayOfMonth:
+          values.localTypeTransaction === "fijo"
+            ? values.dayOfMonth
+            : undefined,
+        endDate:
+          values.localTypeTransaction === "fijo" ? values.endDate : undefined,
       };
-      
+
       const store = useStore.getState();
       if (isEditing && editingTransaction?.id) {
-        const transactionUpdated = await updateTransaction(editingTransaction.id, transactionData);
+        const transactionUpdated = await updateTransaction(
+          editingTransaction.id,
+          transactionData
+        );
         const updatedTransactions = store.transactions.map((tx) =>
           tx.id === editingTransaction.id
             ? { ...tx, ...transactionUpdated }
@@ -132,12 +102,11 @@ const CreateAndEditTransactions = ({ route }: any) => {
         );
         store.setTransactionList(updatedTransactions);
       } else {
-        const newTransaction = 
-          await createTransaction({
-            ...transactionData,
-            userId: "",
-            createdAt: now,
-          });
+        const newTransaction = await createTransaction({
+          ...transactionData,
+          userId: "",
+          createdAt: now,
+        });
         store.setTransactionList([newTransaction, ...store.transactions]);
       }
 
@@ -150,112 +119,182 @@ const CreateAndEditTransactions = ({ route }: any) => {
     }
   };
 
+  const transactionYup = Yup.object().shape({
+    nameTransaction: Yup.string()
+      .required("El nombre es requerido")
+      .min(3, "El nombre debe tener al menos 3 caracteres")
+      .max(20, "El nombre no puede exceder los 20 caracteres"),
+    valueTransaction: Yup.string().required("El valor es requerido"),
+    category: Yup.string().required("La categoría es requerida"),
+    dateTransaction: Yup.date().required("La fecha es requerida"),
+    paymentMethod: Yup.string().required("El método de pago es requerido"),
+    descriptionTransaction: Yup.string(),
+    endDate: Yup.date(),
+    dayOfMonth: Yup.number(),
+  });
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 50 }}
     >
-      <FlexBox style={styles.formContainer}>
-        <AppRadio
-          label="Tipo de ingreso"
-          value={localTypeTransaction === "fijo" ? 0 : 1}
-          onValueChange={(value) =>
-            setLocalTypeTransaction(value === 0 ? "fijo" : "variable")
-          }
-          items={[
-            { label: "Fijo", value: "fijo" },
-            { label: "Variable", value: "variable" },
-          ]}
-        />
-        <AppTextInput
-          label={`Nombre ${typeTransaction}`}
-          placeholder="Ejemplo: Renta"
-          value={nameTransaction}
-          onChangeText={setNameTransaction}
-        />
-        <AppTextInput
-          label="Valor"
-          placeholder="Ejemplo: $2.500.000"
-          value={valueTransaction}
-          type="number"
-          onChangeText={handleChangeValue}
-          maxLength={20}
-        />
-        <AppSelect
-          label="Categoría"
-          placeholder={
-            loadingCategories ? "Cargando categorías..." : "Seleccionar"
-          }
-          items={categoriesWithDefault}
-          onValueChange={(value) => setCategory(value)}
-          value={category}
-        />
-        <AppDateField
-          label="Fecha"
-          value={dateTransaction}
-          onChange={setDateTransaction}
-        />
-        {localTypeTransaction === "fijo" ? (
-          <>
+      <Formik
+        initialValues={{
+          nameTransaction: editingTransaction?.name || "",
+          valueTransaction: transformToCurrency(
+            editingTransaction?.amount.toString() || ""
+          ),
+          category: editingTransaction?.category || "",
+          dateTransaction: editingTransaction?.date
+            ? new Date(editingTransaction.date)
+            : new Date(),
+          descriptionTransaction: editingTransaction?.description || "",
+          paymentMethod: editingTransaction?.paymentMethod || "cash",
+          endDate:
+            editingTransaction?.endDate && new Date(editingTransaction.endDate),
+          localTypeTransaction: "fijo",
+          dayOfMonth: 1,
+        }}
+        validationSchema={transactionYup}
+        onSubmit={(values) => {
+          // console.log("Form values:", values);
+          onSaveTransaction(values);
+        }}
+      >
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+        }) => (
+          <FlexBox style={styles.formContainer}>
             <AppRadio
-              label="Metodo de pago"
-              value={paymentMethod === "cash" ? 0 : 1}
+              label="Tipo de ingreso"
+              value={values.localTypeTransaction === "fijo" ? 0 : 1}
               onValueChange={(value) =>
-                setPaymentMethod(value === 0 ? "cash" : "electronic")
+                handleChange("localTypeTransaction")(
+                  value === 0 ? "fijo" : "variable"
+                )
               }
-              items={PAYMENT_METHODS.map((category) => ({
-                label: category.label,
-                value: category.value,
-              }))}
+              items={[
+                { label: "Fijo", value: "fijo" },
+                { label: "Variable", value: "variable" },
+              ]}
+            />
+            <AppTextInput
+              label={`Nombre ${typeTransaction}`}
+              placeholder="Ejemplo: Renta"
+              value={values.nameTransaction}
+              onChangeText={handleChange("nameTransaction")}
+              onBlur={handleBlur("nameTransaction")}
+              error={touched.nameTransaction && !!errors.nameTransaction}
+              helperText={
+                touched.nameTransaction &&
+                typeof errors.nameTransaction === "string"
+                  ? errors.nameTransaction
+                  : undefined
+              }
+            />
+            <AppTextInput
+              label="Valor"
+              placeholder="Ejemplo: $2.500.000"
+              value={values.valueTransaction}
+              type="number"
+              onChangeText={(text) => {
+                const digitsOnly = text.replace(/\D/g, "");
+                handleChange("valueTransaction")(
+                  transformToCurrency(digitsOnly)
+                );
+              }}
+              onBlur={handleBlur("valueTransaction")}
+              maxLength={20}
+              error={touched.valueTransaction && !!errors.valueTransaction}
+              helperText={
+                touched.valueTransaction &&
+                typeof errors.valueTransaction === "string"
+                  ? errors.valueTransaction
+                  : undefined
+              }
             />
             <AppSelect
-              label="Día del mes"
-              placeholder="Seleccionar"
-              items={Array.from({ length: 30 }, (_, i) => ({
-                label: `${i + 1}`,
-                value: (i + 1).toString(),
-              }))}
-              onValueChange={(value) => setDayOfMonth(parseInt(value))}
-              value={dayOfMonth.toString()}
+              label="Categoría"
+              placeholder={
+                loadingCategories ? "Cargando categorías..." : "Seleccionar"
+              }
+              items={categoriesWithDefault}
+              onValueChange={handleChange("category")}
+              value={values.category}
+              error={touched.category && !!errors.category}
+              helperText={
+                touched.category && typeof errors.category === "string"
+                  ? errors.category
+                  : undefined
+              }
             />
-            {localTypeTransaction === "fijo" && typeTransaction === "gasto" && (
-              <AppDateField
-                label="Fecha hasta (Opcional)"
-                value={endDate}
-                onChange={setEndDate}
-              />
-            )}
-          </>
-        ) : (
-          <>
+            <AppDateField
+              label="Fecha"
+              value={values.dateTransaction}
+              onChange={(date) =>
+                handleChange("dateTransaction")(date.toISOString())
+              }
+            />
             <AppRadio
               label="Metodo de pago"
-              value={paymentMethod === "cash" ? 0 : 1}
+              value={values.paymentMethod === "cash" ? 0 : 1}
               onValueChange={(value) =>
-                setPaymentMethod(value === 0 ? "cash" : "electronic")
+                handleChange("paymentMethod")(
+                  value === 0 ? "cash" : "electronic"
+                )
               }
               items={PAYMENT_METHODS.map((category) => ({
                 label: category.label,
                 value: category.value,
               }))}
             />
-          </>
+            {values.localTypeTransaction === "fijo" && (
+              <>
+                <AppSelect
+                  label="Día del mes"
+                  placeholder="Seleccionar"
+                  items={Array.from({ length: 30 }, (_, i) => ({
+                    label: `${i + 1}`,
+                    value: (i + 1).toString(),
+                  }))}
+                  onValueChange={(value) => handleChange("dayOfMonth")(value)}
+                  value={values.dayOfMonth.toString()}
+                />
+                {typeTransaction === "gasto" && (
+                  <AppDateField
+                    label="Fecha hasta (Opcional)"
+                    value={values.endDate}
+                    onChange={(date) =>
+                      handleChange("endDate")(date.toISOString())
+                    }
+                  />
+                )}
+              </>
+            )}
+            <AppTextInput
+              style={styles.textArea}
+              label="Nota (Opcional)"
+              placeholder="Ingresar descripción"
+              value={values.descriptionTransaction}
+              onChangeText={handleChange("descriptionTransaction")}
+              multiline={true}
+              numberOfLines={4}
+            />
+            <AppButton
+              title={`${
+                isEditing ? "Actualizar" : "Agregar"
+              } ${typeTransaction}`}
+              onPress={() => handleSubmit()}
+              variant="outlined"
+            />
+          </FlexBox>
         )}
-        <AppTextInput
-          style={styles.textArea}
-          label="Nota (Opcional)"
-          placeholder="Ingresar descripción"
-          value={descriptionTransaction}
-          onChangeText={setDescriptionTransaction}
-          multiline={true}
-          numberOfLines={4}
-        />
-        <AppButton
-          title={`${isEditing ? "Actualizar" : "Agregar"} ${typeTransaction}`}
-          onPress={() => onSaveTransaction()}
-          variant="outlined"
-        />
-      </FlexBox>
+      </Formik>
     </ScrollView>
   );
 };

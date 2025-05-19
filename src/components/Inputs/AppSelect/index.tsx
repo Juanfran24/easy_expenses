@@ -24,6 +24,8 @@ interface AppSelectProps {
   placeholder?: string;
   items: Item[];
   disabled?: boolean;
+  error?: boolean;
+  helperText?: string;
 }
 
 export const AppSelect: React.FC<AppSelectProps> = ({
@@ -33,6 +35,8 @@ export const AppSelect: React.FC<AppSelectProps> = ({
   placeholder = "Selecciona una opción",
   items,
   disabled,
+  error,
+  helperText,
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -42,25 +46,50 @@ export const AppSelect: React.FC<AppSelectProps> = ({
   return (
     <View>
       <Typography.H6.Regular
-        styles={{ color: colors.textsAndIcons.inputsLabel, marginBottom: 6 }}
+        styles={{
+          color: error ? colors.error.main : colors.textsAndIcons.inputsLabel,
+          marginBottom: 6,
+        }}
       >
         {label}
       </Typography.H6.Regular>
 
       <TouchableOpacity
-        style={{ ...styles.input, opacity: !disabled ? 1 : 0.5 }}
+        style={{
+          ...styles.input,
+          opacity: !disabled ? 1 : 0.5,
+          borderColor: error ? colors.error.main : colors.textsAndIcons.dark,
+        }}
         onPress={() => setVisible(true)}
         activeOpacity={0.8}
         disabled={disabled}
       >
-        <Text style={styles.valueText}>{selectedLabel}</Text>
+        <Text
+          style={{
+            ...styles.valueText,
+            color: error ? colors.error.main : colors.textsAndIcons.dark,
+          }}
+        >
+          {selectedLabel}
+        </Text>
         <MaterialIcons
           name="arrow-drop-down"
           size={24}
-          color={colors.textsAndIcons.dark}
+          color={error ? colors.error.main : colors.textsAndIcons.dark}
           style={styles.icon}
         />
       </TouchableOpacity>
+
+      {helperText && (
+        <Typography.P3.Regular
+          styles={{
+            color: error ? colors.error.main : colors.textsAndIcons.dark,
+            marginTop: 4,
+          }}
+        >
+          {helperText}
+        </Typography.P3.Regular>
+      )}
 
       <Modal
         visible={visible}
@@ -109,7 +138,6 @@ const styles = StyleSheet.create({
   valueText: {
     fontFamily: "Sora_Regular",
     fontSize: 15,
-    color: colors.textsAndIcons.dark,
   },
   icon: {
     position: "absolute",

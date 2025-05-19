@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AppButton } from "@/src/components/AppButton";
 import { AppDateField } from "@/src/components/Inputs/AppDateField";
 import AppSelect from "@/src/components/Inputs/AppSelect";
@@ -14,70 +14,67 @@ import { useNavigation } from "@react-navigation/native";
 import { FlexBox } from "@/src/components/FlexBox";
 import PaymentCard from "@/src/components/PaymentCard";
 import { Payment } from "@/src/models/Payment";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 const Payments = () => {
   const navigation = useNavigation();
-  const [paymentName, setPaymentName] = useState("");
-  const [valuePayment, setValuePayment] = useState("");
-  const [expirationDate, setExpirationDate] = useState<Date | null>(new Date());
-  const [paymentSources, setPaymentSources] = useState<string[]>([]);
-  const [paymentCategories, setPaymentCategories] = useState<string[]>([]);
-  const [alertDaysBefore, setAlertDaysBefore] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentPaymentId, setCurrentPaymentId] = useState<string | undefined>(undefined);
-  const categories = useStore(state => state.categories);
-  const pyments = useStore(state => state.pyments);
+  const [currentPaymentId, setCurrentPaymentId] = useState<string | undefined>(
+    undefined
+  );
+  const categories = useStore((state) => state.categories);
+  const payments = useStore((state) => state.payments);
+  const formikRef = useRef<any>(null);
 
-  const handleChangeValue = (text: string) => {
-    const digitsOnly = text.replace(/\D/g, "");
-    setValuePayment(transformToCurrency(digitsOnly));
-  };
-
-  const handleSavePayment = async () => {
+  // Corregir el método handleSavePayment para que edite correctamente un pago existente
+  const handleSavePayment = async (values: any, formikHelpers: any) => {
     try {
-      // Validaciones
-
       // Limpieza del valor del pago
-      const cleanAmount = valuePayment
+      const cleanAmount = values.valuePayment
         .replace(/[$.]/g, "")
         .replace(/,/g, "");
 
       // Preparación de datos del pago
       const paymentData = {
-        name: paymentName,
+        name: values.paymentName,
         amount: parseInt(cleanAmount, 10),
-        expirationDate: expirationDate as Date,
-        paymentSources: paymentSources,
-        categories: paymentCategories,
-        alertDaysBefore: alertDaysBefore ? parseInt(alertDaysBefore) : null,
+        expirationDate: values.expirationDate,
+        paymentSources: values.paymentSources,
+        categories: values.paymentCategories,
+        alertDaysBefore: values.alertDaysBefore
+          ? parseInt(values.alertDaysBefore)
+          : null,
         isPaid: false,
         paidDate: null,
       };
 
       const store = useStore.getState();
-      
+
       if (isEditing && currentPaymentId) {
         // Actualizar pago existente
         await updatePayment(currentPaymentId, paymentData);
-        
+
         // Actualizar la lista de pagos en el store
-        const updatedPayments = store.pyments.map(p => 
+        const updatedPayments = store.payments.map((p) =>
           p.id === currentPaymentId ? { ...p, ...paymentData } : p
         );
-        store.setPyments(updatedPayments);
-        
+        store.setPayments(updatedPayments);
+
         Alert.alert("Éxito", "Pago actualizado correctamente");
       } else {
         // Crear nuevo pago
         const newPayment = await createPayment(paymentData);
-        store.setPyments([...store.pyments, newPayment]);
-        
+        store.setPayments([...store.payments, newPayment]);
+
         Alert.alert("Éxito", "Pago agregado correctamente");
       }
-      
-      // Limpiar formulario y estados
-      resetForm();
-      
+
+      // Limpiar formulario
+      formikHelpers.resetForm();
+      setIsEditing(false);
+      setCurrentPaymentId(undefined);
+
       // Navegación de regreso
       // @ts-ignore
       navigation.navigate("Home");
@@ -86,34 +83,37 @@ const Payments = () => {
       Alert.alert("Error", "No se pudo guardar el pago");
     }
   };
-  
-  const resetForm = () => {
-    setPaymentName("");
-    setValuePayment("");
-    setExpirationDate(new Date());
-    setPaymentSources([]);
-    setPaymentCategories([]);
-    setAlertDaysBefore(null);
-    setIsEditing(false);
-    setCurrentPaymentId(undefined);
-  };
-  
+
   const handleEditPayment = (payment: Payment) => {
     // Configurar el modo de edición
     setIsEditing(true);
     setCurrentPaymentId(payment.id);
-    
-    // Llenar el formulario con los datos del pago seleccionado
-    setPaymentName(payment.name);
-    setValuePayment(transformToCurrency(payment.amount.toString()));
-    setExpirationDate(new Date(payment.expirationDate));
-    setPaymentSources(payment.paymentSources);
-    setPaymentCategories(payment.categories);
-    setAlertDaysBefore(payment.alertDaysBefore ? payment.alertDaysBefore.toString() : null);
-    
-    // Hacer scroll hacia arriba para ver el formulario
-    // No es necesario implementar el scroll si el usuario puede ver el formulario naturalmente
+
+    // Usar Formik para llenar los valores del formulario
+    formikRef.current?.setFieldValue("paymentName", payment.name);
+    formikRef.current?.setFieldValue(
+      "valuePayment",
+      transformToCurrency(payment.amount.toString())
+    );
+    formikRef.current?.setFieldValue(
+      "expirationDate",
+      new Date(payment.expirationDate)
+    );
+    formikRef.current?.setFieldValue("paymentSources", payment.paymentSources);
+    formikRef.current?.setFieldValue("paymentCategories", payment.categories);
+    formikRef.current?.setFieldValue(
+      "alertDaysBefore",
+      payment.alertDaysBefore ? payment.alertDaysBefore.toString() : null
+    );
   };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      formikRef.current?.resetForm(); // Reiniciar el formulario al regresar a esta pantalla
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <ScrollView
@@ -121,88 +121,184 @@ const Payments = () => {
       contentContainerStyle={{ paddingBottom: 110 }}
     >
       <Typography.H5.SemiBold>Pagos no recurrentes</Typography.H5.SemiBold>
-      <View style={styles.formContainer}>
-        <MultiSelectWithChips
-          label="Fuente de pago"
-          options={categories
-            .filter(category => category.type === "Ingreso")
-            .map(category => ({
-              label: category.name,
-              value: category.id || category.name.toLowerCase(),
-            }))}
-          selectedValues={paymentSources}
-          onSelectionChange={setPaymentSources}
-        />
-        <MultiSelectWithChips
-          label="Categoría"
-          options={categories
-            .filter(category => category.type === "Gasto")
-            .map(category => ({
-              label: category.name,
-              value: category.id || category.name.toLowerCase(),
-            }))}
-          selectedValues={paymentCategories}
-          onSelectionChange={setPaymentCategories}
-        />
-        <AppTextInput
-          label="Nombre del pago"
-          placeholder="Ingresa el nombre del pago"
-          onChangeText={setPaymentName}
-          value={paymentName}
-        />
-        <AppTextInput
-          label="Valor a pagar"
-          placeholder="Ejemplo: 100.000"
-          value={valuePayment}
-          type="number"
-          onChangeText={handleChangeValue}
-        />
-        <AppDateField
-          label="Fecha de vencimiento"
-          value={expirationDate}
-          onChange={setExpirationDate}
-        />
-        <AppSelect
-          label="Generar alerta"
-          placeholder="Seleccionar"
-          items={[
-            { label: "No generar alerta", value: "0" },
-            { label: "1 día antes de la fecha de pago", value: "1" },
-            { label: "3 días antes de la fecha de pago", value: "3" },
-            { label: "5 días antes de la fecha de pago", value: "5" },
-            { label: "10 días antes de la fecha de pago", value: "10" },
-          ]}
-          onValueChange={setAlertDaysBefore}
-          value={alertDaysBefore}
-        />
-      </View>
-      <View style={{ marginTop: 24 }}>
-        <FlexBox style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-          <View style={{ flex: 1 }}>
-            <AppButton 
-              variant="outlined" 
-              title={isEditing ? "Actualizar pago" : "Agregar pago"} 
-              onPress={handleSavePayment} 
-            />
-          </View>
-          {isEditing && (
-            <View>
-              <AppButton
-                variant="outlined"
-                title="Cancelar"
-                onPress={resetForm}
+      <Formik
+        innerRef={formikRef}
+        initialValues={{
+          paymentName: "",
+          valuePayment: "",
+          expirationDate: new Date(),
+          paymentSources: [],
+          paymentCategories: [],
+          alertDaysBefore: null,
+        }}
+        validationSchema={Yup.object().shape({
+          paymentName: Yup.string().required("Campo requerido"),
+          valuePayment: Yup.string().required("Campo requerido"),
+          expirationDate: Yup.date().required("Campo requerido"),
+          paymentSources: Yup.array().min(
+            1,
+            "Selecciona al menos una fuente de pago"
+          ),
+          paymentCategories: Yup.array().min(
+            1,
+            "Selecciona al menos una categoría"
+          ),
+          alertDaysBefore: Yup.string().required("Selecciona una opción"),
+        })}
+        onSubmit={(values, formikHelpers) => {
+          handleSavePayment(values, formikHelpers);
+        }}
+      >
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          setFieldValue,
+        }) => (
+          <>
+            <View style={styles.formContainer}>
+              <MultiSelectWithChips
+                label="Fuente de pago"
+                options={categories
+                  .filter((category) => category.type === "Ingreso")
+                  .map((category) => ({
+                    label: category.name,
+                    value: category.id || category.name.toLowerCase(),
+                  }))}
+                selectedValues={values.paymentSources}
+                onSelectionChange={(selected) =>
+                  setFieldValue("paymentSources", selected)
+                }
+                error={touched.paymentSources && !!errors.paymentSources}
+                helperText={
+                  touched.paymentSources &&
+                  typeof errors.paymentSources === "string"
+                    ? errors.paymentSources
+                    : undefined
+                }
+              />
+              <MultiSelectWithChips
+                label="Categoría"
+                options={categories
+                  .filter((category) => category.type === "Gasto")
+                  .map((category) => ({
+                    label: category.name,
+                    value: category.id || category.name.toLowerCase(),
+                  }))}
+                selectedValues={values.paymentCategories}
+                onSelectionChange={(selected) =>
+                  setFieldValue("paymentCategories", selected)
+                }
+                error={touched.paymentCategories && !!errors.paymentCategories}
+                helperText={
+                  touched.paymentCategories &&
+                  typeof errors.paymentCategories === "string"
+                    ? errors.paymentCategories
+                    : undefined
+                }
+              />
+              <AppTextInput
+                label="Nombre del pago"
+                placeholder="Ingresa el nombre del pago"
+                onChangeText={handleChange("paymentName")}
+                onBlur={handleBlur("paymentName")}
+                value={values.paymentName}
+                error={touched.paymentName && !!errors.paymentName}
+                helperText={
+                  touched.paymentName && typeof errors.paymentName === "string"
+                    ? errors.paymentName
+                    : undefined
+                }
+              />
+              <AppTextInput
+                label="Valor a pagar"
+                placeholder="Ejemplo: 100.000"
+                value={values.valuePayment}
+                type="number"
+                onChangeText={(text) => {
+                  const digitsOnly = text.replace(/\D/g, "");
+                  handleChange("valuePayment")(transformToCurrency(digitsOnly));
+                }}
+                onBlur={handleBlur("valuePayment")}
+                error={touched.valuePayment && !!errors.valuePayment}
+                helperText={
+                  touched.valuePayment &&
+                  typeof errors.valuePayment === "string"
+                    ? errors.valuePayment
+                    : undefined
+                }
+              />
+              <AppDateField
+                label="Fecha de vencimiento"
+                value={values.expirationDate}
+                onChange={(date) => setFieldValue("expirationDate", date)}
+              />
+              <AppSelect
+                label="Generar alerta"
+                placeholder="Seleccionar"
+                items={[
+                  { label: "No generar alerta", value: "0" },
+                  { label: "1 día antes de la fecha de pago", value: "1" },
+                  { label: "3 días antes de la fecha de pago", value: "3" },
+                  { label: "5 días antes de la fecha de pago", value: "5" },
+                  { label: "10 días antes de la fecha de pago", value: "10" },
+                ]}
+                onValueChange={(value) =>
+                  setFieldValue("alertDaysBefore", value)
+                }
+                value={values.alertDaysBefore}
+                error={touched.alertDaysBefore && !!errors.alertDaysBefore}
+                helperText={
+                  touched.alertDaysBefore &&
+                  typeof errors.alertDaysBefore === "string"
+                    ? errors.alertDaysBefore
+                    : undefined
+                }
               />
             </View>
-          )}
-        </FlexBox>
-      </View>
+
+            <View style={{ marginTop: 24 }}>
+              <FlexBox
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  gap: 10,
+                }}
+              >
+                {isEditing && (
+                  <View>
+                    <AppButton
+                      variant="outlined"
+                      title="Cancelar"
+                      onPress={() => {
+                        formikRef.current?.resetForm(); // Limpiar los campos del formulario
+                        setIsEditing(false);
+                        setCurrentPaymentId(undefined);
+                      }}
+                    />
+                  </View>
+                )}
+                <View style={{ flex: 1 }}>
+                  <AppButton
+                    variant="contained"
+                    title={isEditing ? "Actualizar pago" : "Agregar pago"}
+                    onPress={() => handleSubmit()}
+                  />
+                </View>
+              </FlexBox>
+            </View>
+          </>
+        )}
+      </Formik>
+
       <FlexBox style={styles.pymentsContainer}>
-        <Typography.H5.SemiBold>
-          Pagos registrados
-        </Typography.H5.SemiBold>
+        <Typography.H5.SemiBold>Pagos registrados</Typography.H5.SemiBold>
         <FlexBox style={{ gap: 10, width: "100%" }}>
-          {pyments.length > 0 ? (
-            pyments.map((payment, index) => (
+          {payments.length > 0 ? (
+            payments.map((payment, index) => (
               <PaymentCard
                 key={index}
                 payment={payment}
@@ -258,5 +354,5 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginTop: 32,
     gap: 18,
-  }
+  },
 });

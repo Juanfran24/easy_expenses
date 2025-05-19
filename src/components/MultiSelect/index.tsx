@@ -30,6 +30,9 @@ type Props = {
   options: Option[];
   onSelectionChange?: (selectedValues: string[]) => void;
   selectedValues?: string[];
+  error?: boolean;
+  helperText?: string;
+  onBlur?: () => void;
 };
 
 const MultiSelectWithChips: React.FC<Props> = ({
@@ -37,9 +40,14 @@ const MultiSelectWithChips: React.FC<Props> = ({
   options,
   onSelectionChange,
   selectedValues: externalSelectedValues,
+  error,
+  helperText,
+  onBlur,
 }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedValues, setSelectedValues] = useState<string[]>(externalSelectedValues || []);
+  const [selectedValues, setSelectedValues] = useState<string[]>(
+    externalSelectedValues || []
+  );
   const dropdownAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -73,7 +81,7 @@ const MultiSelectWithChips: React.FC<Props> = ({
     const newValues = selectedValues.includes(value)
       ? selectedValues.filter((v) => v !== value)
       : [...selectedValues, value];
-    
+
     setSelectedValues(newValues);
     if (onSelectionChange) {
       onSelectionChange(newValues);
@@ -132,9 +140,18 @@ const MultiSelectWithChips: React.FC<Props> = ({
 
   return (
     <View>
-      <Typography.H6.Regular>{label}</Typography.H6.Regular>
+      <Typography.H6.Regular styles={error && { color: colors.error.main }}>
+        {label}
+      </Typography.H6.Regular>
 
-      <TouchableOpacity style={styles.selectBox} onPress={toggleDropdown}>
+      <TouchableOpacity
+        style={{
+          ...styles.selectBox,
+          borderColor: error ? colors.error.main : colors.borders.medium,
+        }}
+        onPress={toggleDropdown}
+        onBlur={onBlur}
+      >
         <View style={styles.chipsContainer}>
           {!(selectedValues.length === 0) ? (
             selectedValues.map((value) => {
@@ -155,7 +172,9 @@ const MultiSelectWithChips: React.FC<Props> = ({
             })
           ) : (
             <Typography.P1.Regular
-              styles={{ color: colors.textsAndIcons.dark }}
+              styles={{
+                color: error ? colors.error.main : colors.textsAndIcons.dark,
+              }}
             >
               Seleccionar
             </Typography.P1.Regular>
@@ -164,9 +183,19 @@ const MultiSelectWithChips: React.FC<Props> = ({
         <MaterialIcons
           name={dropdownVisible ? "arrow-drop-up" : "arrow-drop-down"}
           size={24}
-          color={colors.textsAndIcons.dark}
+          color={error ? colors.error.main : colors.textsAndIcons.dark}
         />
       </TouchableOpacity>
+      {helperText && (
+        <Typography.P3.Regular
+          styles={{
+            color: error ? colors.error.main : colors.textsAndIcons.dark,
+            marginTop: 4,
+          }}
+        >
+          {helperText}
+        </Typography.P3.Regular>
+      )}
 
       {renderDropdown()}
     </View>
@@ -179,7 +208,6 @@ const styles = StyleSheet.create({
   selectBox: {
     marginTop: 8,
     borderWidth: 1,
-    borderColor: colors.borders.medium,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 18,
