@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, Alert } from "react-native";
 import { FlexBox } from "@/src/components/FlexBox";
 import { AppTextInput } from "@/src/components/Inputs/AppTextInput";
 import colors from "@/src/constants/colors";
@@ -56,11 +56,6 @@ const CreateAndEditTransactions = ({ route }: any) => {
 
   const categoriesWithDefault = [...categoryItems];
 
-  const PAYMENT_METHODS = [
-    { label: "Efectivo", value: "cash" },
-    { label: "Electrónico", value: "electronic" },
-  ];
-
   const onSaveTransaction = async (values: any) => {
     try {
       const now = new Date();
@@ -89,6 +84,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
           values.localTypeTransaction === "fijo" ? values.endDate : undefined,
       };
 
+      // se descarta atributo dia del mes por el momento
+      delete transactionData.dayOfMonth;
+
       const store = useStore.getState();
       if (isEditing && editingTransaction?.id) {
         const transactionUpdated = await updateTransaction(
@@ -101,6 +99,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
             : tx
         );
         store.setTransactionList(updatedTransactions);
+        Alert.alert("Éxito", "Transacción actualizada correctamente");
       } else {
         const newTransaction = await createTransaction({
           ...transactionData,
@@ -108,6 +107,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
           createdAt: now,
         });
         store.setTransactionList([newTransaction, ...store.transactions]);
+        Alert.alert("Éxito", "Transacción registrada correctamente");
       }
 
       //@ts-ignore
@@ -129,7 +129,7 @@ const CreateAndEditTransactions = ({ route }: any) => {
     dateTransaction: Yup.date().required("La fecha es requerida"),
     paymentMethod: Yup.string().required("El método de pago es requerido"),
     descriptionTransaction: Yup.string(),
-    endDate: Yup.date(),
+    endDate: Yup.date().nullable(),
     dayOfMonth: Yup.number(),
   });
 
@@ -152,12 +152,13 @@ const CreateAndEditTransactions = ({ route }: any) => {
           paymentMethod: editingTransaction?.paymentMethod || "cash",
           endDate:
             editingTransaction?.endDate && new Date(editingTransaction.endDate),
-          localTypeTransaction: "fijo",
-          dayOfMonth: 1,
+          localTypeTransaction:
+            editingTransaction?.localTypeTransaction || "fijo",
+          dayOfMonth: 0,
         }}
         validationSchema={transactionYup}
+        enableReinitialize={true}
         onSubmit={(values) => {
-          // console.log("Form values:", values);
           onSaveTransaction(values);
         }}
       >
@@ -168,15 +169,14 @@ const CreateAndEditTransactions = ({ route }: any) => {
           values,
           errors,
           touched,
+          setFieldValue,
         }) => (
           <FlexBox style={styles.formContainer}>
             <AppRadio
               label="Tipo de ingreso"
-              value={values.localTypeTransaction === "fijo" ? 0 : 1}
+              value={values.localTypeTransaction}
               onValueChange={(value) =>
-                handleChange("localTypeTransaction")(
-                  value === 0 ? "fijo" : "variable"
-                )
+                setFieldValue("localTypeTransaction", value)
               }
               items={[
                 { label: "Fijo", value: "fijo" },
@@ -236,26 +236,20 @@ const CreateAndEditTransactions = ({ route }: any) => {
             <AppDateField
               label="Fecha"
               value={values.dateTransaction}
-              onChange={(date) =>
-                handleChange("dateTransaction")(date.toISOString())
-              }
+              onChange={(date) => setFieldValue("dateTransaction", date)}
             />
             <AppRadio
               label="Metodo de pago"
-              value={values.paymentMethod === "cash" ? 0 : 1}
-              onValueChange={(value) =>
-                handleChange("paymentMethod")(
-                  value === 0 ? "cash" : "electronic"
-                )
-              }
-              items={PAYMENT_METHODS.map((category) => ({
-                label: category.label,
-                value: category.value,
-              }))}
+              value={values.paymentMethod}
+              onValueChange={(value) => setFieldValue("paymentMethod", value)}
+              items={[
+                { label: "Efectivo", value: "cash" },
+                { label: "Electrónico", value: "electronic" },
+              ]}
             />
             {values.localTypeTransaction === "fijo" && (
               <>
-                <AppSelect
+                {/* <AppSelect
                   label="Día del mes"
                   placeholder="Seleccionar"
                   items={Array.from({ length: 30 }, (_, i) => ({
@@ -264,14 +258,12 @@ const CreateAndEditTransactions = ({ route }: any) => {
                   }))}
                   onValueChange={(value) => handleChange("dayOfMonth")(value)}
                   value={values.dayOfMonth.toString()}
-                />
+                /> */}
                 {typeTransaction === "gasto" && (
                   <AppDateField
                     label="Fecha hasta (Opcional)"
                     value={values.endDate}
-                    onChange={(date) =>
-                      handleChange("endDate")(date.toISOString())
-                    }
+                    onChange={(date) => setFieldValue("endDate", date)}
                   />
                 )}
               </>
@@ -289,7 +281,9 @@ const CreateAndEditTransactions = ({ route }: any) => {
               title={`${
                 isEditing ? "Actualizar" : "Agregar"
               } ${typeTransaction}`}
-              onPress={() => handleSubmit()}
+              onPress={() => {
+                handleSubmit();
+              }}
               variant="outlined"
             />
           </FlexBox>

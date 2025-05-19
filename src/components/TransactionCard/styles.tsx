@@ -77,7 +77,14 @@ export const styles = StyleSheet.create({
     padding: 8,
   },
   noteModalContent: {
-    marginTop: 16,
+    marginTop: 12,
+  },
+  itemModalDetail: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
   },
   modalOverlay: {
     flex: 1,
