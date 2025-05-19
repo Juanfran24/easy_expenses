@@ -105,7 +105,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     color: "#3BC3FD",
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
+  },
 ];
 
 export interface StoreState {
@@ -117,20 +117,40 @@ export interface StoreState {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
   loadCategories: () => Promise<void>;
-  pyments: Payment[];
-  setPyments: (pyments: Payment[]) => void;
-  loadPyments: () => Promise<void>;
+  payments: Payment[];
+  setPayments: (pyments: Payment[]) => void;
+  loadPayments: () => Promise<void>;
+  reset: () => void;
 }
 
+const initialState: StoreState = {
+  currency: "COP",
+  setCurrency: () => {},
+
+  transactions: [],
+  setTransactionList: () => {},
+  loadTransactions: async () => {},
+
+  categories: [],
+  setCategories: () => {},
+  loadCategories: async () => {},
+
+  payments: [],
+  setPayments: () => {},
+  loadPayments: async () => {},
+  reset: () => {},
+};
+
 export const useStore = create<StoreState>((set) => ({
-  currency: "MXN",
+  currency: "COP",
   setCurrency: (currency: string) => set({ currency }),
 
   categories: [],
   setCategories: (categories: Category[]) => set({ categories }),
 
   transactions: [],
-  setTransactionList: (transactions: Transaction[]) => set({ transactions: transactions }),
+  setTransactionList: (transactions: Transaction[]) =>
+    set({ transactions: transactions }),
 
   loadCategories: async () => {
     try {
@@ -141,10 +161,14 @@ export const useStore = create<StoreState>((set) => ({
         updatedAt: cat.updatedAt,
       })) as Category[];
 
-      const filteredUserCategories = userCategories.filter(userCat => 
-        !defaultCategories.some(defCat => defCat.name === userCat.name && defCat.type === userCat.type)
+      const filteredUserCategories = userCategories.filter(
+        (userCat) =>
+          !defaultCategories.some(
+            (defCat) =>
+              defCat.name === userCat.name && defCat.type === userCat.type
+          )
       );
-      
+
       const allCategories = [...defaultCategories, ...filteredUserCategories];
       set({ categories: allCategories });
     } catch (error) {
@@ -156,20 +180,21 @@ export const useStore = create<StoreState>((set) => ({
     try {
       const transactions = await getUserTransactions();
       set({ transactions: transactions });
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error al cargar las transacciones:", error);
     }
   },
 
-  pyments: [],
-  setPyments: (pyments: Payment[]) => set({ pyments }),
-  loadPyments: async () => {
+  payments: [],
+  setPayments: (payments: Payment[]) => set({ payments }),
+  loadPayments: async () => {
     try {
       const pyments = await getUserPayments();
-      set({ pyments});
+      set({ payments: pyments });
     } catch (error) {
       console.error("Error al cargar los pagos:", error);
     }
-  }
+  },
+
+  reset: () => set(initialState),
 }));
