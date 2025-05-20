@@ -13,9 +13,10 @@ Este proyecto forma parte de nuestro portafolio profesional y fue desarrollado c
 - **Firebase** (Auth, Firestore)
 - **EAS Build** para compilación y despliegue nativo
 - **TypeScript** como lenguaje base
-- **AsyncStorage** para persistencia local
 - **Expo AuthSession + WebBrowser** para login con Google
 - **react-native-svg** y **gifted-charts** para visualización de reportes
+- **Formik** para manejo de campos en formularios
+- **Yup** para creación de schemas de validación
 - UI adaptada con diseño responsive y animaciones suaves
 
 ---
@@ -56,14 +57,21 @@ Este proyecto forma parte de nuestro portafolio profesional y fue desarrollado c
 
 ```
 src/
-├── app/                  # Rutas y navegación (Expo Router)
-├── components/           # UI Components (AppSelect, ModalMenu, Typography, etc.)
-├── constants/            # Paleta de colores, tipografías
-├── context/              # Contextos globales como Auth
-├── database/             # Configuración Firebase
-├── screens/              # Pantallas agrupadas por dominio
-├── navigation/           # Stack y Bottom Tabs
-└── utils/                # Helpers generales y hooks
+├── app/                  # Rutas y navegación gestionada con Expo Router
+├── components/           # Componentes reutilizables de UI (AppSelect, ModalMenu, Typography, etc.)
+├── config/               # Configuración de Firebase, API keys, constantes externas
+├── constants/            # Constantes globales: colores, tipografías, dimensiones
+├── context/              # Contextos de React (AuthContext, ThemeContext, etc.)
+├── database/             # Configuración e inicialización de Firebase o bases de datos locales
+├── hooks/                # Custom hooks como useAuth, useForm, useFetch, etc.
+├── layout/               # Estructura base del layout de pantallas (AppShell, NavigationWrapper, etc.)
+├── models/               # Tipado de entidades y modelos (User, Transaction, IncomeSource, etc.)
+├── navigation/           # Stack, Tab, Drawer Navigators y configuración de navegación nativa
+├── screens/              # Vistas/pantallas organizadas por dominio (Home, Payments, Reports, etc.)
+├── scripts/              # Scripts auxiliares (migraciones, utilidades para desarrollo, test data)
+├── services/             # Servicios para consumo de APIs, Firebase, almacenamiento, etc.
+├── store/                # Manejo de estado global (ej: Zustand, Redux, Jotai, etc.)
+└── utils/                # Funciones utilitarias genéricas y helpers (formateo, validaciones, etc.)
 ```
 
 ---
@@ -96,8 +104,10 @@ eas build --platform android
 Durante el desarrollo de esta app enfrenté y solucioné varios desafíos técnicos:
 
 - Compatibilidad con SDK 52 y manejo de errores de dependencias nativas
-- Gestión eficiente del estado de autenticación usando `AsyncStorage`
+- Gestión eficiente del estado de autenticación usando `Firebase/Auth`
 - Implementación de componentes accesibles y funcionales sin dependencias nativas (`Picker`, `Modal`, etc.)
+- Validación en formularios con mensajes de ayuda usando `Formik` y `Yup`
+- Manejo de estado global en la app usando `Zustand` y `API Context`
 
 ---
 
@@ -109,7 +119,7 @@ Próximamente disponible en formato APK desde [Releases](https://github.com/juan
 
 ## 👩‍💻 Autores
 
-Juan Esteban Franco Estacio — [LinkedIn](https://www.linkedin.com/in/juanfran24)
+Juan Esteban Franco Estacio — [LinkedIn](https://www.linkedin.com/in/juanfran24)  
 Arnol Meneses — [LinkedIn](https://www.linkedin.com/in/arnol-meneses-782374197)
 
 ---
